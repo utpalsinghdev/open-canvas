@@ -369,6 +369,46 @@ The first browser verification attempt was blocked by a stopped development list
 
 The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.
 
+## Issue #29: cursor refinement
+
+Unified tool and directional resize cursors as static 32×32 SVGs with dark ink,
+white contrast rims, explicit hotspots, and matching native fallbacks. Artboard,
+Rectangle, and Ellipse share a plain crosshair with no tool badges. Canvas gesture logic, pointer
+geometry, inline textarea cursors, and panel/control styling are unchanged.
+
+- `npm ci`, `npm run build` including TypeScript checking,
+  `npm run changeset:status`, and `git diff --check` passed. Existing Zod
+  dependency annotation warnings remain non-blocking. No CI workflows or
+  automated test script are configured; no new test files were added.
+- UI detector returned no findings. Independent source review found no
+  blockers or actionable security findings in CSS or all 11 static SVG assets.
+- Dedicated headed local Brave on an isolated development origin verified
+  toolbar and V/H/A/R/O/T switching; artboard/rectangle/ellipse/text creation;
+  expected drawing positions and drag dimensions; Hand and middle-button pan;
+  and Space release during an active pan. Space used DOM keyboard events,
+  not physical key delivery.
+- All rectangle corners and text east/north resize handles updated geometry
+  with the correct computed directional cursor. Hand on a handle panned without
+  resizing, and Rectangle retained its creation cursor on a handle.
+- Inline textarea retained native text cursor and Escape cancellation. Toolbar
+  and panel buttons retained pointer cursors. All 11 SVG requests returned 200;
+  light/dark artwork regions resolved the expected styles. No page errors.
+- Browser reported DPR 1. Browser screenshots omit pointer pixels. Window-scoped
+  X11 capture also omitted the cursor, and a desktop capture attempt was black.
+  These captures do not prove OS-rendered cursor appearance, hotspot alignment,
+  light/dark legibility, or 2× scaling. Actual cursor-pixel acceptance remains
+  pending. No macOS, Safari, or Firefox rendering result is claimed.
+
+Network configuration, Tailscale, broker authentication, Origin/Host checks,
+main release, and main services were unchanged. CDP stayed loopback-only;
+verification used only task-owned temporary browser profiles.
+
+### Creation cursor simplification
+
+After the browser pass above, Artboard, Rectangle, and Ellipse were simplified
+first to plain crosshairs, then to the native CSS `crosshair` cursor. Their three
+SVG assets were removed. The prior 11-asset browser result describes the earlier
+revision; eight custom SVGs remain. No browser pass is claimed for this follow-up.
 ## Issue #4: collapse all artboard branches
 
 - Reproduced the missing bulk action in local Brave. Existing individual collapse controls preserved selection and canvas artwork.
@@ -449,3 +489,31 @@ Verified in the isolated development worktree, app 5206/private broker 4806, wit
 - Before/after, migration and conflict screenshots used temporary files, not repository assets. Verification used dedicated local Brave sessions with synthetic data.
 
 Limits: the original baseline connection-timing sequence was inconclusive, not a reproduced connection bug. No performance claim or benchmark was made. No Mac-specific behavior was required or verified. Power-loss recovery, disk-failure injection and an abrupt multi-process shutdown race were not exercised. Headless screenshots/HTML import/visual exports are intentionally unsupported. Existing-owner attachment still requires coordinated restart when that owner exits; there is no automatic ownership transfer. This increment does not claim complete resolution of every operation requested by issue 34.
+## Issue #37 broker-loss diagnostics
+
+Controlled reproduction on the unchanged `70868bf` base intentionally sent SIGTERM to an isolated development broker owner while a second official SDK stdio client stayed attached. The broker listener disappeared, attached listing returned `fetch failed`, and the frontend stayed available. Restarting the owner restored browser registration, but old attached clients retained stale credentials. This establishes the diagnostic gaps after controlled owner exit, not the cause of the original reported shutdown.
+
+After the diagnostic change, local Brave Headless 151 used a dedicated synthetic profile at `http://localmachine:5208`, with private broker port 4808. Supported launchers used `CAVAS_APP_PORT=5208 CAVAS_MCP_PORT=4808 npm run dev` and the corresponding development MCP launcher. Official SDK probes exercised the actual stdio tools.
+
+- A synthetic file, artboard, and text reached `persistence: saved` and survived browser reload.
+- After controlled owner SIGTERM, attached `get_capabilities` still returned local information. `list_canvases` reported transport unavailability with coordinated recovery instructions. A document read included the unknown-outcome warning.
+- After restoring the isolated owner, old attached list/read calls reported rejected credentials rather than JSON parsing errors. Fresh clients discovered the automatically reconnected browser and read its saved document.
+- Invalid canvas and stale-revision errors remained specific. No mutation was retried.
+- Missing browser bootstrap header, wrong Origin, and unauthenticated internal access each returned HTTP 403.
+- Sol security/edge-case review found no blocking security defects. Its cancellation-guidance finding was corrected: pre-aborted calls fail before dispatch, and caller cancellation does not prescribe owner recovery. The SDK pre-abort probe rejected locally, so the server-side cancellation branches were not dynamically verified.
+- `npm run build` passed, including `tsc --noEmit`. Existing Zod annotation warnings remained. `git diff --check` passed. No CI workflow or new test file was added.
+
+No automatic retry, ownership takeover, metadata recovery, or browser-storage change was introduced. Verification did not establish an in-flight mutation's outcome, force the response deadline/body-interruption paths, or reproduce every crash scenario. Mac Brave was not needed for this server-side diagnostic change. No editor UI changed.
+
+Final verification stopped only its identified development app, broker, and dedicated Brave session; ports 5208, 4808, and 9228 were free afterward.
+## Issue #32: persistent save recovery and diagnostics
+
+The original concurrent-editing storage failure remains unconfirmed. This change addresses independently reproduced notification and diagnostic gaps, not that unknown cause.
+
+- Injected a synthetic `QuotaExceededError` into the real IndexedDB write path in isolated local Brave. Before the change, its name/message were discarded and a later notification replaced recovery guidance. After the change, recovery guidance remained after an 8.5-second wait and a successful MCP mutation notification, with bounded error details available separately.
+- Independent Brave/official-SDK verification confirmed additive `persistenceDetails` with write failure and `blocked: false`. Restoring the native transaction method and making a new edit saved successfully; reload retained the recovered name and cleared the failure.
+- Two tabs on the isolated origin exercised a real stale-save conflict: the stale tab kept its unsaved state with `blocked: true` and backup/reload guidance. Direct IndexedDB read retained the other tab's saved value and revision, without overwrite.
+- Invalid JSON import errors remained visible and dismissible alongside persistent recovery guidance. Dismissing the action message did not clear the storage failure. The recovery action opened Projects, and a downloaded complete workspace backup parsed as version-1 `open-cavas-workspace` JSON.
+- At 390 by 844, document/body widths matched the 390px viewport. Desktop and mobile screenshots use synthetic data. No Firefox, Safari, physical-device, or Mac-specific run was performed.
+- `npm run build` (including TypeScript), `npm run changeset:status`, and `git diff --check` passed. Active diagnostics returned no findings for five changed TypeScript/TSX modules. UI detector returned no findings. Existing Zod dependency annotation warnings remain non-blocking; no CI workflows or new test files were present.
+- Security/edge review found notification suppression of unrelated action errors in the first patch; this was corrected with an independent dismissible row inside the persistent notice, then verified by actual invalid-JSON upload. Transaction, save queue, conflict, broker, Origin/Host, ticket, and mutation retry behavior remain unchanged.

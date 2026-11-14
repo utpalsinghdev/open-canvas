@@ -109,16 +109,60 @@ export async function connectToExistingBroker(
     throw new Error(
       'Existing broker identity does not match its private metadata.'
     );
-  return {
-    list: async () => {
-      const response = await fetch(`${base}/__cavas_internal/list`, {
+  const recovery =
+    'Keep the existing browser workspace open. Coordinate recovery of the broker owner, then reconnect dependent MCP clients using the same runtime profile. After reconnecting, list canvases and read current state before deciding whether to repeat a mutation.';
+  const request = async (route: 'list' | 'call', body: string, callerSignal?: AbortSignal) => {
+    if (callerSignal?.aborted)
+      throw new Error('Request cancelled before dispatch.');
+    const signal = AbortSignal.any([
+      ...(callerSignal ? [callerSignal] : []),
+      AbortSignal.timeout(route === 'list' ? 5000 : TIMEOUT_MS + 3000),
+    ]);
+    const uncertain = route === 'call'
+      ? ' A dispatched mutation may have completed; its outcome is unknown.'
+      : '';
+    let response: Response;
+    let raw: string;
+    try {
+      response = await fetch(`${base}/__cavas_internal/${route}`, {
         method: 'POST',
         headers: { ...headers, 'content-type': 'application/json' },
-        body: '{}',
-        signal: AbortSignal.timeout(5000),
+        body,
+        signal,
         redirect: 'error',
       });
-      if (!response.ok) throw new Error('Shared broker request failed.');
+      raw = await response.text();
+    } catch {
+      if (callerSignal?.aborted)
+        throw new Error(
+          `Shared broker request cancelled.${uncertain} Read current state before deciding whether to repeat a mutation.`
+        );
+      const reason = signal.aborted
+        ? 'Shared broker response deadline exceeded.'
+        : 'Shared broker transport unavailable; the cause is unknown.';
+      throw new Error(`${reason}${uncertain} ${recovery}`);
+    }
+    if (response.status === 403)
+      throw new Error(
+        `Shared broker rejected this client's credentials, possibly after owner replacement.${uncertain} ${recovery}`
+      );
+    let result: unknown;
+    try {
+      result = JSON.parse(raw);
+    } catch {
+      throw new Error(`Shared broker returned an invalid response (HTTP ${response.status}).${uncertain} ${recovery}`);
+    }
+    if (!response.ok) {
+      const error = z.object({ error: z.string() }).safeParse(result);
+      throw new Error(
+        error.success ? error.data.error : `Shared broker request failed (HTTP ${response.status}).${uncertain} ${recovery}`
+      );
+    }
+    return result;
+  };
+  return {
+    list: async () => {
+      const body = await request('list', '{}');
       return z
         .object({
           result: z.array(
@@ -130,7 +174,7 @@ export async function connectToExistingBroker(
             })
           ),
         })
-        .parse(await response.json()).result;
+        .parse(body).result;
     },
     call: async (
       canvasId: string,
@@ -138,23 +182,7 @@ export async function connectToExistingBroker(
       args: unknown,
       signal: AbortSignal
     ) => {
-      const response = await fetch(`${base}/__cavas_internal/call`, {
-        method: 'POST',
-        headers: { ...headers, 'content-type': 'application/json' },
-        body: JSON.stringify({ canvasId, method, args }),
-        signal: AbortSignal.any([
-          signal,
-          AbortSignal.timeout(TIMEOUT_MS + 3000),
-        ]),
-        redirect: 'error',
-      });
-      const body: unknown = await response.json();
-      if (!response.ok) {
-        const error = z.object({ error: z.string() }).safeParse(body);
-        throw new Error(
-          error.success ? error.data.error : 'Shared broker request failed.'
-        );
-      }
+      const body = await request('call', JSON.stringify({ canvasId, method, args }), signal);
       return z.object({ result: z.unknown() }).parse(body).result;
     },
     workspace: async (value: unknown) => {

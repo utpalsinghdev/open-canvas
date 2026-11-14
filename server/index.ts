@@ -25,7 +25,7 @@ server.registerTool(
   'get_capabilities',
   {
     description:
-      'Read supported capabilities and explicit Paper parity gaps. No browser required.',
+      'Read local supported capabilities and explicit Paper parity gaps, not broker health. Use list_canvases to check broker access, then read a canvas to check document access. No browser required.',
     inputSchema: {},
     annotations: { readOnlyHint: true },
   },
