@@ -25,8 +25,12 @@ export const propertiesSchema = z
     text: nodeSchema.options[3].shape.text,
     fontSize: nodeSchema.options[3].shape.fontSize,
     fontFamily: z.enum(fonts),
-    fontWeight: nodeSchema.options[3].shape.fontWeight,
-    align: nodeSchema.options[3].shape.align,
+    fontWeight: nodeSchema.options[3].shape.fontWeight.removeDefault(),
+    lineHeight: nodeSchema.options[3].shape.lineHeight.removeDefault(),
+    letterSpacing: nodeSchema.options[3].shape.letterSpacing.removeDefault(),
+    wrap: nodeSchema.options[3].shape.wrap.removeDefault(),
+    sizing: nodeSchema.options[3].shape.sizing.removeDefault(),
+    align: nodeSchema.options[3].shape.align.removeDefault(),
     src: nodeSchema.options[4].shape.src,
   })
   .omit({ id: true, kind: true })
@@ -58,8 +62,12 @@ const canvasTools = {
     z.object(target)
   ),
   get_node: read(
-    'Read one layer including its style and geometry, without embedded image bytes.',
+    'Read one layer including its style and geometry, without embedded image bytes. Text layers include measured layout, overflow, and requested/resolved font status.',
     z.object({ ...target, nodeId: id })
+  ),
+  get_fonts: read(
+    'Read the safe local font registry and current requested-font availability. Only application-bundled and browser system fonts are eligible; document data cannot supply font URLs.',
+    z.object(target)
   ),
   get_selection: read('Read selected layer IDs.', z.object(target)),
   get_styles: read(
@@ -211,6 +219,7 @@ export const coverage = {
     'selection',
     'artboard creation',
     'batch shape/text/image creation',
+    'text font selection, variable weights, line-height, tracking, alignment, wrapping, text sizing and overflow inspection',
     'property/text editing',
     'move/duplicate/delete/reorder',
     'undo/redo',

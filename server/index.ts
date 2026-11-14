@@ -5,6 +5,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { createBroker } from './broker';
 import { runtimeSettings } from '../scripts/runtime-settings.mjs';
 import { locationSchema } from '../src/workspace/model';
+import { fonts } from '../src/editor/model';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
 const broker = await createBroker();
@@ -94,6 +95,9 @@ for (const [name, definition] of Object.entries(tools)) {
                 mimeType: z.literal('image/png'),
                 width: z.number(),
                 height: z.number(),
+                scale: z.number().positive(),
+                bounds: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }),
+                fonts: z.record(z.enum(fonts), z.enum(['loading', 'available', 'unavailable', 'system'])),
               }),
             })
             .parse(result);
@@ -107,6 +111,9 @@ for (const [name, definition] of Object.entries(tools)) {
                   context: image.context,
                   width: image.result.width,
                   height: image.result.height,
+                  scale: image.result.scale,
+                  bounds: image.result.bounds,
+                  fonts: image.result.fonts,
                 }),
               },
             ],

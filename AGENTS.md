@@ -27,6 +27,7 @@
 - Inspect CI requirements before changes when CI exists. Never claim an unrun check passed.
 
 ## Git
+- Use Conventional Commits for commit titles and pull request titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.
 - User authorizes atomic local commits during this implementation without further confirmation. Keep each commit coherent and verify staged files.
 - Do not add Co-authored-by, agent Signed-off-by, or other agent attribution. Do not change author identity.
 - Do not publish, push, force-push, rewrite published history, or open a PR without explicit authorization for that action.
