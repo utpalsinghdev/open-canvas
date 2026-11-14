@@ -12,7 +12,7 @@ npm run release:main  # Requires clean committed main; builds a frozen snapshot
 npm start            # Main app at http://localmachine:5182
 ```
 
-Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, reconnect your agent, then run `npm run mcp:pair` and enter the private code through **Connect agent**. A running main release is unaffected by feature builds.
+Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds.
 
 ## Feature development
 
@@ -22,17 +22,16 @@ Use a feature branch in a separate worktree:
 npm ci
 npm run dev                        # http://localmachine:5188
 npm run --silent mcp:config:dev     # Separate development agent entry
-npm run mcp:pair:dev                # Development broker 127.0.0.1:4785
 npm run build                      # TypeScript and source bundle; not a main release
 ```
 
-The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev pairing files and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
+The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
 
 After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
 
 ## Agent control through MCP
 
-44 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. A paired browser must remain open.
+44 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. The actual browser workspace must remain open and connects automatically.
 
 ## Editor
 
@@ -87,3 +86,10 @@ Multiple tabs do not merge work. Each save compares the stored revision inside i
 - [MCP setup](docs/mcp.md) and [coverage](docs/mcp-capabilities.md)
 
 The starter composition is original editable demonstration content.
+
+
+## Automatic agent connection
+
+Opening Open Cavas automatically makes that tab available to trusted local MCP agents. The header reports Agent connected or Waiting for agent. If the broker starts later or restarts, the browser reconnects automatically without replaying design writes. Use Pause agent access to disable this tab until resumed or reloaded.
+
+Workspace data still lives in the browser, not the MCP server. `list_canvases` is empty when no application tabs are open or all tabs are paused. Reload an older pre-upgrade tab once to load automatic connection. Agent access is implicit when opening the app; keep the app on a trusted network and do not host untrusted scripts on its origin.

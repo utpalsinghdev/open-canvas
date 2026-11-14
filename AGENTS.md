@@ -40,7 +40,7 @@
 
 ## MCP boundaries
 - Read docs/mcp.md and docs/mcp-capabilities.md before changing agent control.
-- Keep the broker loopback-only with exact-Origin and pairing-code checks. Keep `.cavas` ignored by Git and denied by Vite, including filesystem aliases. Never expose pairing codes through public files or VITE-prefixed environment values.
+- Keep the broker loopback-only with exact-Origin/Host checks and short-lived one-use automatic browser tickets. Keep `.cavas` ignored by Git and denied by Vite, including filesystem aliases. Keep shared-broker credentials private. No manual pairing UI or pairing-code commands; automatic registration must not expose the internal broker secret.
 - Require explicit canvas IDs and expected revisions for mutations. Do not retry uncertain writes automatically. Read-back and persistence status are separate evidence.
 - Do not expose shell execution, arbitrary filesystem access, remote asset fetching, or executable HTML through design tools. Do not claim unsupported editor features.
 
@@ -48,6 +48,6 @@
 ## Stable main and isolated development
 - Read docs/runtime.md before starting, building, releasing, or changing runtime configuration.
 - Main frontend is 5182 and private MCP is 4781. Dev frontend is 5188 and private MCP is 4785. Additional simultaneous worktrees need distinct assigned dev port pairs. Never point development at main broker or metadata.
-- Run feature development in a separate worktree on a feature branch with npm run dev and dev-specific MCP config/pair scripts. Do not edit or rebuild files served by main as a side effect of development.
+- Run feature development in a separate worktree on a feature branch with npm run dev and dev-specific MCP config scripts. Do not edit or rebuild files served by main as a side effect of development.
 - Main runs a committed snapshot via npm run release:main and npm start. Source npm run build is verification, not publication. Merge verified features, prepare a release, then deliberately restart main and reconnect agents at the agreed release boundary.
 - Do not kill active main broker/client processes, delete their metadata/worktrees, or modify global agent settings silently. Legacy launcher migration and owner restarts can disconnect other threads; coordinate them explicitly.

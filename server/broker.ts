@@ -1,12 +1,20 @@
 import { createServer } from 'node:http';
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { mkdir, lstat, readFile, writeFile, rm } from 'node:fs/promises';
-import { runtimeSettings, assertDevelopmentCheckout } from '../scripts/runtime-settings.mjs';
+import {
+  runtimeSettings,
+  assertDevelopmentCheckout,
+} from '../scripts/runtime-settings.mjs';
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Location } from '../src/workspace/model';
+import { browserAuthentication } from './browser-auth';
 import { browserMessageSchema } from '../src/mcp/tools';
 import { z } from 'zod';
-import { brokerMetadataSchema, connectToExistingBroker, removeStaleMetadata } from './shared-broker';
+import {
+  brokerMetadataSchema,
+  connectToExistingBroker,
+  removeStaleMetadata,
+} from './shared-broker';
 
 const MAX_BYTES = 12_000_000;
 const TIMEOUT_MS = 30_000;
@@ -29,9 +37,10 @@ export async function createBroker() {
   const origin = settings.origin;
   const secret = randomBytes(32).toString('hex');
   const instanceId = randomUUID();
-  const pairingDirectory = process.env.CAVAS_RUNTIME_STATE_ROOT ?? settings.stateDirectory;
-  await mkdir(pairingDirectory, { recursive: true, mode: 0o700 });
-  const directory = await lstat(pairingDirectory);
+  const stateDirectory =
+    process.env.CAVAS_RUNTIME_STATE_ROOT ?? settings.stateDirectory;
+  await mkdir(stateDirectory, { recursive: true, mode: 0o700 });
+  const directory = await lstat(stateDirectory);
   if (
     !directory.isDirectory() ||
     directory.isSymbolicLink() ||
@@ -40,11 +49,16 @@ export async function createBroker() {
     throw new Error(
       '.cavas must be a private directory, mode 0700, not a symlink.'
     );
-  const pairingPath = `${pairingDirectory}/pairing.json`;
-  await removeStaleMetadata(pairingPath);
+  const metadataPath = `${stateDirectory}/broker.json`;
+  await removeStaleMetadata(metadataPath);
   const canvases = new Map<string, Canvas>();
   const pending = new Map<string, Pending>();
+  const browserAuth = browserAuthentication(origin);
   const http = createServer((request, response) => {
+    if (request.url === '/__cavas/session') {
+      browserAuth.bootstrap(request, response);
+      return;
+    }
     if (!request.url?.startsWith('/__cavas_internal/')) {
       response.writeHead(404);
       response.end();
@@ -134,15 +148,10 @@ export async function createBroker() {
     const protocols = (request.headers['sec-websocket-protocol'] ?? '')
       .split(',')
       .map((value) => value.trim());
-    const supplied =
-      protocols.find((value) => value.startsWith('pair.'))?.slice(5) ?? '';
-    const authorized =
-      /^[a-f0-9]{64}$/.test(supplied) &&
-      timingSafeEqual(Buffer.from(supplied), Buffer.from(secret));
     if (
       request.url !== '/__cavas' ||
       request.headers.origin !== origin ||
-      !authorized ||
+      !browserAuth.accept(request, protocols) ||
       !protocols.includes('cavas') ||
       sockets.clients.size >= 8
     ) {
@@ -255,7 +264,7 @@ export async function createBroker() {
       if (!canvas || canvas.socket.readyState !== WebSocket.OPEN) {
         reject(
           new Error(
-            'Canvas not connected. Pair a browser and call list_canvases.'
+            'Canvas not connected. Open Open Cavas in the browser and call list_canvases.'
           )
         );
         return;
@@ -320,7 +329,7 @@ export async function createBroker() {
       });
     });
     await writeFile(
-      pairingPath,
+      metadataPath,
       JSON.stringify({
         token: secret,
         port,
@@ -338,7 +347,7 @@ export async function createBroker() {
       'code' in error &&
       error.code === 'EADDRINUSE'
     ) {
-      return connectToExistingBroker(pairingPath, port, origin);
+      return connectToExistingBroker(metadataPath, port, origin);
     }
     throw error;
   }
@@ -351,13 +360,13 @@ export async function createBroker() {
       http.close();
       try {
         const stored = brokerMetadataSchema.parse(
-          JSON.parse(await readFile(pairingPath, 'utf8'))
+          JSON.parse(await readFile(metadataPath, 'utf8'))
         );
-        if (stored.instanceId === instanceId) await rm(pairingPath);
+        if (stored.instanceId === instanceId) await rm(metadataPath);
       } catch {
         /* Another process may have replaced or removed the metadata. */
       }
     },
-    pairingPath,
+    metadataPath,
   };
 }

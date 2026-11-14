@@ -43,6 +43,6 @@ The complete workspace is currently saved as one record. Large image-heavy works
 
 ## MCP context
 
-A paired browser identifies the active project, file, and page in every response and `list_canvases`. Page/content mutations require this `context` together with the current revision. Library tools accept explicit project/file/page target IDs. Opening a different file invalidates old page context even when copied layer IDs match.
+An automatically connected browser identifies the active project, file, and page in every response and `list_canvases`. Page/content mutations require this `context` together with the current revision. Library tools accept explicit project/file/page target IDs. Opening a different file invalidates old page context even when copied layer IDs match.
 
 The current MCP server has 44 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.

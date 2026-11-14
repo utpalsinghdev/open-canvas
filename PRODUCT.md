@@ -22,7 +22,7 @@ Assumption for this MVP: designers and developers working on desktop browsers. T
 
 Artboards, layers, selection, move/resize, property editing, undo/redo, zoom/pan, local saves, JSON import/export, and SVG export. No new test files. Maintain documentation and make atomic local commits without asking.
 
-Cloud sync, multiplayer, AI generation, arbitrary HTML execution, vector path editing, auto layout, and third-party editable design document compatibility are outside this MVP. An optional paired-browser MCP server supports current editor operations, restricted inert HTML import, SVG-based code output, artwork screenshots, and explicit design token assignment. Projects contain multiple files, and files contain multiple pages. Project/file management, page lifecycle, per-file history, IndexedDB persistence, and project/workspace backups are implemented in the browser and through MCP. The implementation is original, not a copy of proprietary source.
+Cloud sync, multiplayer, AI generation, arbitrary HTML execution, vector path editing, auto layout, and third-party editable design document compatibility are outside this MVP. An optional automatically connected browser MCP server supports current editor operations, restricted inert HTML import, SVG-based code output, artwork screenshots, and explicit design token assignment. Projects contain multiple files, and files contain multiple pages. Project/file management, page lifecycle, per-file history, IndexedDB persistence, and project/workspace backups are implemented in the browser and through MCP. The implementation is original, not a copy of proprietary source.
 
 Stable main frontend/MCP use fixed ports 5182/4781; feature work uses separate worktrees and dev ports 5188/4785. Committed main snapshots roll out only through deliberate release/restart, keeping other agents' experiments stable during development.
 
@@ -33,3 +33,8 @@ User-specified name: Open Cavas. Black editor background, white text, dense layo
 ## Evidence
 
 Starter composition is synthetic, editable demonstration content.
+
+
+## Agent access
+
+User explicitly requested removal of human pairing-code intervention. Open browser workspaces register automatically with the local MCP broker. No code entry, Pair action, or pair CLI is required. Internal broker authentication, exact browser Origin/Host validation, one-use short-lived browser tickets, and explicit canvas/context/revision checks remain. A browser tab is still required because it owns the workspace data.

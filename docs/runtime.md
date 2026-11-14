@@ -9,9 +9,9 @@ Main is the stable application used by other threads. Feature work runs in separ
 | Main | http://localmachine:5182 | 127.0.0.1:4781 | open-cavas |
 | Development | http://localmachine:5188 | 127.0.0.1:4785 | open-cavas-dev-5188 |
 
-These are different browser origins and have independent IndexedDB workspaces. Import JSON backups to transfer work. Never use the development app to access main's saved browser data directly. Both app listeners bind 0.0.0.0; brokers remain loopback-only and require pairing and exact Origin. Keep app listeners on a trusted network, without public ingress.
+These are different browser origins and have independent IndexedDB workspaces. Import JSON backups to transfer work. Never use the development app to access main's saved browser data directly. Both app listeners bind 0.0.0.0; brokers remain loopback-only and require automatic browser tickets and exact Origin/Host. Keep app listeners on a trusted network, without public ingress.
 
-Main ports and Origin cannot be overridden. Development refuses either main port. An additional simultaneous feature worktree needs a different explicitly assigned development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when launching that app, generating its config, and reading its pairing code. Development Origin defaults to `http://localmachine:<app-port>`; any explicit Origin must match that port.
+Main ports and Origin cannot be overridden. Development refuses either main port. An additional simultaneous feature worktree needs a different explicitly assigned development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when launching that app, generating its config. Development Origin defaults to `http://localmachine:<app-port>`; any explicit Origin must match that port.
 
 ## Use main
 
@@ -33,7 +33,6 @@ Main MCP configuration:
 
 ```sh
 npm run --silent mcp:config
-npm run mcp:pair
 ```
 
 The generated configuration invokes the stable primary-checkout launcher, which resolves the selected release for each new stdio client. It does not point at a feature worktree's source files. Configure all main MCP clients with that entry. `get_capabilities` reports the profile, Origin, and release commit. HTML includes `cavas-profile` and `cavas-release` meta tags for read-only runtime identification.
@@ -45,19 +44,18 @@ Use a feature branch in a separate worktree, install its dependencies, then:
 ```sh
 npm run dev
 npm run --silent mcp:config:dev
-npm run mcp:pair:dev
 ```
 
 `npm run dev:agent` is an alias for the same development frontend. The launcher rejects main branches, detached checkouts, and the primary checkout. Development uses source/HMR and port 5188, broker 4785, and a distinct MCP entry. Its configured stdio client runs `runtime.mjs dev mcp`; `npm run mcp:dev` runs that transport directly, not a daemon to start beside every MCP client.
 
-Each profile/port pair has its own private pairing metadata:
+Each profile/port pair has its own private internal broker metadata:
 
 ```text
-.cavas/runtime/main/5182-4781/pairing.json
-.cavas/runtime/dev/5188-4785/pairing.json
+.cavas/runtime/main/5182-4781/broker.json
+.cavas/runtime/dev/5188-4785/broker.json
 ```
 
-Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; codes are never build-time frontend variables. All `.cavas` contents are ignored by Git and denied by Vite's development filesystem guard.
+Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. All `.cavas` contents are ignored by Git and denied by Vite's development filesystem guard.
 
 Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and npm scripts are the supported launch paths.
 
@@ -67,13 +65,20 @@ Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare s
 2. Merge locally into main when authorized. Do not point main agents at the feature worktree.
 3. Commit any release-related changes, then run `npm run release:main` from clean main.
 4. Schedule the restart. Have active users wait for Saved locally and keep JSON backups. Stop only the known main frontend and main broker owner, not unrelated services or attached client processes by broad name.
-5. Run `npm start` and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Pair the browser again after the owner restarts.
+5. Run `npm start` and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
 6. Verify HTTP through localmachine, matching frontend/MCP release IDs, and document read-back before resuming experiments.
 
-An existing main frontend can keep serving the previous release while the new release is built. Restart is the controlled update boundary, not a side effect of development. MCP owner restart disconnects paired browsers; live migration without disconnect is not implemented.
+An existing main frontend can keep serving the previous release while the new release is built. Restart is the controlled update boundary, not a side effect of development. MCP owner restart disconnects browser sockets; live migration without disconnect is not implemented.
 
 ## First migration from old launch commands
 
-Earlier versions served root dist or worktree dist and launched MCP directly from source with `.cavas/pairing.json`. Those running processes are not killed automatically. Prepare the first main snapshot, then switch the frontend to `npm start`. Replace legacy client config with generated main config and restart its broker owner during a coordinated window. Legacy broker metadata is never automatically adopted or overwritten. If the old owner still occupies 4781, new main clients fail safely rather than stealing it.
+Earlier versions served root dist or worktree dist and launched MCP directly from source with `.cavas/broker.json`. Those running processes are not killed automatically. Prepare the first main snapshot, then switch the frontend to `npm start`. Replace legacy client config with generated main config and restart its broker owner during a coordinated window. Legacy broker metadata is never automatically adopted or overwritten. If the old owner still occupies 4781, new main clients fail safely rather than stealing it.
 
-Do not delete old worktrees or pairing files while active clients depend on them. Until legacy MCP clients are reconfigured/restarted, their process remains on the old launcher even though frontend main is isolated. Runtime scripts do not claim otherwise.
+Do not delete old worktrees or broker metadata while active clients depend on them. Until legacy MCP clients are reconfigured/restarted, their process remains on the old launcher even though frontend main is isolated. Runtime scripts do not claim otherwise.
+
+
+## No manual pairing
+
+Browser workspaces register automatically after the app opens and retry when the broker becomes available. Main and dev ticket issuance remain bound to their own exact browser Origin/Host. Internal credential sharing between stdio clients remains private. The old mcp:pair commands and pairing-code UI were removed; do not ask users to paste secrets or generate codes. A real workspace tab is still required, and Pause agent access opts out until resumed/reloaded.
+
+Older running brokers and pages do not gain this behavior without a release restart/page reload. Restart only the explicitly identified main owner at the coordinated release boundary. Old pairing.json files are unused by the new broker; do not delete them while a legacy process still depends on them.

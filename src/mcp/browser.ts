@@ -9,6 +9,7 @@ import {
 import { mutations } from './mutations';
 import { reads } from './reads';
 import { workspaceHandlers } from './workspace-commands';
+import { automaticConnection, type ConnectionStatus } from './connection';
 
 const MAX_BYTES = 12_000_000;
 const canvasId = newId();
@@ -21,20 +22,11 @@ useEditor.subscribe((state, previous) => {
   )
     revision++;
 });
-export function connectBrowser(
-  token: string,
-  onStatus: (status: 'connecting' | 'connected' | 'disconnected') => void,
-  onError: (message: string) => void
-) {
-  if (!/^[a-f0-9]{64}$/.test(token))
-    throw new Error('Pairing code must be 64 hexadecimal characters.');
-  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const socket = new WebSocket(`${protocol}//${location.host}/__cavas`, [
-    'cavas',
-    `pair.${token}`,
-  ]);
-  onStatus('connecting');
-  let paired = false;
+export function connectBrowser(onStatus: (status: ConnectionStatus) => void) {
+  return automaticConnection(onStatus, attachBrowser);
+}
+function attachBrowser(socket: WebSocket) {
+  let connected = false;
   const send = (message: unknown) => {
     if (socket.readyState !== WebSocket.OPEN) return;
     const encoded = JSON.stringify(message);
@@ -46,7 +38,7 @@ export function connectBrowser(
   };
   const unsubscribe = useEditor.subscribe((state, previous) => {
     if (
-      !paired ||
+      !connected ||
       (state.workspace === previous.workspace &&
         state.location === previous.location &&
         state.selectedIds === previous.selectedIds)
@@ -60,7 +52,7 @@ export function connectBrowser(
     });
   });
   socket.onopen = () => {
-    paired = true;
+    connected = true;
     send({
       type: 'hello',
       canvasId,
@@ -68,7 +60,6 @@ export function connectBrowser(
       revision,
       context: useEditor.getState().location,
     });
-    onStatus('connected');
   };
   socket.onmessage = (event: MessageEvent<unknown>) => {
     void (async () => {
@@ -161,23 +152,9 @@ export function connectBrowser(
       socket.close(1011, 'Response failed');
     });
   };
-  socket.onerror = () => {
-    onError(
-      'Could not pair. Check the running MCP server, code, app origin, and port configuration.'
-    );
-  };
-  socket.onclose = () => {
-    paired = false;
-    unsubscribe();
-    onStatus('disconnected');
-  };
   return () => {
     unsubscribe();
     socket.onopen = null;
-    socket.onclose = null;
-    socket.onerror = null;
     socket.onmessage = null;
-    socket.close(1000, 'User disconnected');
-    onStatus('disconnected');
   };
 }
