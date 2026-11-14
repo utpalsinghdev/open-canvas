@@ -9,10 +9,11 @@ Use Node.js 22+ and npm, in the primary main checkout.
 ```sh
 npm ci
 npm run release:main  # Requires clean committed main; builds a frozen snapshot
-npm start            # Main app at http://localmachine:5182
+npm run service:install # Persistent main frontend at http://localmachine:5182
+# npm start remains available for manual foreground use
 ```
 
-Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds.
+Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
 
 ## Versions and changelog
 
@@ -33,7 +34,7 @@ npm run build                      # TypeScript and source bundle; not a main re
 
 The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
 
-After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
+After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
 
 ## Agent control through MCP
 

@@ -20,14 +20,14 @@ In the primary main checkout:
 ```sh
 npm ci
 npm run release:main
-npm start
+npm run service:install  # Install/start persistent main frontend on Linux
 ```
 
 `release:main` requires clean committed main. It archives exactly HEAD into a private `.cavas/releases/<commit>/` directory, installs that snapshot's locked dependencies, builds and typechecks it, and atomically updates `.cavas/main-release.json` only after success. An existing release for the same commit is reused. Failed builds do not change the release pointer. Dependencies and built assets belong to that snapshot, not the development checkout's node_modules or dist.
 
 `npm start` resolves the pointer once and serves that snapshot on 5182. It refuses to switch to another port. `npm run preview` is an alias for the same main runtime. A normal `npm run build` is a source check/build, not publication of main. Subsequent builds and feature changes do not change the main snapshot that a running process serves.
 
-The release script does not stop processes, restart services, push Git commits, or alter global MCP settings. No reboot persistence or system service is configured. The currently selected and running release can differ while preparing the next release; complete the coordinated restart before asking new clients to use it.
+The release script does not stop processes, restart services, push Git commits, or alter global MCP settings. On Linux, npm run service:install installs an explicitly named systemd user service for the main frontend. It restarts on failure and survives agent-session termination. User-manager availability after logout/reboot depends on the host's existing linger/login policy; the installer does not change that policy. npm start remains available for manual foreground use. The currently selected and running release can differ while preparing the next release; complete the coordinated restart before asking new clients to use it.
 
 Main MCP configuration:
 
@@ -65,7 +65,7 @@ Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare s
 2. Merge locally into main when authorized. Do not point main agents at the feature worktree.
 3. Review pending Changesets with `npm run changeset:status`. When a version release is authorized, run `npm run version:apply`, inspect package/lockfile/changelog changes, and commit them. Then run `npm run release:main` from clean main. Versioning and runtime publication are separate steps; see versioning.md.
 4. Schedule the restart. Have active users wait for Saved locally and keep JSON backups. Stop only the known main frontend and main broker owner, not unrelated services or attached client processes by broad name.
-5. Run `npm start` and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
+5. Run `npm run service:restart` for an installed main frontend service, or `npm start` for manual use, and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
 6. Verify HTTP through localmachine, matching frontend/MCP release IDs, and document read-back before resuming experiments.
 
 An existing main frontend can keep serving the previous release while the new release is built. Restart is the controlled update boundary, not a side effect of development. MCP owner restart disconnects browser sockets; live migration without disconnect is not implemented.
@@ -82,3 +82,27 @@ Do not delete old worktrees or broker metadata while active clients depend on th
 Browser workspaces register automatically after the app opens and retry when the broker becomes available. Main and dev ticket issuance remain bound to their own exact browser Origin/Host. Internal credential sharing between stdio clients remains private. The old mcp:pair commands and pairing-code UI were removed; do not ask users to paste secrets or generate codes. A real workspace tab is still required, and Pause agent access opts out until resumed/reloaded.
 
 Older running brokers and pages do not gain this behavior without a release restart/page reload. Restart only the explicitly identified main owner at the coordinated release boundary. Old pairing.json files are unused by the new broker; do not delete them while a legacy process still depends on them.
+
+
+## Automatic frontend updates
+
+Main release builds include `/runtime.json` with profile and commit identity. Main browser tabs check it at startup, on focus/visibility changes, and every 30 seconds. A different valid main commit becomes a pending update. The tab reloads automatically only when IndexedDB reports Saved locally, persistence is not blocked, no manual interaction/form draft/dialog is active, no MCP request is running, and five seconds have passed since document/selection/save/agent activity. The updater revalidates the served manifest before reloading. Offline or restarting servers do not justify discarding work.
+
+Development/HMR tabs do not use this main-release updater. Browser timer throttling can delay checks in background tabs; focus triggers a fresh check. A failed save or focused form intentionally delays updates until resolved. The updater preserves saved workspace data, but a full page reload clears session-only selection/undo history and produces a new canvas ID. Agents must rediscover the canvas/context, not replay a mutation.
+
+This removes routine requests to manually refresh a saved, idle workspace after future main releases. A page from before the updater was introduced needs one page load to install it; this cannot be retroactively executed by old frontend code. MCP stdio processes still follow the coordinated server restart/reconnect workflow. Automatic browser update is not transparent live migration of an old MCP server.
+
+
+## Persistent main frontend service
+
+`npm run service:install` installs `open-cavas-main.service` under the current user's systemd configuration and enables/starts it. It requires the primary main checkout and a prepared release. It rejects an occupied main port unless that exact service is already active, and refuses to replace a unit owned by another tool. It does not stop unrelated services, change user linger policy, or restart an already active main service. Existing managed unit changes receive a private backup.
+
+The unit invokes the stable main launcher, selects its frozen release at startup, and uses Restart=on-failure. Children remain in its control group, so a crash cannot leave an orphan frontend occupying the port. The service is independent of T3 tool/shell lifetime.
+
+```sh
+npm run service:status
+npm run service:restart  # At an authorized release boundary only
+journalctl --user -u open-cavas-main.service -n 50 --no-pager
+```
+
+The frontend service does not own the MCP stdio sessions or their broker. Starting/restarting it never terminates those client processes. Existing automatically connected browser tabs retry transport registration once the frontend returns; a reload is not required merely because the frontend had temporarily stopped. Older pages without automatic-connection code are not modified by this service.

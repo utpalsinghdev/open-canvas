@@ -1,4 +1,5 @@
-import { lstat, readFile, rm } from 'node:fs/promises';
+import { lstat, readFile, rm, writeFile, link } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 const TIMEOUT_MS = 30_000;
@@ -9,6 +10,16 @@ export const brokerMetadataSchema = z.object({
   pid: z.number().int().positive(),
   instanceId: z.string().uuid(),
 });
+/** Publish complete credentials exclusively; a killed writer cannot expose an empty final file. */
+export async function publishBrokerMetadata(metadataPath: string, metadata: z.infer<typeof brokerMetadataSchema>) {
+  const temporary = `${metadataPath}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(temporary, JSON.stringify(brokerMetadataSchema.parse(metadata)), { mode: 0o600, flag: 'wx' });
+    await link(temporary, metadataPath);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
 export async function removeStaleMetadata(metadataPath: string) {
   let raw: string;
   let metadata: z.infer<typeof brokerMetadataSchema>;

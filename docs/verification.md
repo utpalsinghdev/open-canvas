@@ -171,6 +171,39 @@ Installed @changesets/cli as a development dependency. Config includes private-p
 
 `npm run changeset:status` reports the pending setup patch for open-cavas. In an isolated temporary package copy, `npm run version:apply` consumed the entry, generated CHANGELOG.md, and updated package.json, package-lock.json top-level version, and lockfile root-package version to0.1.1. The real repo remains private at0.1.0 with its pending entry intact. `npm run check` passed. No npm publish, tags, service restart, or actual repository version bump occurred.
 
+
+## Automatic main frontend release updates
+
+Implemented on feat/automatic-release-updates in a separate feature worktree. Main-only browser monitoring detects served runtime.json commit changes and reloads only after saved/idle checks. MCP request entry/finally tracks active requests and recent agent activity. Normal dev/HMR remains excluded.
+
+`npm run build` initially found an unsafe closure narrowing of a Zod result; captured the validated release value before installing callbacks, then TypeScript/build passed. Actual browser verification used the production bundle through a temporary static server on checked-free5194, with synthetic main HTML/manifest commits A/B/C/D. It did not change the running main service or user portfolio.
+
+- While an uncommitted title input held a draft, advancing the served manifest left release A and the draft intact beyond the idle interval. Committing the field allowed automatic reload to B, restoring the saved title. An initial selector waited for a visible meta element and timed out; direct read-back confirmed reload had already succeeded. Later checks used DOM-expression waits.
+- Injected a synthetic IndexedDB write failure in that dedicated browser. Header became Not saved. Advancing to C did not reload or discard the in-memory title. Removing the fault and committing a new edit saved the whole workspace, then automatic reload to C restored the recovered title.
+- Held an actual pointer drag while advancing to D. Browser remained on C until pointer release, save completion, and idle grace, then reloaded to D with the workspace name preserved.
+- No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
+
+The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
+
+## Atomic broker metadata publication
+
+After the automatic-release rollout, a client reported startup refusal because its final broker.json was an empty mode-0600 file and no listener owned4781. The code wrote the final path directly; an interrupted writer could expose an empty credential file. Changed publication to write complete validated metadata into an exclusively created private sibling temporary file, then hard-link it atomically to the final path without overwriting an owner. Temporary cleanup is scoped to that publication.
+
+Direct temporary-directory verification produced complete parseable mode-0600 metadata. A second publication returned EEXIST and left the original owner metadata byte-identical. TypeScript/build checks passed. This does not silently bypass validation or delete malformed live metadata. No new test files were added. Per the user's latest instruction, further coordination messages to the portfolio thread were stopped.
+
+
+## Persistent main frontend runtime
+
+A later live check found the main frontend absent on5182 while the private MCP broker remained on4781. This makes browser registration and release polling fail independently of code freshness. Added a named Linux systemd user service installer rather than another temporary agent-owned shell.
+
+The installer generates a main-only unit, validates the prepared release, preserves unowned/occupied services, and enables restart-on-failure. It does not modify linger policy or own MCP clients. Unit generation initially quoted WorkingDirectory in a way systemd treated as a literal relative path; corrected the directive, and systemd-analyze --user verify then succeeded. A feature-worktree installation was correctly refused. Node syntax, TypeScript, and source build checks passed before commit. No test files were added.
+
+Persistent-service live result: installation from primary main succeeded and enabled open-cavas-main.service. systemctl reported active/running, Restart=on-failure, and a dedicated systemd control group for the main launcher, Vite, and esbuild. HTTP startup was not instantaneous; an immediate curl raced startup, then the subsequent check returned the prepared 7cbbd46 runtime successfully. Existing host linger policy was already enabled and was not changed. The existing MCP broker process remained intact throughout.
+
+Most importantly, a native list_canvases read before restoration returned an empty array; after the persistent frontend started, the actual existing browser workspace registered automatically. No browser reload, personal-profile control, substitute browser, pairing code, document mutation, or inter-thread message was used for that recovery. The service wraps the existing frozen application release; these service-only changes did not require changing the current broker's code version. Restart-on-failure is configured, but the live user service was not deliberately crashed while a real workspace was connected.
+
+A repeat service:install invocation exceeded its foreground command budget while re-running systemd setup. Follow-up checks confirmed the service remained healthy with the same PID and there were no leftover installer processes. The installer now fast-returns for an identical already-active managed unit instead of unnecessarily reloading systemd.
+
 ## Typography fidelity milestone
 
 Implementation branch `t3/mcp-typography-fidelity` in `/home/utpal/.t3/worktrees/open-canvas/t3-13ad3c7d-c61b564d61d5fedc`. Main frontend/MCP services were not changed. Used the isolated dev app at `http://localmachine:5191` and loopback-only private broker at 4791. No CI workflow or automated test files exist in this checkout.
@@ -195,3 +228,5 @@ Review found three first-milestone gaps: HTML text import still discarded explic
 - Parent inspected the original synthetic typography and component-board screenshots. They demonstrate editable font rendering and simple hierarchy, not a complete design system.
 
 Remaining limits: the font registry is application-defined rather than per-document/custom-uploaded. System font substitution remains browser-defined. Full Unicode line breaking, hyphenation, rich text, text-box clipping, rotated auto-size resize behavior, cross-browser output, and the font network-timeout duration were not verified. Groups/auto-layout, native strokes/focus offsets, live token bindings, diagnostics/contrast, component instances, and parent/child reference batches are later milestones, not completed acceptance checks.
+
+Synced current main (`514d638`) into the feature branch before publication preparation. Resolved startup by awaiting workspace/font initialization before starting the existing main-release watcher and mounting React; retained both verification histories. Post-sync build/Changeset checks passed. Reopened the same synthetic dev profile and verified HTTP 200 through localmachine, actual SDK connection, saved fixed-height and four-line auto-height read-back, and screenshot scale/bounds/font metadata. No main service installation, restart, release, or portfolio write was performed.

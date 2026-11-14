@@ -66,3 +66,8 @@ See [workspace.md](workspace.md) for the hierarchy, migration policy, deletion s
 ## Runtime release boundary
 
 `scripts/runtime-settings.mjs` defines fixed main/development port pairs and independent private state directories. Vite and the MCP broker consume the same settings. `scripts/runtime.mjs` launches source/HMR only from feature worktrees; main resolves an immutable committed snapshot once. `scripts/release.mjs` builds Git HEAD with its own locked dependencies in `.cavas/releases/<commit>` and updates the main pointer after successful checks. A running main frontend or broker does not read development dist or node_modules. MCP capabilities and frontend metadata identify the active release. See runtime.md for the explicit restart and legacy migration steps.
+
+
+## Safe frontend release updates
+
+Vite emits runtime.json with the same main profile/commit as the HTML metadata. src/editor/release-updates.ts polls this served manifest, not Git or a mutable release pointer. It runs only in a main page with a valid committed release ID. A workspace/store subscription and transport-level agentActivity track safe idle time. Pending saves, blocked persistence, pointer/text interactions, focused form controls, open dialogs, and in-flight agent requests prevent automatic reload. A fresh valid manifest is required before reloading; transient deployment failures retain local state. Normal reload rehydrates saved IndexedDB content and automatically reconnects MCP with a new canvas ID. Session-only history is not migrated.
