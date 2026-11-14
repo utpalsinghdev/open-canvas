@@ -372,8 +372,8 @@ The conflict resolution uses the current typography layout for content bounds an
 ## Issue #29: cursor refinement
 
 Unified tool and directional resize cursors as static 32×32 SVGs with dark ink,
-white contrast rims, explicit hotspots, and matching native fallbacks. Placement
-badges are smaller and inset from asset edges. Canvas gesture logic, pointer
+white contrast rims, explicit hotspots, and matching native fallbacks. Artboard,
+Rectangle, and Ellipse share a plain crosshair with no tool badges. Canvas gesture logic, pointer
 geometry, inline textarea cursors, and panel/control styling are unchanged.
 
 - `npm ci`, `npm run build` including TypeScript checking,
