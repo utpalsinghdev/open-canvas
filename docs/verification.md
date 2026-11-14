@@ -184,3 +184,18 @@ Implemented on feat/automatic-release-updates in a separate feature worktree. Ma
 - No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
 
 The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
+
+## Issue #9: canvas keyboard history focus
+
+Reproduced on app 0.1.0 at base `cfdad43`, using Chromium 154 on Linux in an isolated development browser. Focusing the X property field and then dragging Circle left that input focused because canvas pointerdown prevented the browser's default focus transfer. The drag recorded history, but Ctrl+Z reached the input and was intentionally skipped by document shortcuts.
+
+The canvas SVG now accepts programmatic focus and takes focus before starting a pointer gesture. This also commits a pending property field through its existing blur handler. Shortcut mappings and input exclusion rules are unchanged.
+
+- Repeated the input-focus/drag sequence. Focus moved to SVG; Circle X changed from 567 to 600, Ctrl+Z restored 567, and Ctrl+Shift+Z restored 600. Ctrl+Y also restored the undone move.
+- Drew a rectangle, undid its creation, and restored it with Ctrl+Y. Deleted Circle, restored it with Ctrl+Z, and repeated the deletion with Ctrl+Shift+Z.
+- Typed into the inline textarea. Ctrl+Z removed the final typed character and Ctrl+Shift+Z restored it without invoking document undo. Ctrl+Enter committed the text; document undo restored the original headline and redo restored the committed text.
+- Changed X from 600 to 610 without committing first, then clicked the canvas. Blur committed 610 and SVG received focus. Undo restored 600 and Ctrl+Y restored 610.
+- Meta+Z and Meta+Shift+Z advanced the undo/redo stacks in Chromium on Linux. Actual macOS keyboard delivery remains unverified, as do Firefox and Safari.
+- `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. Active LSP probe of Canvas.tsx returned zero diagnostics. Browser reported no page errors. Existing Zod annotation warnings remain non-blocking. No CI workflow or test files were present or added.
+
+Screenshots captured the selected Circle and its X property after undo and redo. Main runtime, broker metadata, and other feature worktrees were not changed. No MCP behavior changed or was exercised in this pass.

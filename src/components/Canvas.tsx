@@ -50,6 +50,8 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   function down(event: PointerEvent<SVGSVGElement>) {
     if (event.button !== 0 && event.button !== 1) return;
     if (editingId) return;
+    // preventDefault keeps form focus unless the canvas explicitly takes it.
+    event.currentTarget.focus({ preventScroll: true });
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     useEditor.setState({ interactionActive: true });
@@ -148,7 +150,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   const selected = visible.filter((node) => selectedIds.includes(node.id));
 
   return <div ref={viewport} className={`canvas-viewport ${space || tool === 'hand' ? 'is-panning' : tool !== 'select' ? 'is-drawing' : ''}`}>
-    <svg className="design-canvas" aria-label="Design canvas" onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
+    <svg className="design-canvas" aria-label="Design canvas" tabIndex={-1} onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
       // Pointer capture retargets dblclick to the SVG; hit-test the artwork instead.
       const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node-id]');
       const node = nodes.find((item) => item.id === target?.getAttribute('data-node-id'));
