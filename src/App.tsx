@@ -7,7 +7,7 @@ import {
 } from 'react';
 import {
   ArrowDownToLine,
-  Check,
+  AlertTriangle,
   ChevronDown,
   FolderOpen,
   Frame,
@@ -281,21 +281,15 @@ function EditorApp() {
               >
                 Rename file
               </button>
+              <AgentConnection />
             </div>
           </details>
         </div>
         <div className="header-actions">
-          <AgentConnection />
-          <span
-            className={`save-status ${saveState === 'failed' ? 'save-failed' : ''}`}
-          >
-            <Check size={12} />
-            {saveState === 'saved'
-              ? 'Saved locally'
-              : saveState === 'pending'
-                ? 'Saving'
-                : 'Not saved'}
-          </span>
+          {saveState === 'failed' && <span className="save-status save-failed" role="alert">
+            <AlertTriangle size={12} />
+            Not saved
+          </span>}
           <button
             className="export-button"
             aria-label="Export SVG"

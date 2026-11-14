@@ -40,10 +40,14 @@ Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browse
 
 ## Automatic agent connection
 
-The header uses the existing compact agent disclosure to show Agent connected, Waiting for agent, or Agent access paused. App startup connects automatically, with no masked-code field, Pair button, or pairing instructions. A Pause/Resume control lets users opt out per tab. Waiting uses static text, not animation. The disclosure states that trusted local MCP agents can access the workspace while the tab stays open. At narrow widths the accessible icon opens a viewport-contained panel.
+App startup connects automatically, with no connection badge, masked-code field, Pair button, or pairing instructions. Pause/Resume agent access lives in the File menu and lets users opt out per tab. Routine saving/saved labels are omitted from the header; failed saves remain visible, including at narrow widths.
 
 ## Project and page navigation
 
 A compact project-name action sits before the file name in the header. Its Projects dialog uses a project list and dense file rows, not decorative cards. File rows expose explicit open/rename/duplicate/backup/delete actions. A separate warning and confirmation precedes permanent library deletion. Project/workspace backup and JSON import remain visible above the list.
 
 Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.
+
+## Page request activity
+
+Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static blue pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.

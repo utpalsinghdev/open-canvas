@@ -73,3 +73,9 @@ See [workspace.md](workspace.md) for the hierarchy, migration policy, deletion s
 ## Safe frontend release updates
 
 Vite emits runtime.json with the same main profile/commit as the HTML metadata. src/editor/release-updates.ts polls this served manifest, not Git or a mutable release pointer. It runs only in a main page with a valid committed release ID. A workspace/store subscription and transport-level agentActivity track safe idle time. Pending saves, blocked persistence, pointer/text interactions, focused form controls, open dialogs, and in-flight agent requests prevent automatic reload. A fresh valid manifest is required before reloading; transient deployment failures retain local state. Normal reload rehydrates saved IndexedDB content and automatically reconnects MCP with a new canvas ID. Session-only history is not migrated.
+
+### Page request presence
+
+`src/mcp/page-activity.ts` resolves validated tool arguments to a page and keeps request-owned pending entries in a separate, non-persisted Zustand store. File-wide tools establish no page presence. `AgentActivity.tsx` compares complete project/file/page IDs with the displayed location and renders pointer-transparent editor chrome outside the artwork SVG. No presence state enters document history, JSON, SVG, or PNG output.
+
+The browser gives pending status a bounded paint opportunity before invoking a page handler, then rechecks connection, revision, context, and manual-edit guards. Active-page reads reject navigation during that opportunity. Async visual exports capture their immutable page document before waiting for fonts, so navigation cannot silently retarget their artwork. Independent request cleanup, socket detach, a local deadline, and broker request-end messages clear presence without treating an uncertain mutation as a success or rollback. The existing release-updater activity counter remains separate.

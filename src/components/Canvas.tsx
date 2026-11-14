@@ -8,6 +8,7 @@ import { NodeView } from './Artwork';
 import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
+import { AgentActivity } from './AgentActivity';
 import { textNodeBounds, textContentBounds } from '../editor/typography';
 
 type Point = { x: number; y: number };
@@ -185,6 +186,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
   const cursor = gesture?.mode === 'pan' ? 'grabbing' : space || tool === 'hand' ? 'grab' : tool;
 
   return <div ref={bindViewport} className="canvas-viewport">
+    <AgentActivity camera={camera} />
     <svg className="design-canvas" data-cursor={cursor} aria-label="Design canvas" tabIndex={-1} onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
       // Pointer capture retargets dblclick to the SVG; hit-test the artwork instead.
       const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node-id]');
