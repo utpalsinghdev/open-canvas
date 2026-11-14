@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { fileDocumentSchema, locationSchema } from '../workspace/model';
 import { workspaceTools } from './workspace-tools';
+import { reviewTools } from './review-tools';
 import { target, pageMutationTarget as write } from './target';
 export { targetSchema, mutationTargetSchema } from './target';
 import {
@@ -179,7 +180,7 @@ const canvasTools = {
     }
   ),
 };
-export const tools = { ...canvasTools, ...workspaceTools };
+export const tools = { ...canvasTools, ...workspaceTools, ...reviewTools };
 export const browserRequestSchema = z.object({
   type: z.literal('request'),
   id: z.string(),
@@ -229,6 +230,7 @@ export const coverage = {
     'file design tokens',
     'projects, multiple files, page lifecycle and navigation',
     'project/workspace JSON backups',
+    'local page/layer/position review threads with MCP list/read/status operations',
   ],
   limitations: [
     'Library deletions are permanent; page/content edits use per-file session history.',

@@ -45,7 +45,11 @@ The complete workspace is currently saved as one record. Large image-heavy works
 
 An automatically connected browser identifies the active project, file, and page in every response and `list_canvases`. Page/content mutations require this `context` together with the current revision. Library tools accept explicit project/file/page target IDs. Opening a different file invalidates old page context even when copied layer IDs match.
 
-The current MCP server has 44 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
+The current MCP server has 48 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
+
+## Review feedback
+
+Pages contain posted review threads in addition to layers. File/project/workspace backups preserve them. Page duplication remaps layer/thread/comment IDs; page deletion removes its threads with undo restoration. Deleted-layer feedback remains readable as a missing anchor. Unposted drafts are session-only and survive page/file navigation. See [review-threads.md](review-threads.md) for controls, limits, and MCP context requirements.
 
 ## Direct links
 

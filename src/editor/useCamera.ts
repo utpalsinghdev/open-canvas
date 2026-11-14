@@ -32,6 +32,7 @@ export function useCamera() {
     viewport.current = element;
     if (!element) return;
     function wheel(event: WheelEvent) {
+      if (event.target instanceof Element && event.target.closest('.review-panel')) return;
       event.preventDefault();
       if (!element) return;
       const rect = element.getBoundingClientRect();
