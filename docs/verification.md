@@ -368,6 +368,23 @@ The first browser verification attempt was blocked by a stopped development list
 
 The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.
 
+## Issue #21 reopened: compact destination tokens
+
+- `npm run build` passed, including `npm run check`; `npm run changeset:status`
+  passed. No repository CI workflows or automated test script were present.
+- Real local Brave verified 50-character compact paths (previously 71), exact
+  destination reload, both legacy link formats, unrelated query/hash retention,
+  persisted file rename, page switching, and Back/Forward destinations.
+- Malformed/noncanonical tokens and unavailable IDs retained the recovery screen;
+  explicit recovery reopened the saved workspace. No browser errors were observed.
+- Independent security review and direct module probes found no introduced defects.
+  Probes covered custom IDs, canonical encoding, mixed/duplicate destinations,
+  extra segments, legacy links, and unavailable files.
+- Browser ran headless in an isolated local Brave profile. macOS, Firefox, Safari,
+  and live MCP transport were not tested. Active LSP probe was inconclusive;
+  TypeScript compilation passed. Tailscale reported Running and self online;
+  the dev endpoint returned HTTP 200 through localmachine. Network settings,
+  authentication boundaries, and the running main release were unchanged.
 ## Issue #17: local review threads
 
 - `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. No CI workflow directory or automated test script is configured; no test files or dependencies were added. Vite reported the existing non-blocking Zod annotation warnings.
