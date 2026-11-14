@@ -28,7 +28,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   useEffect(() => {
     function down(event: KeyboardEvent) {
       if (event.target instanceof HTMLElement && (event.target.closest('input,textarea,select') || event.target.isContentEditable)) return;
-      if (event.code === 'Space') { event.preventDefault(); setSpace(true); }
+      if (event.code === 'Space' && !(event.target instanceof Element && event.target.closest('button,summary,a[href],[role="button"]'))) { event.preventDefault(); setSpace(true); }
       if (event.key === 'Escape') { setGesture(null); setEditingId(null); }
     }
     const up = (event: KeyboardEvent) => { if (event.code === 'Space') setSpace(false); };
