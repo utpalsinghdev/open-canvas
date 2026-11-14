@@ -67,7 +67,7 @@ export const documentSchema = z.object({
 export type DesignNode = z.infer<typeof nodeSchema>;
 export type DesignDocument = z.infer<typeof documentSchema>;
 export type NodeKind = DesignNode['kind'];
-export type Tool = 'select' | 'hand' | 'artboard' | 'rectangle' | 'ellipse' | 'text';
+export type Tool = 'select' | 'hand' | 'artboard' | 'rectangle' | 'ellipse' | 'text' | 'comment';
 export type Bounds = Pick<DesignNode, 'x' | 'y' | 'width' | 'height'>;
 export type Camera = { x: number; y: number; zoom: number };
 

@@ -10,6 +10,8 @@ import {
 } from './model';
 import { starterDocument } from './seed';
 import { createWorkspaceActions } from '../workspace/actions';
+import { createReviewActions } from '../review/actions';
+import { pruneReviewDrafts } from '../review/drafts';
 import {
   currentFile,
   firstLocation,
@@ -30,7 +32,8 @@ type EditorActions = {
 };
 export type EditorState = WorkspaceState &
   EditorActions &
-  ReturnType<typeof createWorkspaceActions>;
+  ReturnType<typeof createWorkspaceActions> &
+  ReturnType<typeof createReviewActions>;
 const workspace = initialWorkspace(starterDocument());
 const location = firstLocation(workspace);
 export const useEditor = create<EditorState>((set, get) => ({
@@ -48,6 +51,7 @@ export const useEditor = create<EditorState>((set, get) => ({
   saveState: 'pending',
   persistenceBlocked: false,
   ...createWorkspaceActions(get, set),
+  ...createReviewActions(get),
   edit: (update) => {
     const state = get();
     const next = update(state.document);
@@ -173,3 +177,7 @@ export const useEditor = create<EditorState>((set, get) => ({
     }),
   notify: (message) => set({ message }),
 }));
+
+useEditor.subscribe((state, previous) => {
+  if (state.workspace !== previous.workspace) pruneReviewDrafts(state.workspace);
+});
