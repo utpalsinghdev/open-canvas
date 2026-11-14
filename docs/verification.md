@@ -184,3 +184,11 @@ Implemented on feat/automatic-release-updates in a separate feature worktree. Ma
 - No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
 
 The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
+
+## Canvas wheel handling after navigation (#1)
+
+Reproduced in Chromium 154 on Linux with a dedicated development browser. Initial canvas handled a cancelable Ctrl+wheel event, but creating a page replaced the viewport and the same event was no longer canceled or handled. App owns useCamera across the keyed Canvas remount, so the mount-only effect retained the detached viewport.
+
+Wheel registration now uses a stable React callback ref with cleanup. After page creation, page switching, file creation, and switching back to the original file, injected Ctrl/Meta wheel events were canceled and updated canvas zoom. Detached viewport events were no longer canceled. Pointer anchor error was under 0.00003 world units; ordinary wheel panning changed camera translation by exactly the supplied deltas without changing zoom. Browser visualViewport scale remained 1. Screenshots captured the original file before and after zoom.
+
+`npm run build` passed, including TypeScript checks, with dependency annotation warnings. `npm run changeset:status` and `git diff --check` passed. No repository CI workflows or new test files were present. Verification used injected DOM wheel events in a real browser; automation's native wheel/key commands did not establish modifier-wheel delivery. Physical mouse/trackpad and macOS Command behavior remain unverified. No main runtime or MCP metadata was used or changed.
