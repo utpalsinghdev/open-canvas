@@ -29,6 +29,10 @@ Controls have visible instant keyboard focus. Native disabled states change ink,
 
 A dotted world grid provides position context without repainting animation. Artboard titles stay the same screen size while zoom changes. Selection outlines scale inversely with zoom. Text edits use a focused textarea over the artwork; text content never becomes executable HTML.
 
+## Review threads
+
+The Comment drawing tool selects click-to-comment mode with a crosshair; clicking artwork anchors feedback to that layer, while clicking empty canvas anchors feedback to world coordinates. Comments uses the existing toolbar icon language and a dense black panel over the canvas, with file-wide thread rows and text-first feedback. On mobile the Comments action lives beside Layers/Properties and its panel occupies the lower canvas, leaving room to place pins above it. Open threads have fixed-screen-size numbered pins; resolved and missing-layer threads remain in the list without pins. The panel scrolls independently of camera pan/zoom. Thread navigation centers targets outside the panel. All controls retain visible focus; comment content stays plain text.
+
 ## Review
 
 Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browser. Mobile has no document-width overflow and exposes both panels. Design detector returned no findings. Static Hallmark checks have no floor failures; pure black and white are explicitly waived because they are user requirements. Hallmark's render tier was unavailable, so browser captures and interactions provide visual evidence instead. This was a single-agent review, not an independent review.
@@ -36,7 +40,7 @@ Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browse
 
 ## Automatic agent connection
 
-The header uses the existing compact agent disclosure to show Agent connected, Waiting for agent, or Agent access paused. App startup connects automatically, with no masked-code field, Pair button, or pairing instructions. A Pause/Resume control lets users opt out per tab. Waiting uses static text, not animation. The disclosure states that trusted local MCP agents can access the workspace while the tab stays open. At narrow widths the accessible icon opens a viewport-contained panel.
+App startup connects automatically, with no connection badge, masked-code field, Pair button, or pairing instructions. Pause/Resume agent access lives in the File menu and lets users opt out per tab. Routine saving/saved labels are omitted from the header; failed saves remain visible, including at narrow widths.
 
 ## Project and page navigation
 
@@ -56,3 +60,6 @@ language, while the inline textarea retains its native text cursor.
 Every custom cursor retains its matching native fallback. Cursor styling belongs
 only to the canvas SVG and Select-mode resize handles, never panels or controls.
 Active pan overrides tool and resize cursors without changing pointer geometry.
+## Page request activity
+
+Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static blue pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.

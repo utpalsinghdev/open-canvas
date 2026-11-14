@@ -4,7 +4,7 @@ Open Cavas owns its document model and MCP implementation.
 
 ## Implemented and live-verified through MCP
 
-- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 45 tools exposed.
+- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 48 tools exposed.
 - Live document/tree/node/style/selection reads with stable layer identity.
 - Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection.
 - Undo/redo through the same document history as manual edits.
@@ -12,6 +12,7 @@ Open Cavas owns its document model and MCP implementation.
 - Project/file/page lifecycle, explicit file/page navigation, per-file history, complete multi-page JSON export/import, project/workspace backups, and active-context checks. New/open document tools append files instead of replacing existing work.
 - SVG, standalone SVG-based HTML, and SVG JSX export. PNG artwork capture returned as MCP image content.
 - Persisted design token definition/read-back and explicit token application.
+- Local page/layer/position review threads: list/read/status operations, stale/context rejection, explicit missing-layer results, page-copy anchor remapping, undo restoration, and complete-file JSON round trip verified through the live SDK. Human thread creation/replies use the editor; see review-threads.md.
 - Manual text changes visible through MCP, stale-revision rejection, and focused manual-edit protection.
 - Automatic browser registration without human code entry. Wrong Origin/Host, cross-site metadata, missing custom header, reused tickets, and unauthenticated internal requests are rejected.
 
