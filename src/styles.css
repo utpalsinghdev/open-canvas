@@ -122,14 +122,21 @@ button svg, summary svg { flex: none; }
 .canvas-viewport { min-width: 0; min-height: 0; overflow: hidden; position: relative; background: var(--background); isolation: isolate; }
 .design-canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; }
 .grid-dot { fill: var(--grid); }
-.is-panning .design-canvas { cursor: grab; }
-.is-panning .design-canvas:active { cursor: grabbing; }
-.is-drawing .design-canvas { cursor: crosshair; }
-.artboard-label { fill: var(--muted); cursor: move; }
+.design-canvas[data-cursor="select"] { cursor: default; }
+.design-canvas[data-cursor="grab"] { cursor: grab; }
+.design-canvas[data-cursor="grabbing"] { cursor: grabbing; }
+.design-canvas[data-cursor="text"] { cursor: text; }
+/* Placement icons have white outlines for contrast and a crosshair hotspot at (8, 8). */
+.design-canvas[data-cursor="artboard"] { cursor: url('./assets/cursors/artboard.svg') 8 8, crosshair; }
+.design-canvas[data-cursor="rectangle"] { cursor: url('./assets/cursors/rectangle.svg') 8 8, crosshair; }
+.design-canvas[data-cursor="ellipse"] { cursor: url('./assets/cursors/ellipse.svg') 8 8, crosshair; }
+.artboard-label { fill: var(--muted); }
 .selection-outline { stroke: var(--selection); fill: none; }
 .resize-handle { fill: var(--foreground); stroke: var(--selection); }
-.resize-handle.nw, .resize-handle.se { cursor: nwse-resize; }
-.resize-handle.ne, .resize-handle.sw { cursor: nesw-resize; }
+.design-canvas[data-cursor="select"] :is(.resize-handle.nw, .resize-handle.se) { cursor: nwse-resize; }
+.design-canvas[data-cursor="select"] :is(.resize-handle.ne, .resize-handle.sw) { cursor: nesw-resize; }
+.design-canvas[data-cursor="select"] :is(.resize-handle.n, .resize-handle.s) { cursor: ns-resize; }
+.design-canvas[data-cursor="select"] :is(.resize-handle.e, .resize-handle.w) { cursor: ew-resize; }
 .marquee { fill: var(--selection-wash); stroke: var(--selection); pointer-events: none; }
 .canvas-text-editor { position: absolute; z-index: 2; margin: -2px; padding: 1px; line-height: 1.2; border: 1px solid var(--selection); background: var(--text-edit-background); resize: none; outline: none; overflow: auto; }
 .canvas-caption { position: absolute; left: 18px; bottom: 20px; font-size: 10px; color: var(--muted); pointer-events: none; }
