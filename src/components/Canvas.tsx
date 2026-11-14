@@ -15,7 +15,7 @@ type Gesture =
   | { mode: 'marquee'; start: Point; current: Point; additive: boolean };
 
 export function Canvas({ controls }: { controls: CameraControls }) {
-  const { viewport, camera, setCamera, zoomTo, fit } = controls;
+  const { bindViewport, camera, setCamera, zoomTo, fit } = controls;
   const { document, selectedIds, tool, select, setTool, edit, patch } = useEditor();
   const [gesture, setGesture] = useState<Gesture | null>(null);
   const [space, setSpace] = useState(false);
@@ -147,7 +147,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   const visible = nodes.filter((node) => !isHidden(node, nodes));
   const selected = visible.filter((node) => selectedIds.includes(node.id));
 
-  return <div ref={viewport} className={`canvas-viewport ${space || tool === 'hand' ? 'is-panning' : tool !== 'select' ? 'is-drawing' : ''}`}>
+  return <div ref={bindViewport} className={`canvas-viewport ${space || tool === 'hand' ? 'is-panning' : tool !== 'select' ? 'is-drawing' : ''}`}>
     <svg className="design-canvas" aria-label="Design canvas" onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
       // Pointer capture retargets dblclick to the SVG; hit-test the artwork instead.
       const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node-id]');
