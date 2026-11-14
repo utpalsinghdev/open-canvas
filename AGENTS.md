@@ -32,6 +32,14 @@
 - Do not publish, push, force-push, rewrite published history, or open a PR without explicit authorization for that action.
 - Preserve unrelated user work. Never stop another project's services.
 
+## GitHub issues and pull requests
+- Prefix issue titles with a bracketed type, such as `[Bug]` or `[Feature Request]`, followed by a specific description.
+- Use Conventional Commits for PR titles: `type: description` or `type(scope): description`. Use a lowercase type and a concise imperative description without a trailing period.
+- Write PR descriptions in direct, specific, conversational English. Scale the structure to the change; use Summary, Linked issue, Reproduction, Verification, and Docs sections when useful. Explain the problem, the change, preserved behavior, and relevant limitations. Use `Closes #N` only when the PR resolves that issue.
+- Report exact relevant verification commands and observed outcomes. Never claim unrun or failed checks passed. Keep incidental local environment details and the complete validation ledger private; disclose limitations that affect confidence or required checks.
+- Do not invent experience, results, or measurements. Avoid em dashes, inflated praise, generic chatbot phrases, and unrequested tool attribution. Follow repository disclosure requirements honestly.
+- Read the published PR back against its draft. Follow applicable approval gates before publishing or editing issues and PRs.
+
 ## Running
 - Check port availability first. Development server binds 0.0.0.0 unless sensitive data requires a loopback or tailnet-only listener.
 - Report the browser URL as http://localmachine:<port>, not a wildcard or loopback address.
