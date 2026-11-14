@@ -9,6 +9,7 @@ No test files were written. Verification uses the real browser, TypeScript, prod
 - `npm run check` and `npm run build`: passed after implementation. Production output includes HTML, CSS, and JavaScript. Rollup reports two harmless annotation-placement warnings in Zod dependency comments; no application build errors.
 - Active LSP diagnostics for all 16 TypeScript/TSX source files: zero errors, no unsupported or inconclusive files.
 - `git diff --check`: passed.
+- Production preview on a separately checked free port returned HTTP 200. A separate real-browser session loaded the built bundle, created an empty document, drew an artboard, and drew an ellipse parented to that artboard. No browser errors were reported. The temporary preview was stopped after verification.
 - No existing CI workflows or test suite were present in the initially empty application repository.
 - `curl --fail http://localmachine:5178/`: returned the application entry point on the home server. The same request over SSH from the Mac also succeeded.
 - Impeccable detector on application UI targets: no findings.
@@ -29,6 +30,7 @@ The app was opened through `http://localmachine:5178`, not loopback. A dedicated
 - Reopened the downloaded JSON. Submitted an unsupported version 999 document and confirmed rejection while the current 12-layer document remained unchanged.
 - Opened and dismissed keyboard help.
 - Found that pointer capture retargeted double-click events to the SVG root. Fixed artwork hit-testing, then double-clicked text, edited it on canvas, committed with Ctrl+Enter, and read the updated value in Properties.
+- Final source LSP scan again reported zero errors across all 16 source files.
 - Inspected desktop at 1440 by 1000 and mobile at 390 by 844. Mobile document width matched 390, toolbar fit inside the viewport, and Layers opened as an overlay.
 
 ## Scope not verified
