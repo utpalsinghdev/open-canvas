@@ -409,3 +409,67 @@ After the browser pass above, Artboard, Rectangle, and Ellipse were simplified
 first to plain crosshairs, then to the native CSS `crosshair` cursor. Their three
 SVG assets were removed. The prior 11-asset browser result describes the earlier
 revision; eight custom SVGs remain. No browser pass is claimed for this follow-up.
+## Issue #4: collapse all artboard branches
+
+- Reproduced the missing bulk action in local Brave. Existing individual collapse controls preserved selection and canvas artwork.
+- Added a labeled native Collapse all button to the Layers heading. It updates only session-local tree state for current-page artboards, retains individual toggles, and disables when no artboards remain expanded. Other pages retain their collapse state.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. The UI detector returned no findings. Active LSP checking found no TSX errors; CSS warnings concerned the existing reduced-motion rule. Existing Zod annotation warnings did not block the build. No automated test suite or CI workflow is configured; no test files were added.
+- Independent local Brave verification passed click, Enter, and Space activation, individual reopening, empty-page disabled state, page switching, and root-level layer visibility. With a root rectangle selected, canvas SVG markup matched before and after collapse; selection and Properties stayed unchanged. Undo remained enabled, but complete history equivalence was not measured.
+- Checked 1440 by 1000, 1000 by 800, and 390 by 844 layouts. The action remained within the viewport, mobile Layers remained accessible, and no document-width overflow or page errors appeared. Desktop/mobile screenshots were inspected.
+- Brave ran headless after a headed launch found no display server. macOS, Firefox, and Safari were not tested. Hidden/locked artboards and undo safety received static review rather than browser coverage.
+- Independent security/edge-case review found no actionable findings. Main runtime, MCP, authentication, Origin/Host checks, and Tailscale settings were unchanged. The isolated browser sessions were closed after verification.
+## Issue #21 reopened: compact destination tokens
+
+- `npm run build` passed, including `npm run check`; `npm run changeset:status`
+  passed. No repository CI workflows or automated test script were present.
+- Real local Brave verified 50-character compact paths (previously 71), exact
+  destination reload, both legacy link formats, unrelated query/hash retention,
+  persisted file rename, page switching, and Back/Forward destinations.
+- Malformed/noncanonical tokens and unavailable IDs retained the recovery screen;
+  explicit recovery reopened the saved workspace. No browser errors were observed.
+- Independent security review and direct module probes found no introduced defects.
+  Probes covered custom IDs, canonical encoding, mixed/duplicate destinations,
+  extra segments, legacy links, and unavailable files.
+- Browser ran headless in an isolated local Brave profile. macOS, Firefox, Safari,
+  and live MCP transport were not tested. Active LSP probe was inconclusive;
+  TypeScript compilation passed. Tailscale reported Running and self online;
+  the dev endpoint returned HTTP 200 through localmachine. Network settings,
+  authentication boundaries, and the running main release were unchanged.
+## Issue #17: local review threads
+
+- `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. No CI workflow directory or automated test script is configured; no test files or dependencies were added. Vite reported the existing non-blocking Zod annotation warnings.
+- The UI detector returned no findings. An active LSP probe of eight changed/new review, Canvas, App, and MCP files returned zero diagnostics with complete probe coverage.
+- Local isolated Brave created a layer-anchored thread through the UI. Literal script text displayed without execution. A reply survived selecting the same pin after focus left the textarea. With an unposted reply, an official SDK undo request was rejected as a manual edit. Saved locally was observed before closing that browser.
+- Live official-SDK stdio calls exposed 48 tools and verified thread listing, full reads, resolve/reopen, stale-revision rejection, wrong/missing context rejection, missing-page errors, retained missing-layer feedback with status-write rejection, undo restoration, page-copy identity/anchor remapping, and complete-file JSON export/import. The checks passed again after the review corrections. Responses reported pending persistence separately from completed writes.
+- Security/edge review found and prompted fixes for wheel events moving the camera from inside Comments, draft loss on navigation/reselection, and stale stored dimensions for auto-sized text anchors. The camera now leaves panel scrolling native, session drafts survive navigation, and anchor coordinates use measured text bounds. Unposted drafts also block MCP mutations and automatic release reloads.
+- Exact-Origin/Host registration still returned a no-store browser ticket. Wrong Origin, wrong Host, cross-site metadata, and a missing browser header each returned HTTP 403 in a live broker probe. Transport/authentication code, Tailscale configuration, and main runtime were not changed or restarted.
+- Independent Brave verification covered layer and position threads, replies, resolve/reopen, cross-page navigation, reload persistence, browser JSON download/import, page duplicate/delete/undo, missing-layer feedback and restoration, measured auto-width/auto-height anchors, and reply-draft retention across page/file navigation. Local Brave ran headless; a dedicated headed Mac Brave profile passed a bounded layer-comment smoke test through the documented loopback SSH tunnel. Task-owned browsers, tunnel, and Mac profile were cleaned up. No Safari or Firefox verification was performed.
+- After adding the dedicated Comment tool, local Brave verified selecting it before any layer selection, clicking a component, posting the resulting layer-anchored comment, and returning to Select. At 390px the drawing controls fit without overlap; Comment then clicked empty canvas opened a position-anchored composer. A cancelable DOM wheel event over Comments was not prevented and left the camera unchanged. Physical mouse-wheel panel scrolling remains unverified; programmatic panel scrolling worked in the independent browser pass.
+## Issue #10: page-specific MCP request activity
+
+- `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. Production build retains non-blocking Zod annotation warnings. No CI workflow or automated test command is configured; no new test files were added. Active LSP checks returned no diagnostics; the UI detector returned no findings.
+- Luna 6 reproduced the missing page indicator using live MCP reads and a page mutation in an isolated local Brave profile. Final verification reloaded the connector and used SDK stdio calls against the development broker.
+- Local Brave verified idle absence, pending screenshot presence, successful completion cleanup, failed-node-read cleanup, concurrent request independence, hiding on another page and showing again on return, Pause cleanup and Resume reconnection. The deferred navigation screenshot reached the documented 30-second timeout; separate calls verified successful screenshot output. Controlled image-decoding delays made pending requests observable and were removed afterward.
+- A 375 by 700 viewport kept status in bounds. Reduced motion disabled the entrance animation. The overlay had pointer-events none. MCP PNG output contained artwork only. No page or console errors were observed after logs were cleared; original page was restored with persistence saved and no pending label.
+- Sol 6.1 high source review found no actionable security or edge-case defects. Broker/CDP listeners remained loopback-only, Tailscale was online, and existing Origin/Host, ticket, revision, and manual-edit protections were preserved. Main services and network configuration were not changed.
+- Limits: local Brave was headless because no display server was available. No Mac, Firefox, Safari, cross-file activity-isolation, or explicit cancellation runtime check was performed. Before and after images are local verification artifacts, not document artwork.
+
+### Issue #10 visual follow-up
+
+Replaced the text badge with six blue dots following the page artwork's leading corner, with viewport clamping. Each dot has one staggered 600 ms rise/fade entrance, then remains still. Routine save and connection header badges were removed; Pause/Resume moved to the File menu and failed-save warnings remain visible on mobile.
+
+Local Brave with a real pending MCP screenshot verified six dots, finished non-looping animations at full opacity, header badge absence, artwork-relative positioning, and a 375 by 700 layout without document overflow. The File menu toggled Pause to Resume and back. A temporary failed-save state showed “Not saved” at mobile width without overflow and was restored afterward. Pending screenshot capture used a temporary image-decoding delay; no artwork was changed. Desktop and mobile screenshots were captured. Main and network configuration remain unchanged.
+
+### Issue #10 motion revision
+
+Replaced the waving ribbon with a fixed 3 by 3 lattice and diagonal light sequence. The final mark uses 5 px squares and wider horizontal spacing for a 37 by 25 px footprint. Only highlight opacity animates; the sequence completes within 2.04 seconds and never loops. Reduced-motion handling leaves the static blue mark visible.
+
+Recorded the real development app in isolated local Brave using live MCP screenshots with a temporary image-decode delay. The recorded request completed successfully and presence cleared. An original-speed detail crop shows the light sequence, static pending, and clearing. A 375 by 700 browser check found nine dots, no document overflow, and animation-name none on all nine highlights under reduced motion. Additional calls to restored task tabs included one timeout, which is not counted as a passing screenshot check. Production build and diff checks passed; UI detector returned no findings. Browser verification covered the earlier 25 px circular-point layout; final square shape, wider spacing, and corresponding viewport clamp adjustments were source-checked, not browser-retested.
+## Issue #38: multi-page retained memory and navigation stalls
+
+- Five alternating state-profile pairs retained 10,080 distinct node objects instead of 810,000 with 100 pages, 10,000 layers, 100 edits and 80 undo entries. `node --expose-gc --import tsx scripts/profile-memory.mjs` records the workload and final invariants. These are Node.js allocation measurements, not equivalent browser-memory savings.
+- Real local Brave checked the synthetic 12-page image-bearing file, page lifecycle/undo, separate file histories, image presence and save/reload. Five-run post-GC heap data and limitations are in [memory-profile.md](memory-profile.md). Browser-store identity probes were inconclusive and are not used as proof.
+- Headed Mac Brave accessed the app directly over Tailscale. The sharing-only pilot reproduced navigation stalls. Five alternating navigation comparisons reduced median long-task count from 120 to 6 per 120 clicks after removing redundant whole-workspace parsing from navigation. Editing still produced long tasks; the private original project and production-build browser behavior remain unverified.
+- Independent security/edge-case review found no blocking defect in sharing. Focused temporary verification passed 235 checks, including malformed commits, differential action sequences and frozen histories. The checks were rerun after the navigation-only change. That final navigation fast path was checked by the primary implementer, not a second independent review.
+- `npm run build`, `npm run changeset:status`, `git diff --check`, and active TypeScript diagnostics passed. No repository CI workflow or test suite is configured. A reusable state profiler was added, not a new test suite.
+- Dedicated local/Mac browsers and Mac tunnels were closed. Main runtime and network/authentication configuration were not changed. No claim of a confirmed unbounded leak or complete resolution of issue #38 is made.

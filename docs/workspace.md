@@ -10,7 +10,7 @@ Pages above Layers support creation, switching, rename, duplicate, and delete. S
 
 ## History and deletion
 
-History is capped at 80 immutable file snapshots per file and lasts only for the current tab session. It includes all pages and file tokens. Switch between files without losing their individual histories. Undo/redo can restore page creation, rename, deletion, and content edits. Restoring a snapshot restores its active page too.
+History is capped at 80 immutable file snapshots per file and lasts only for the current tab session. It includes all pages and file tokens. Snapshots share unchanged validated pages, tokens, and layers rather than retaining fresh copies of the entire file. File/page navigation preserves unchanged artwork references. Full schema validation still runs before publishing content or library changes; sharing does not bypass import validation or change the history limit. Navigation checks that its target file and page exist, then updates only the active-page ID without reparsing unchanged artwork. Switch between files without losing their individual histories. Undo/redo can restore page creation, rename, deletion, and content edits. Restoring a snapshot restores its active page too.
 
 Project/file creation, duplication, and import add library entries, not undo steps. Project/file deletion is permanent, removes their histories, and requires confirmation in the UI. MCP deletion calls are explicit destructive operations without a separate UI confirmation. Download backups first. At least one project, one file per project, and one page per file must remain.
 
@@ -45,14 +45,23 @@ The complete workspace is currently saved as one record. Large image-heavy works
 
 An automatically connected browser identifies the active project, file, and page in every response and `list_canvases`. Page/content mutations require this `context` together with the current revision. Library tools accept explicit project/file/page target IDs. Opening a different file invalidates old page context even when copied layer IDs match.
 
-The current MCP server has 44 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
+The current MCP server has 48 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
+
+## Review feedback
+
+Pages contain posted review threads in addition to layers. File/project/workspace backups preserve them. Page duplication remaps layer/thread/comment IDs; page deletion removes its threads with undo restoration. Deleted-layer feedback remains readable as a missing anchor. Unposted drafts are session-only and survive page/file navigation. See [review-threads.md](review-threads.md) for controls, limits, and MCP context requirements.
 
 ## Direct links
 
-The address bar uses `/file/<fileId>/<pageId>`. File IDs are unique across the
-workspace, so the app resolves the owning project locally. IDs are unchanged,
-not truncated or derived from names. With generated 32-character IDs, the path is
-71 characters instead of the old 118-character root-and-query URL.
+The address bar uses `/f/<fileToken>/<pageToken>`. Generated 32-character
+hexadecimal IDs use lossless base64url tokens, each prefixed with `~` (23
+characters). The path is 50 characters instead of 71. Stored IDs never change;
+there is no prefix matching, collision-prone truncation, alias database, or
+network lookup. Other valid workspace IDs remain literal tokens. Renames do not
+affect tokens. File IDs remain unique across the workspace.
+
+Existing `/file/<fileId>/<pageId>` links remain supported and canonicalize to
+this compact format. Noncanonical or malformed encoded tokens are rejected.
 
 Copy the complete URL to bookmark a file/page. Renaming a project, file, or page
 does not change the destination. Opening a link waits for local storage to load,
@@ -80,7 +89,7 @@ hostname, or port may not have that workspace. Import regenerates project/file I
 so old links do not automatically refer to imported copies. Pending edits still need
 to finish saving before refresh.
 
-For agent references, path `<fileId>` and `<pageId>` map directly to MCP context
+For agent references, decoded file and page tokens map to MCP context
 `fileId` and `pageId`; the owning project supplies `projectId`. Legacy query
 `project`, `file`, and `page` still map to those three context IDs. Links do not
 encode `canvasId`: that ID identifies

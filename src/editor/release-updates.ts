@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { useEditor } from './store';
 import { agentActivity } from '../mcp/activity';
+import { hasReviewDrafts } from '../review/drafts';
 
 const manifestSchema = z.object({
   profile: z.literal('main'),
@@ -48,7 +49,7 @@ export function watchMainRelease() {
       !state.ready ||
       state.saveState !== 'saved' ||
       state.persistenceBlocked ||
-      state.interactionActive ||
+      state.interactionActive || hasReviewDrafts() ||
       agentActivity.active ||
       editing ||
       document.querySelector('dialog[open]') ||

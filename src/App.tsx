@@ -7,12 +7,13 @@ import {
 } from 'react';
 import {
   ArrowDownToLine,
-  Check,
+  AlertTriangle,
   ChevronDown,
   FolderOpen,
   Frame,
   HelpCircle,
   Layers2,
+  MessageSquare,
   PanelLeft,
   PanelRight,
   Plus,
@@ -78,6 +79,7 @@ function EditorApp() {
   const [layersVisible, setLayersVisible] = useState(true);
   const [propertiesVisible, setPropertiesVisible] = useState(true);
   const [help, setHelp] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
   const project = workspace.projects.find(
     (project) => project.id === location.projectId
@@ -279,21 +281,15 @@ function EditorApp() {
               >
                 Rename file
               </button>
+              <AgentConnection />
             </div>
           </details>
         </div>
         <div className="header-actions">
-          <AgentConnection />
-          <span
-            className={`save-status ${saveState === 'failed' ? 'save-failed' : ''}`}
-          >
-            <Check size={12} />
-            {saveState === 'saved'
-              ? 'Saved locally'
-              : saveState === 'pending'
-                ? 'Saving'
-                : 'Not saved'}
-          </span>
+          {saveState === 'failed' && <span className="save-status save-failed" role="alert">
+            <AlertTriangle size={12} />
+            Not saved
+          </span>}
           <button
             className="export-button"
             aria-label="Export SVG"
@@ -318,8 +314,11 @@ function EditorApp() {
           <span className="muted">/</span>
           <span>{activePage?.name}</span>
         </div>
-        <Toolbar onImage={() => imageInput.current?.click()} />
+        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(true); }} />
         <div className="workspace-end">
+          <IconButton className="icon-button desktop-panel-control" label="Comments" aria-expanded={commentsOpen} onClick={() => setCommentsOpen((open) => !open)}>
+            <MessageSquare size={17} />
+          </IconButton>
           <IconButton
             className="icon-button desktop-panel-control"
             label={propertiesVisible ? 'Collapse Properties sidebar' : 'Expand Properties sidebar'}
@@ -356,6 +355,9 @@ function EditorApp() {
           <PanelRight size={15} />
           Properties
         </button>
+        <button aria-expanded={commentsOpen} onClick={() => { setPanel(null); setCommentsOpen((open) => !open); }}>
+          <MessageSquare size={15} />Comments
+        </button>
         {panel && (
           <IconButton label="Close panel" onClick={() => setPanel(null)}>
             <X size={15} />
@@ -367,6 +369,7 @@ function EditorApp() {
         <Canvas
           key={`${location.fileId}:${location.pageId}`}
           controls={controls}
+          review={{ open: commentsOpen, setOpen: setCommentsOpen }}
         />
         <Inspector />
       </main>
