@@ -23,15 +23,20 @@ function persist() {
         current.workspace === snapshot.workspace &&
         current.location === snapshot.location
       )
-        useEditor.setState({ saveState: 'saved' });
+        useEditor.setState({ saveState: 'saved', persistenceFailure: null });
     } catch (error) {
       const conflict = error instanceof WorkspaceConflict;
       useEditor.setState({
         saveState: 'failed',
         persistenceBlocked: conflict,
-        message: conflict
-          ? error.message
-          : 'Workspace save failed. Download a workspace backup. Storage may be full or unavailable.',
+        persistenceFailure: {
+          kind: conflict ? 'conflict' : 'write',
+          name: error instanceof Error ? error.name.slice(0, 80) : 'UnknownError',
+          message: error instanceof Error ? error.message.slice(0, 500) : 'Workspace save failed.',
+          recovery: conflict
+            ? 'Workspace changed in another tab. Download a workspace backup from Projects, then reload before editing again.'
+            : 'Workspace save failed. Download a workspace backup from Projects before reloading. Storage may be full or unavailable.',
+        },
       });
     }
   });
@@ -45,6 +50,7 @@ export async function initializeWorkspace() {
       ...viewPatch(initial, loaded.workspace, loaded.location),
       ready: true,
       saveState: loaded.needsSave ? 'pending' : 'saved',
+      persistenceFailure: null,
       message: loaded.migrated
         ? 'Existing canvas migrated into Personal. Original local-storage data kept as a backup.'
         : '',
@@ -67,7 +73,13 @@ export async function initializeWorkspace() {
       ready: true,
       persistenceBlocked: true,
       saveState: 'failed',
-      message: `Workspace could not be loaded safely. Original data was not overwritten. Download backups before reloading. ${error instanceof Error ? error.message : ''}`,
+      persistenceFailure: {
+        kind: 'load',
+        name: error instanceof Error ? error.name.slice(0, 80) : 'UnknownError',
+        // Validation errors can include document values; do not expose their details.
+        message: error instanceof DOMException ? error.message.slice(0, 500) : 'Stored workspace could not be read or validated.',
+        recovery: 'Workspace could not be loaded safely. Original data was not overwritten. Download a workspace backup from Projects before reloading.',
+      },
     });
   }
 }
