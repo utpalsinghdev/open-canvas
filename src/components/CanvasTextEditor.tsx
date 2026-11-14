@@ -21,7 +21,7 @@ export function CanvasTextEditor({ node, camera, commit, cancel }: {
       width: bounds.width * camera.zoom + 4, height: bounds.height * camera.zoom + 4,
       fontSize: node.fontSize * camera.zoom, lineHeight: node.lineHeight, letterSpacing: `${node.letterSpacing * camera.zoom}px`,
       fontFamily: fontStatus(node.fontFamily).resolved, fontWeight: node.fontWeight,
-      color: node.fill, textAlign: node.align, whiteSpace: wraps ? 'pre-wrap' : 'pre', tabSize: 8,
+      color: node.fill, textAlign: node.align, whiteSpace: wraps ? 'pre-wrap' : 'pre', overflowWrap: 'normal', wordBreak: 'normal', tabSize: 8,
       transform: `rotate(${node.rotation}deg)`,
       transformOrigin: `${(frame.x + frame.width / 2 - bounds.x) * camera.zoom + 2}px ${(frame.height / 2) * camera.zoom + 2}px`,
     }}
