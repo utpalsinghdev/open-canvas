@@ -238,3 +238,18 @@ Wheel registration now uses a stable React callback ref with cleanup. After page
   GitHub image upload is not available through the CLI; captures remain local artifacts.
 - No new test files, main release rebuild/restart, global agent settings, or main MCP
   metadata changes. Links remain browser-origin-local, not remote sharing.
+
+## Issue #9: canvas keyboard history focus
+
+Reproduced on app 0.1.0 at base `cfdad43`, using Chromium 154 on Linux in an isolated development browser. Focusing the X property field and then dragging Circle left that input focused because canvas pointerdown prevented the browser's default focus transfer. The drag recorded history, but Ctrl+Z reached the input and was intentionally skipped by document shortcuts.
+
+The canvas SVG now accepts programmatic focus and takes focus before starting a pointer gesture. This also commits a pending property field through its existing blur handler. Shortcut mappings and input exclusion rules are unchanged.
+
+- Repeated the input-focus/drag sequence. Focus moved to SVG; Circle X changed from 567 to 600, Ctrl+Z restored 567, and Ctrl+Shift+Z restored 600. Ctrl+Y also restored the undone move.
+- Drew a rectangle, undid its creation, and restored it with Ctrl+Y. Deleted Circle, restored it with Ctrl+Z, and repeated the deletion with Ctrl+Shift+Z.
+- Typed into the inline textarea. Ctrl+Z removed the final typed character and Ctrl+Shift+Z restored it without invoking document undo. Ctrl+Enter committed the text; document undo restored the original headline and redo restored the committed text.
+- Changed X from 600 to 610 without committing first, then clicked the canvas. Blur committed 610 and SVG received focus. Undo restored 600 and Ctrl+Y restored 610.
+- Meta+Z and Meta+Shift+Z advanced the undo/redo stacks in Chromium on Linux. Actual macOS keyboard delivery remains unverified, as do Firefox and Safari.
+- `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. Active LSP probe of Canvas.tsx returned zero diagnostics. Browser reported no page errors. Existing Zod annotation warnings remain non-blocking. No CI workflow or test files were present or added.
+
+Screenshots captured the selected Circle and its X property after undo and redo. Main runtime, broker metadata, and other feature worktrees were not changed. No MCP behavior changed or was exercised in this pass.
