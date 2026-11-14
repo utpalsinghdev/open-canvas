@@ -50,7 +50,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 - **History:** undo and redo belong to each file, including all its pages. Switching files preserves separate histories during this session. A completed drag is one history entry. Camera and page navigation are not undo steps.
 - **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. Export SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page.
 
-Click the help button for the complete shortcut list. On narrow screens, use Layers and Properties buttons to open panels.
+Click the help button for the complete shortcut list. On desktop, use the sidebar icons at the left and right ends of the toolbar row to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
 
 ## Projects, files, and pages
 

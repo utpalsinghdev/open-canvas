@@ -25,7 +25,7 @@ export function Layers() {
     </div>;
   }
   const roots = document.nodes.filter((node) => node.parentId === null).reverse();
-  return <aside className="layers-panel" aria-label="Layers">
+  return <aside id="layers-panel" className="layers-panel" aria-label="Layers">
     <Pages />
     <div className="panel-heading"><span>Layers</span><span className="muted tabular-nums">{document.nodes.length}</span></div>
     <div className="layer-list">{roots.map((node) => <div key={node.id}>
