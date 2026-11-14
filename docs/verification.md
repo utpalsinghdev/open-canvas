@@ -253,3 +253,12 @@ The canvas SVG now accepts programmatic focus and takes focus before starting a 
 - `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. Active LSP probe of Canvas.tsx returned zero diagnostics. Browser reported no page errors. Existing Zod annotation warnings remain non-blocking. No CI workflow or test files were present or added.
 
 Screenshots captured the selected Circle and its X property after undo and redo. Main runtime, broker metadata, and other feature worktrees were not changed. No MCP behavior changed or was exercised in this pass.
+
+## Issue #7: text frames versus content bounds
+
+- Reproduced in local Brave: starter text selection and editing used stored frames much wider than visible text. Zoom scaled those frames correctly; it was not the cause.
+- Selection now distinguishes the dashed stored frame from the solid measured content area. The inline textarea grows with draft content, while frame dimensions remain unchanged. Whitespace measurement follows SVG collapsing for artwork and preserved whitespace/eight-space tab stops for editing.
+- `npm run build` (including `npm run check`), `npm run changeset:status`, and `git diff --check` passed. Build emitted dependency annotation warnings from Zod, without failure. No CI workflow or existing test script was present.
+- Real local Brave interactions checked short and long text, multiline/trailing newline, empty text, left/center/right alignment, 25-degree rotation, Escape cancellation, Meta+Enter/blur commit, undo/redo, and save/reload. Checks used 47%, 100%, and 207% zoom. Stored 500 by 36.4 frames survived all edits; long content remained unwrapped beyond its frame.
+- Security/edge review identified the whitespace distinction above; corrected in measurement. No network, broker, Origin/Host, or runtime-profile changes. Main services were not restarted.
+- Limitations: local Brave only, not macOS, Firefox, or Safari. Native textarea and SVG baselines can differ slightly. Whitespace/tab sizing correction was source-reviewed and built; no dedicated browser whitespace/tab case was recorded.
