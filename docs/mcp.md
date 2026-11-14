@@ -16,7 +16,7 @@ Copy its `open-cavas` entry into the agent configuration and start/reconnect tha
 
 **Development:** from a feature worktree run `npm run dev` and configure the agent with `npm run --silent mcp:config:dev`. Frontend is http://localmachine:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage.
 
-The header reports Agent connected or Waiting for agent. The disclosure offers Pause/Resume agent access. Pause disconnects this tab; resume registers it automatically. Reload defaults back to enabled. Registration retries use capped backoff, not design-command retries. Keep the actual workspace tab open. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
+The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause disconnects this tab; resume registers it automatically. Reload defaults back to enabled. Registration retries use capped backoff, not design-command retries. Keep the actual workspace tab open. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
 
 ### Automatic registration and trust boundary
 
@@ -120,3 +120,13 @@ Documents store at most 200 named color, number, or font tokens. Applying a toke
 - Requests/responses are limited to 12 MB and 30 seconds. The editor limits each page to 1,000 layers, each file to 100 pages/10,000 layers and 80 session-history snapshots, and the workspace to 50 projects/50 files per project/200 files total.
 - The connected browser owns data. Closing it stops document access. There is no headless editor, server document database, or cross-browser file/page synchronization.
 - After editing connector or tool source in development, reload the browser. An existing WebSocket callback can retain the previous hot-reloaded implementation. Restart the MCP client after server/schema changes.
+
+## Page-specific request activity
+
+Nine blue points above the page artwork appear while a page-targeted tool call is pending. Accessible status text reads **Agent processing a request on this page**. This is editor chrome and is excluded from artwork exports and MCP screenshots. Header connection and routine save badges are omitted; Pause/Resume remains in the File menu and failed saves remain visible. No task lifecycle is inferred between tool calls, and clearing the label does not mean an edit succeeded or was saved.
+
+Content mutations use their validated project/file/page context. Explicit page operations, including `open_file` with `pageId`, use those supplied IDs. Active-page reads and visual exports capture the displayed context when dispatched and reject navigation during their brief pre-execution paint opportunity. File-wide operations, JSON file exports, token definition changes, library reads, and calls without a specific page target do not light up a page. Opening a file without `pageId` therefore does not establish page activity.
+
+Pending calls are tracked independently. Navigating away hides another page's activity; returning shows it only if the call is still pending. Completion and failure remove the label. Pause, socket disconnection, cancellation, and the 30-second deadline clear presence without retrying or claiming that a dispatched write was rolled back. Reconnect and read actual state after an uncertain outcome. The broker sends a request-specific presence-end message on cancellation or timeout; it grants no new browser or internal API access.
+
+Nine square points form a fixed 37 by 25 px lattice, with wider horizontal spacing. A diagonal light sequence travels across them, then leaves a static blue pending mark. The sequence finishes within 2.04 seconds and never loops; only highlight opacity animates. Reduced-motion preferences render static pending points without the light sequence. Their screen-space size stays fixed, they follow the leading artwork bounds, and they clamp inside the viewport while panning. They do not intercept pointer input. Reload development browser tabs after connector changes, and restart development MCP clients after broker changes.
