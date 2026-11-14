@@ -66,6 +66,10 @@ Workspace validation requires unique project IDs and unique file IDs across proj
 
 Current UI JSON import limit is 40 MB. MCP request/response limits remain 12 MB, so browser backups are required for larger workspaces.
 
+## Review threads
+
+Version-2 pages also contain a `threads` array, defaulting to `[]` for older backups. Posted threads and comments persist in file/project/workspace archives; version-1 imports start without threads. Anchors are either a stable layer ID on the containing page or finite world coordinates. See [review-threads.md](review-threads.md#file-format-and-limits) for the schema, validation limits, copy/deletion rules, and retained missing-anchor policy. Session drafts are not serialized.
+
 ## Text frames and editing bounds
 
 Text `width` and `height` describe the stored frame, not glyph extents. Selection shows the resolved frame dashed and a solid content outline based on the same font and line layout as the artwork. Resize handles follow the selected sizing mode. Inline editing grows with the draft while preserving the frame width for wrapped text. Edits do not change stored frame dimensions. Alignment and rotation remain anchored to the resolved frame.
