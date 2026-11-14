@@ -137,3 +137,16 @@ Checks performed before the configuration commit:
 - In an isolated temporary Git repository, release:main archived committed source, installed a separate locked dependency tree, built successfully, and wrote a valid release pointer. No app listener or broker was stopped by that operation.
 
 The existing main MCP owner and global agent settings are not automatically migrated or killed. A deliberate reconnect/restart is required to switch legacy clients from their old direct-source paths to generated main-release config. This is an explicit first-migration limit, not a claim of live client migration.
+
+### Live runtime isolation verification
+
+- Prepared the first real main snapshot from clean committed main. Comparing the running frontend entry before/after publication showed no change until the deliberate frontend cutover.
+- Replaced only the task-owned frontend process with `npm start`. Process arguments showed Vite and esbuild running from `.cavas/releases/<commit>/node_modules`, not root dist or the feature worktree. HTTP and browser metadata identified the main profile and exact release commit. Projects rendered, file inputs remained hidden, and no browser errors were reported.
+- Re-ran the source `npm run build` while frozen main was running. The main HTTP entry remained byte-identical, proving source builds no longer replace the live frontend.
+- A temporary source copy inside the existing feature worktree exercised supported dev launch and config generation on 5188/4785. Its first location under `.cavas` was correctly denied by Vite; moved the disposable copy outside that private path before verifying actual dev HTTP/browser behavior. No security guard was weakened.
+- Actual official SDK clients started main and dev MCP concurrently. Capabilities reported main's commit and Origin 5182 versus development and Origin 5188. Pairing files were in separate directories with different codes. Closing the development client left main MCP responsive and its pairing metadata intact.
+- Actual browser opened development on 5188 and read dev profile metadata without errors. The main frontend stayed byte-identical while that runtime ran. Temporary dev app, clients, browsers, and exact task-owned source copies were cleaned up afterward.
+- The previously running legacy main MCP owner exited independently; it was not killed by this work. Updated only the existing global Pi open-cavas command/arguments/cwd/runtime environment to generated stable-main config, preserving other entries and making a private backup. Existing agent sessions still need their normal MCP reload/reconnect; this operation did not inject tools into an already-running session.
+- Production main is served on the same 5182 browser origin, so no browser workspace migration between ports was introduced. Future feature work uses 5188/4785, and future rollouts follow docs/runtime.md.
+
+No new test files or public Git actions were used. Automatic service restart after reboot, hot migration of paired sockets, and unannounced broker-owner termination are intentionally not implemented. Release preparation does not kill services. A coordinated restart remains the deployment boundary.
