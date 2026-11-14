@@ -1,4 +1,5 @@
-import { createNode, nodeSchema, type DesignNode } from '../editor/model';
+import { createNode, fonts, nodeSchema, type DesignNode } from '../editor/model';
+import { textLayout } from '../editor/typography';
 
 const tags = new Set([
   'div',
@@ -34,6 +35,9 @@ const properties = new Set([
   'font-size',
   'font-family',
   'font-weight',
+  'line-height',
+  'letter-spacing',
+  'white-space',
   'border-radius',
   'opacity',
   'text-align',
@@ -154,11 +158,13 @@ export function importHtml(
       );
       return style.position === 'absolute' ? 0 : pixels(style.height, 120);
     }
-    const ownText = [...element.childNodes]
+    if (style.whiteSpace && !['normal', 'nowrap', 'pre'].includes(style.whiteSpace))
+      throw new Error('Supported white-space values are normal, nowrap, and pre.');
+    const rawText = [...element.childNodes]
       .filter((node) => node.nodeType === Node.TEXT_NODE)
       .map((node) => node.textContent ?? '')
-      .join('')
-      .trim();
+      .join('');
+    const ownText = style.whiteSpace === 'pre' ? rawText : rawText.replace(/\s+/g, ' ').trim();
     if (ownText && element.children.length)
       throw new Error(
         'Mixed text and child elements are not supported. Wrap text in its own element.'
@@ -171,22 +177,34 @@ export function importHtml(
     const foreground: DesignNode[] = [];
     const beforeChildren = nodes.length;
     if (ownText) {
-      const text = nodeSchema.parse({
+      // CSSOM quotes family names containing spaces. Accept one registry family,
+      // not a font stack whose fallback would be silently discarded.
+      const requestedFont = (style.fontFamily || 'Arial').replace(/^(["'])(.*)\1$/, '$2');
+      const fontFamily = fonts.find((family) => family === requestedFont);
+      if (!fontFamily) throw new Error(`Unsupported font family: ${requestedFont}`);
+      const lineHeight = !style.lineHeight || style.lineHeight === 'normal' ? 1.2
+        : style.lineHeight.endsWith('px') ? pixels(style.lineHeight, fontSize * 1.2) / fontSize
+        : pixels(style.lineHeight, 1.2);
+      const text = nodeSchema.options[3].parse({
         ...createNode('text', x + padding, y + padding),
         parentId: board.id,
         name,
         text: ownText,
         width: width - padding * 2,
-        height: Math.max(1, ownText.split('\n').length * fontSize * 1.2),
+        height: style.height ? pixels(style.height, 1) - padding * 2 : 1,
+        sizing: style.height ? 'fixed' : 'auto-height',
+        wrap: style.whiteSpace !== 'pre' && style.whiteSpace !== 'nowrap',
+        lineHeight,
+        letterSpacing: style.letterSpacing === 'normal' ? 0 : pixels(style.letterSpacing, 0),
         fontSize,
         fill: color(style.color, '#172015'),
-        fontFamily: style.fontFamily || 'Arial',
+        fontFamily,
         fontWeight: style.fontWeight || '400',
         align: style.textAlign || 'left',
         opacity,
       });
       foreground.push(text);
-      cursor += text.height;
+      cursor += textLayout(text).height;
     }
     for (const child of element.children)
       cursor += visit(
