@@ -1,6 +1,6 @@
 # Agent control through MCP
 
-Open Cavas exposes 44 tools over the official MCP SDK's stdio transport. It controls an automatically connected Open Cavas browser directly. It does not connect to Paper, the old Mac helper, or Paper's official MCP service.
+Open Cavas exposes 45 tools over the official MCP SDK's stdio transport. It controls an automatically connected Open Cavas browser directly. It does not connect to Paper, the old Mac helper, or Paper's official MCP service.
 
 ## Start and connect
 
@@ -51,7 +51,7 @@ There is no automatic mutation retry. Cancellation, timeout, or disconnection af
 
 ### Discovery and read-back
 
-`get_capabilities`, `list_canvases`, `get_document`, `get_tree`, `get_node`, `get_styles`, `get_selection`.
+`get_capabilities`, `list_canvases`, `get_fonts`, `get_document`, `get_tree`, `get_node`, `get_styles`, `get_selection`.
 
 By default document/node/style reads omit base64 image bytes. Such abbreviated document responses are not lossless import files. Use `export_document` with format `json`, or explicitly request images in `get_document`, for a complete document. Stable node IDs survive JSON export/import and browser reload; canvas IDs do not.
 
@@ -81,7 +81,7 @@ This is a tool-schema change for existing agents: reload the MCP client and relo
 
 SVG preserves supported artwork. HTML export is a standalone document containing that SVG, not semantic HTML/CSS layout. JSX export is a React component containing SVG JSX, not a semantic component reconstruction. JSON exports the complete editable document.
 
-PNG screenshots render supported artwork, not editor chrome. They use the browser's SVG/image/canvas pipeline. Maximum side is 4096 pixels and maximum area is eight megapixels. Use a smaller scale or select one artboard if a document is too large. Text does not automatically wrap, so overflow and artboard clipping are preserved.
+PNG screenshots render supported artwork, not editor chrome. They use the browser's SVG/image/canvas pipeline. Maximum side is 4096 pixels and maximum area is eight megapixels. Use a smaller scale or select one artboard if a document is too large. Text uses the same measured wrapping and font resolution as the editor. Screenshot text metadata includes world-space `bounds`, requested `scale`, pixel dimensions, and font availability. Capture waits for bundled font loading to settle. Overflow remains visible outside a text box and clips only at its parent artboard.
 
 ### Static HTML import
 
@@ -91,17 +91,23 @@ Supported tags: div, section, article, header, footer, main, aside, nav, span, p
 
 Supported attributes: `style`, `data-layer-name`, `src`, `alt`. IDs, classes, event handlers, links, and other attributes are rejected.
 
-Supported styles: position, left, top, width, height, padding, background, background-color, color, font-size, font-family, font-weight, border-radius, opacity, text-align, display. Dimensions must be pixel numbers. Colors accept hex or RGB. Fonts and weights must match the document schema. Block flow is a restricted vertical stack; absolute positioning uses the containing block's origin. Text must occupy its own element. Font/color inheritance and CSS group-opacity semantics are not implemented.
+Supported styles: position, left, top, width, height, padding, background, background-color, color, font-size, font-family, font-weight, line-height, letter-spacing, white-space, border-radius, opacity, text-align, display. Dimensions must be pixel numbers. Colors accept hex or RGB. Fonts and weights must match the document schema; a quoted single family is accepted, font stacks are rejected. `line-height` accepts a unitless multiplier, pixels, or `normal`; `letter-spacing` accepts pixels or `normal`. `white-space` accepts normal, nowrap, or pre. Block flow is a restricted vertical stack; absolute positioning uses the containing block's origin. Text must occupy its own element. Font/color inheritance and CSS group-opacity semantics are not implemented.
 
 Scripts, stylesheets, embeds, SVG/MathML markup, network image URLs, CSS variables, expressions, important declarations, flex/grid, mixed rich text, and unsupported CSS/attributes are rejected. At most 100 generated layers and 20 nesting levels per import. Invalid input commits nothing. This is not arbitrary website rendering or Paper's full HTML importer.
-
-### Design tokens
-
-`get_design_tokens`, `set_design_tokens`, `apply_design_token`.
 
 ### Typography
 
 `get_fonts` reports the application font registry and per-font availability. Inter and Bricolage Grotesque are bundled variable fonts; the UI and MCP can use variable weights including 620. Arial, Georgia, and Courier New use browser system resolution (`system` status; local availability is not guaranteed by web APIs). Document font names cannot select URLs or arbitrary assets. `get_node` adds `font.requested`, `font.resolved`, `font.fallback`, availability, measured dimensions, and overflow for text nodes. `create_nodes` and `update_nodes` accept `fontFamily`, numeric `fontWeight`, `lineHeight`, `letterSpacing`, `align`, `wrap`, and `sizing`. Legacy string weights are normalized during validation. Fonts load before the editor mounts. SVG/HTML/JSX artwork exports embed loaded bundled font data; JSON keeps editable typography fields. An unavailable bundled font keeps its requested family in the document and falls back to Arial for rendering; read status makes that substitution explicit.
+
+### Text import geometry
+
+HTML width and height describe the outer box, including uniform padding (not CSS content-box sizing). Text occupies the inset content box. Explicit height produces fixed text geometry: a 50px height without padding stays 50px. Without height, text is auto-height and block flow advances by its measured height plus padding. Width defaults to the remaining parent width. Padding must leave positive content dimensions. Absolute elements do not advance block flow; relative offsets move artwork without changing flow advance. Imported layers are flattened under the target artboard, not live HTML containers.
+
+Normal whitespace collapses runs and wraps at whitespace boundaries. Nowrap collapses whitespace without wrapping; pre retains spaces and newlines without wrapping. Long unbroken words overflow rather than being split. There is no hyphenation or full Unicode line-break engine. Line-height is stored as a multiplier, so imported pixel line-height is divided by font size. Text bounds do not clip glyphs; parent artboard bounds clip artwork. `get_node.layout` separates resolved `width`/`height` from `contentWidth`/`contentHeight` and reports overflow, including glyph overhang. Auto sizing is capped at 20,000px.
+
+### Design tokens
+
+`get_design_tokens`, `set_design_tokens`, `apply_design_token`.
 
 Documents store at most 200 named color, number, or font tokens. Applying a token copies its value to compatible node properties in one undo step. There are no dynamic references; later token edits do not change previously styled layers. Tokens are managed through MCP and JSON in this increment, not a new visual token editor.
 

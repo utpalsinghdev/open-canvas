@@ -77,7 +77,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     const handle = target?.getAttribute('data-handle');
     const selected = document.nodes.find((node) => node.id === selectedIds[0]);
     if (handle && selected && !isLocked(selected, document.nodes)) {
-      setGesture({ mode: 'resize', start: point, delta: { x: 0, y: 0 }, node: selected, corner: handle });
+      setGesture({ mode: 'resize', start: point, delta: { x: 0, y: 0 }, node: selected.kind === 'text' ? { ...selected, ...textNodeBounds(selected) } : selected, corner: handle });
       return;
     }
     const id = target?.closest('[data-node-id]')?.getAttribute('data-node-id');
@@ -169,9 +169,11 @@ export function Canvas({ controls }: { controls: CameraControls }) {
         {preview && <NodeView node={preview} />}
         {selected.map((node) => {
           const bounds = node.kind === 'text' ? textNodeBounds(node) : node;
+          const handles = node.kind !== 'text' || node.sizing === 'fixed' ? ['nw', 'ne', 'sw', 'se']
+            : node.sizing === 'auto-height' ? ['w', 'e'] : ['n', 's'];
           return <g key={node.id} transform={`rotate(${node.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`}>
             <rect x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />
-            {selected.length === 1 && !isLocked(node, nodes) && ['nw', 'ne', 'sw', 'se'].filter((corner) => node.kind !== 'text' || (node.sizing !== 'auto-width' || !corner.includes('e') && !corner.includes('w')) && (node.sizing !== 'auto-height' || !corner.includes('n') && !corner.includes('s'))).map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : 0) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : 0) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
+            {selected.length === 1 && !isLocked(node, nodes) && handles.map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : corner.includes('w') ? 0 : bounds.width / 2) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : corner.includes('n') ? 0 : bounds.height / 2) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
           </g>;
         })}
         {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}

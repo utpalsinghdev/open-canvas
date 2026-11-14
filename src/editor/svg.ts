@@ -35,7 +35,7 @@ export function nodeSvg(node: DesignNode): string {
           : node.align === 'right'
             ? 'end'
             : 'start';
-      return `<text fill="${node.fill}" font-family="${fontStatus(node.fontFamily).resolved}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" letter-spacing="${node.letterSpacing}" text-anchor="${anchor}" data-text-overflow="${layout.overflow}" ${common}>${layout.lines
+      return `<text fill="${node.fill}" font-family="${fontStatus(node.fontFamily).resolved}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" letter-spacing="${node.letterSpacing}" xml:space="preserve" style="font-kerning:normal" text-rendering="geometricPrecision" text-anchor="${anchor}" data-text-overflow="${layout.overflow}" ${common}>${layout.lines
         .map(
           (line, index) =>
             `<tspan x="${x}" y="${node.y + node.fontSize + index * node.fontSize * node.lineHeight}">${escape(line)}</tspan>`
@@ -80,6 +80,7 @@ export function renderSvg(doc: DesignDocument, selectedIds: string[]) {
   const fontStyle = embeddedFontStyle(families);
   return {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}"><title>${escape(selectedBoard?.name ?? doc.name)}</title>${fontStyle ? `<style>${fontStyle}</style>` : ''}${content}</svg>`,
+    bounds,
     width: bounds.width,
     height: bounds.height,
     name: selectedBoard?.name ?? doc.name,

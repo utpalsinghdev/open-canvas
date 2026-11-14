@@ -4,7 +4,7 @@ The earlier read-only reference project was `/home/utpal/work/paper-custom-bridg
 
 ## Implemented and live-verified through MCP
 
-- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 44 tools exposed.
+- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 45 tools exposed.
 - Live document/tree/node/style/selection reads with stable layer identity.
 - Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection.
 - Undo/redo through the same document history as manual edits.
@@ -29,7 +29,7 @@ Live verification used synthetic artwork in a dedicated browser session. It did 
 
 ## Not implemented
 
-Paper document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, shared server-side documents, multiplayer conflict merging, headless editing, hosted HTTP MCP, and full official Paper API/tool-schema compatibility. Full Paper text-engine parity, rich-text runs, and embedding of third-party or system fonts are unsupported.
+Paper document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, shared server-side documents, multiplayer conflict merging, headless editing, hosted HTTP MCP, and full official Paper API/tool-schema compatibility. Full Paper text-engine parity, rich-text runs, arbitrary custom/document font registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
 
 No placeholder tools claim those capabilities. `get_tree` reports the active-page layer tree and the actual file page index. Full Paper MCP parity is not claimed. Adding a transport does not create editor features that the document model cannot represent.
 

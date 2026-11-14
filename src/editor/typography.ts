@@ -37,7 +37,7 @@ let state: FontState = {
   Georgia: 'loading',
   'Courier New': 'loading',
 };
-let initialized = false;
+let loading: Promise<void> | undefined;
 const bundledFonts = new Map<FontFamily, ArrayBuffer>();
 
 function publish(next: FontState) {
@@ -51,15 +51,6 @@ function subscribe(listener: () => void) {
 function snapshot() {
   return state;
 }
-async function loadBundledFont(family: FontFamily) {
-  switch (family) {
-    case 'Inter': return fetch('/fonts/Inter-Variable.ttf', { credentials: 'same-origin' });
-    case 'Bricolage Grotesque': return fetch('/fonts/BricolageGrotesque-Variable.ttf', { credentials: 'same-origin' });
-    case 'Arial':
-    case 'Georgia':
-    case 'Courier New': throw new Error('System font has no bundled asset.');
-  }
-}
 export function fontAvailability() {
   return snapshot();
 }
@@ -67,49 +58,56 @@ export function useFontState() {
   return useSyncExternalStore(subscribe, snapshot, snapshot);
 }
 
-/** Load only fonts shipped with the application; never resolve a document URL. */
-export async function loadDocumentFonts() {
-  if (initialized || typeof document === 'undefined') return;
-  initialized = true;
-  const next: FontState = { ...state };
-  for (const family of fontFamilies) next[family] = 'loading';
-  publish(next);
-  for (const family of fontFamilies) {
-    try {
-      const font = fontRegistry[family];
-      if (font.source !== 'system') {
-        const response = await loadBundledFont(family);
-        if (!response.ok) throw new Error(`Bundled font unavailable: ${family}`);
-        const bytes = await response.arrayBuffer();
-        const face = new FontFace(family, bytes, {
-          weight: `${font.weight[0]} ${font.weight[1]}`,
-        });
-        await face.load();
-        bundledFonts.set(family, bytes);
-        document.fonts.add(face);
-      }
-      next[family] = font.source === 'system'
-        ? 'system'
-        : document.fonts.check(`620 16px \"${family}\"`)
-          ? 'available'
-          : 'unavailable';
-    } catch {
-      next[family] = 'unavailable';
-    }
+function fetchFont(family: FontFamily) {
+  const options = { credentials: 'same-origin', signal: AbortSignal.timeout(8_000) } satisfies RequestInit;
+  switch (family) {
+    case 'Inter': return fetch('/fonts/Inter-Variable.ttf', options);
+    case 'Bricolage Grotesque': return fetch('/fonts/BricolageGrotesque-Variable.ttf', options);
+    default: throw new Error('System font has no bundled asset.');
   }
-  publish(next);
+}
+async function loadFont(family: FontFamily) {
+  const font = fontRegistry[family];
+  if (font.source === 'system') {
+    publish({ ...state, [family]: 'system' });
+    return;
+  }
+  try {
+    // A missing or stalled asset must not prevent opening the user's workspace.
+    const response = await fetchFont(family);
+    if (!response.ok) throw new Error(`Bundled font unavailable: ${family}`);
+    const bytes = await response.arrayBuffer();
+    const face = new FontFace(family, bytes, {
+      weight: `${font.weight[0]} ${font.weight[1]}`,
+    });
+    await face.load();
+    bundledFonts.set(family, bytes);
+    document.fonts.add(face);
+    publish({ ...state, [family]: 'available' });
+  } catch {
+    publish({ ...state, [family]: 'unavailable' });
+  }
+}
+
+/** Load only fonts shipped with the application; never resolve a document URL. */
+export function loadDocumentFonts(): Promise<void> {
+  if (typeof document === 'undefined') return Promise.resolve();
+  loading ??= Promise.all(fontFamilies.map(loadFont)).then(() => undefined);
+  return loading;
 }
 
 export function fontStatus(family: FontFamily, fonts: FontState = state): FontStatus {
   const availability = fonts[family];
   const resolved = availability === 'available' || availability === 'system' ? family : 'Arial';
-  return { requested: family, resolved, fallback: availability === 'system' ? null : 'Arial', availability };
+  return { requested: family, resolved, fallback: resolved === family ? null : 'Arial', availability };
 }
 
 export type TextLayout = {
   lines: string[];
   width: number;
   height: number;
+  contentWidth: number;
+  contentHeight: number;
   overflow: boolean;
   measured: boolean;
 };
@@ -119,41 +117,31 @@ function textContext(node: Extract<DesignNode, { kind: 'text' }>) {
   if (!context) return null;
   const family = fontStatus(node.fontFamily).resolved;
   context.font = `${node.fontWeight} ${node.fontSize}px "${family}"`;
+  context.fontKerning = 'normal';
+  context.letterSpacing = `${node.letterSpacing}px`;
   return context;
 }
 function measuredWidth(
   context: CanvasRenderingContext2D,
   text: string,
-  tracking: number,
 ) {
-  return context.measureText(text).width + Math.max(0, text.length - 1) * tracking;
+  return context.measureText(text).width;
 }
 function wrapLine(
   context: CanvasRenderingContext2D,
   text: string,
   maxWidth: number,
-  tracking: number,
 ) {
   const words = text.split(/(\s+)/).filter(Boolean);
   const lines: string[] = [];
   let current = '';
   for (const word of words) {
     const candidate = current + word;
-    if (current && measuredWidth(context, candidate, tracking) > maxWidth) {
+    if (current && measuredWidth(context, candidate) > maxWidth) {
       lines.push(current.trimEnd());
       current = word.trimStart();
     } else {
       current = candidate;
-    }
-    if (!current && measuredWidth(context, word, tracking) > maxWidth) {
-      let chunk = '';
-      for (const character of word) {
-        if (chunk && measuredWidth(context, chunk + character, tracking) > maxWidth) {
-          lines.push(chunk);
-          chunk = character;
-        } else chunk += character;
-      }
-      current = chunk;
     }
   }
   lines.push(current.trimEnd());
@@ -162,21 +150,32 @@ function wrapLine(
 
 export function textLayout(node: Extract<DesignNode, { kind: 'text' }>): TextLayout {
   const context = textContext(node);
-  if (!context) return { lines: node.text.split('\n'), width: node.width, height: node.height, overflow: false, measured: false };
+  if (!context) return { lines: node.text.split('\n'), width: node.width, height: node.height, contentWidth: node.width, contentHeight: node.height, overflow: false, measured: false };
   const explicitLines = node.text.split('\n');
   const lines: string[] = node.wrap && node.sizing !== 'auto-width'
-    ? explicitLines.flatMap((line: string) => wrapLine(context, line, node.width, node.letterSpacing))
+    ? explicitLines.flatMap((line) => wrapLine(context, line, node.width))
     : explicitLines;
-  const width = Math.max(1, ...lines.map((line: string) => measuredWidth(context, line, node.letterSpacing)));
-  const height = Math.max(node.fontSize, lines.length * node.fontSize * node.lineHeight);
+  const metrics = lines.map((line) => context.measureText(line));
+  const width = Math.max(1, ...metrics.map((metric) => metric.width));
+  const baselines = lines.map((_, index) => node.fontSize + index * node.fontSize * node.lineHeight);
+  const height = Math.max(node.fontSize, lines.length * node.fontSize * node.lineHeight,
+    ...metrics.map((metric, index) => baselines[index] + metric.actualBoundingBoxDescent));
   const resolvedWidth = node.sizing === 'auto-width' ? Math.min(20_000, width) : node.width;
   const resolvedHeight = node.sizing === 'auto-height' ? Math.min(20_000, height) : node.height;
   const availability = fontStatus(node.fontFamily).availability;
+  const horizontalOverflow = metrics.some((metric) => {
+    const start = node.align === 'center' ? (resolvedWidth - metric.width) / 2
+      : node.align === 'right' ? resolvedWidth - metric.width : 0;
+    return start - metric.actualBoundingBoxLeft < 0 || start + metric.actualBoundingBoxRight > resolvedWidth;
+  });
+  const topOverflow = metrics.some((metric, index) => baselines[index] - metric.actualBoundingBoxAscent < 0);
   return {
     lines,
     width: resolvedWidth,
     height: resolvedHeight,
-    overflow: width > resolvedWidth || height > resolvedHeight,
+    contentWidth: width,
+    contentHeight: height,
+    overflow: width > resolvedWidth || height > resolvedHeight || horizontalOverflow || topOverflow,
     measured: availability !== 'loading' && availability !== 'unavailable',
   };
 }
