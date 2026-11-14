@@ -29,6 +29,10 @@ Controls have visible instant keyboard focus. Native disabled states change ink,
 
 A dotted world grid provides position context without repainting animation. Artboard titles stay the same screen size while zoom changes. Selection outlines scale inversely with zoom. Text edits use a focused textarea over the artwork; text content never becomes executable HTML.
 
+## Review threads
+
+The Comment drawing tool selects click-to-comment mode with a crosshair; clicking artwork anchors feedback to that layer, while clicking empty canvas anchors feedback to world coordinates. Comments uses the existing toolbar icon language and a dense black panel over the canvas, with file-wide thread rows and text-first feedback. On mobile the Comments action lives beside Layers/Properties and its panel occupies the lower canvas, leaving room to place pins above it. Open threads have fixed-screen-size numbered pins; resolved and missing-layer threads remain in the list without pins. The panel scrolls independently of camera pan/zoom. Thread navigation centers targets outside the panel. All controls retain visible focus; comment content stays plain text.
+
 ## Review
 
 Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browser. Mobile has no document-width overflow and exposes both panels. Design detector returned no findings. Static Hallmark checks have no floor failures; pure black and white are explicitly waived because they are user requirements. Hallmark's render tier was unavailable, so browser captures and interactions provide visual evidence instead. This was a single-agent review, not an independent review.

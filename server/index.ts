@@ -46,6 +46,12 @@ server.registerTool(
         totalFiles: 200,
         history: 80,
         tokens: 200,
+        threadsPerPage: 100,
+        threadsPerFile: 500,
+        commentsPerThread: 100,
+        commentsPerFile: 2000,
+        commentCharacters: 4000,
+        reviewCharactersPerFile: 1_000_000,
         messageBytes: 12_000_000,
       },
     })
