@@ -49,7 +49,7 @@ function applyRecord(record: ServiceRecord, opening = false) {
   }
   applying = true;
   useEditor.setState({
-    ...localView(record, location), ready: true, saveState: 'saved', persistenceBlocked: false,
+    ...localView(record, location), ready: true, saveState: 'saved', persistenceBlocked: false, persistenceFailure: null,
   });
   applying = false;
   useWorkspaceService.setState({ record, error: '' });
@@ -120,11 +120,19 @@ async function persist() {
     }));
     useWorkspaceService.setState({ record: next });
     if (useEditor.getState().workspace === snapshot.workspace)
-      useEditor.setState({ saveState: 'saved' });
+      useEditor.setState({ saveState: 'saved', persistenceFailure: null });
   } catch (error) {
+    const conflict = error instanceof Error && error.message.startsWith('Workspace revision conflict.');
     useEditor.setState({
       saveState: 'failed', persistenceBlocked: true,
-      message: `${error instanceof Error ? error.message : 'Workspace save failed.'} Your unsaved browser state was kept. Download a workspace backup before reloading.`,
+      persistenceFailure: {
+        kind: conflict ? 'conflict' : 'write',
+        name: error instanceof Error ? error.name.slice(0, 80) : 'UnknownError',
+        message: error instanceof Error ? error.message.slice(0, 500) : 'Workspace save failed.',
+        recovery: conflict
+          ? 'Workspace changed elsewhere. Download a workspace backup from Projects, then reload before editing again.'
+          : 'Your unsaved browser state was kept. Download a workspace backup from Projects before reloading.',
+      },
     });
   } finally {
     saving = false;

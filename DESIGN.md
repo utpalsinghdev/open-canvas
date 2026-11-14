@@ -25,7 +25,7 @@ Spacing declarations use a 4 px grid. Borders are 1 px. Compact controls have 3 
 
 Desktop uses a 54 px header, 55 px toolbar, 27 px footer, 224 px Layers panel, and 248 px Properties panel. At narrower desktop widths panels shrink to 192 and 224 px. Persistent sidebar icons at the left and right ends of the toolbar row independently collapse or reopen desktop panels. The canvas fills each freed column without resetting the camera or selection. Hidden panels remain mounted to retain their content. At 900 px and below, panels become explicitly toggled, mutually exclusive overlays, separate from desktop visibility preferences. Visibility is session-only and resets on reload. Under 560 px, the SVG action becomes an icon with an accessible label.
 
-Controls have visible instant keyboard focus. Native disabled states change ink, fill, and cursor, and preserve disabled attributes. Disabled controls are exempt from normal text contrast requirements. Fields commit on blur or Enter; drag operations commit once on release. Local-save failure is visible in the header and a live status message.
+Controls have visible instant keyboard focus. Native disabled states change ink, fill, and cursor, and preserve disabled attributes. Disabled controls are exempt from normal text contrast requirements. Fields commit on blur or Enter; drag operations commit once on release. Local-save failure is visible in the header and a persistent recovery notice. The notice takes precedence over dismissible notifications, includes expandable bounded error details, and opens Projects for workspace backup. It has no dismiss or retry action and stays until saving the current workspace succeeds or a successful reload clears it.
 
 A dotted world grid provides position context without repainting animation. Artboard titles stay the same screen size while zoom changes. Selection outlines scale inversely with zoom. Text edits use a focused textarea over the artwork; text content never becomes executable HTML.
 
@@ -48,6 +48,18 @@ A compact project-name action sits before the file name in the header. Its Proje
 
 Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.
 
+## Canvas cursors
+
+Select, Hand, Text, and resize cursors use static 32×32 SVGs with 1.5 px dark ink,
+rounded joins, and a 1 px white contrast rim. Artboard, Rectangle, and Ellipse
+use the native crosshair, with no custom assets or tool badges. Select points at (5, 3); both hand
+states share a palm hotspot at (16, 18). Text and resize cursors center at (16, 16).
+Hand silhouettes use white fills. Text placement uses the same outlined I-beam
+language, while the inline textarea retains its native text cursor.
+
+Every custom cursor retains its matching native fallback. Cursor styling belongs
+only to the canvas SVG and Select-mode resize handles, never panels or controls.
+Active pan overrides tool and resize cursors without changing pointer geometry.
 ## Page request activity
 
 Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static blue pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.

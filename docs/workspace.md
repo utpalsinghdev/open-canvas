@@ -18,7 +18,7 @@ Project/file creation, duplication, and import add library entries, not undo ste
 
 The local workspace service is authoritative for explicitly selected service workspaces. Browser IndexedDB is now a read-only source for explicit migration, not the live save destination. The chooser copies existing data into a new service workspace without changing its project/file/page IDs; original browser data stays untouched. JSON import still appends items with regenerated project/file IDs.
 
-Service saves use a single-owner queue, durable revisions, and atomic fsynced snapshots. Stale browser or MCP saves fail rather than overwriting another writer. Idle browsers poll for changes while keeping displayed page independent of agent context. Pending edits and drafts block refresh. Incoming changes clear browser undo history; browser saves clear backend session history. Keep backups before reloading conflicts.
+Service saves use a single-owner queue, durable revisions, and atomic fsynced snapshots. Stale browser or MCP saves fail rather than overwriting another writer. Idle browsers poll for changes while keeping displayed page independent of agent context. Pending edits and drafts block refresh. Incoming changes clear browser undo history; browser saves clear backend session history. Failed browser saves block further saves and show persistent recovery guidance and bounded error details, independent of routine notifications. Download a workspace backup before reloading.
 
 See [local workspaces](local-workspaces.md) for exact storage location, workspace targeting, access controls, migration, shutdown, conflict recovery, and limits. It supersedes the former browser-only persistence contract.
 

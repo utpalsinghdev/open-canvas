@@ -49,6 +49,7 @@ return createStore<EditorState>((set, get) => ({
   future: [],
   saveState: 'pending',
   persistenceBlocked: false,
+  persistenceFailure: null,
   ...createWorkspaceActions(get, set),
   ...createReviewActions(get),
   edit: (update) => {
