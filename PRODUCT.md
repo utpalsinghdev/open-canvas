@@ -22,7 +22,7 @@ Assumption for this MVP: designers and developers working on desktop browsers. T
 
 Artboards, layers, selection, move/resize, property editing, undo/redo, zoom/pan, local saves, JSON import/export, and SVG export. No new test files. Maintain documentation and make atomic local commits without asking.
 
-Cloud sync, multiplayer, AI generation, arbitrary HTML execution, vector path editing, auto layout, and Paper file compatibility are outside this MVP. An optional paired-browser MCP server supports current editor operations, restricted inert HTML import, SVG-based code output, artwork screenshots, and explicit design token assignment. Multi-page management and full Paper parity remain outside the implemented editor. The implementation is original, not a copy of proprietary source.
+Cloud sync, multiplayer, AI generation, arbitrary HTML execution, vector path editing, auto layout, and Paper file compatibility are outside this MVP. An optional paired-browser MCP server supports current editor operations, restricted inert HTML import, SVG-based code output, artwork screenshots, and explicit design token assignment. Projects contain multiple files, and files contain multiple pages. Project/file management, page lifecycle, per-file history, IndexedDB persistence, and project/workspace backups are implemented in the browser and through MCP. Full Paper parity remains outside the implemented editor. The implementation is original, not a copy of proprietary source.
 
 ## Brand commitments
 

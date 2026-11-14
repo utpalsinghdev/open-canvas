@@ -195,15 +195,12 @@ export const mutations: Record<string, (value: unknown) => unknown> = {
   },
   create_document(value) {
     const args = tools.create_document.schema.parse(value);
-    commit({ version: 1, name: args.name, nodes: [], tokens: {} });
-    useEditor.getState().select([]);
-    return { name: args.name };
+    const state = useEditor.getState();
+    return { fileId: state.createFile(state.location.projectId, args.name) };
   },
   open_document(value) {
     const args = tools.open_document.schema.parse(value);
-    commit(args.document);
-    useEditor.getState().select([]);
-    return { name: args.document.name };
+    return { fileId: useEditor.getState().importData(args.document) };
   },
   undo(value) {
     tools.undo.schema.parse(value);

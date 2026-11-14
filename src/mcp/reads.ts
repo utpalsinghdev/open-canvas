@@ -1,9 +1,10 @@
+import { currentFile } from '../workspace/model';
 import { useEditor } from '../editor/store';
 import { renderSvg } from '../editor/svg';
 import { tools } from './tools';
 import type { DesignNode } from '../editor/model';
 
-function withoutImageBytes(node: DesignNode) {
+export function withoutImageBytes(node: DesignNode) {
   if (node.kind !== 'image') return node;
   const { src, ...rest } = node;
   return { ...rest, imageBytesOmitted: true, encodedLength: src.length };
@@ -62,6 +63,15 @@ export const reads: Record<
         ? doc
         : { ...doc, nodes: doc.nodes.map(withoutImageBytes) },
       imageBytesIncluded: args.includeImages,
+      fileVersion: 2,
+      pages: currentFile(
+        useEditor.getState().workspace,
+        useEditor.getState().location
+      ).document.pages.map((page) => ({
+        id: page.id,
+        name: page.name,
+        layerCount: page.nodes.length,
+      })),
       undoSteps: useEditor.getState().past.length,
       redoSteps: useEditor.getState().future.length,
     };
@@ -86,7 +96,15 @@ export const reads: Record<
             .filter((child) => child.parentId === node.id)
             .map(entry),
         })),
-      pages: [{ id: 'page-1', name: 'Page 1' }],
+      pages: currentFile(
+        useEditor.getState().workspace,
+        useEditor.getState().location
+      ).document.pages.map((page) => ({
+        id: page.id,
+        name: page.name,
+        layerCount: page.nodes.length,
+      })),
+      activePageId: useEditor.getState().location.pageId,
     };
   },
   get_node(value) {
@@ -129,7 +147,14 @@ export const reads: Record<
         throw new Error('JSON export is a complete document; omit artboardId.');
       return {
         format: 'json',
-        content: JSON.stringify(useEditor.getState().document, null, 2),
+        content: JSON.stringify(
+          currentFile(
+            useEditor.getState().workspace,
+            useEditor.getState().location
+          ).document,
+          null,
+          2
+        ),
       };
     }
     const artwork = exportArtwork(args.artboardId);

@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import { fileDocumentSchema, locationSchema } from '../workspace/model';
+import { workspaceTools } from './workspace-tools';
+import { target, pageMutationTarget as write } from './target';
+export { targetSchema, mutationTargetSchema } from './target';
 import {
   documentSchema,
   nodeSchema,
@@ -7,21 +11,6 @@ import {
 } from '../editor/model';
 
 const id = nodeSchema.options[1].shape.id;
-const target = {
-  canvasId: id.describe(
-    'Use an ID returned by list_canvases. Never guess the active tab.'
-  ),
-};
-const write = {
-  ...target,
-  expectedRevision: z
-    .number()
-    .int()
-    .nonnegative()
-    .describe(
-      'Latest state revision. Stale writes fail without changing the document.'
-    ),
-};
 const ids = z
   .array(id)
   .min(1)
@@ -59,13 +48,13 @@ const mutation = <T extends z.ZodRawShape>(description: string, fields: T) => ({
   schema: z.object({ ...write, ...fields }).strict(),
   mutation: true,
 });
-export const tools = {
+const canvasTools = {
   get_document: read(
-    'Read the current document and revision. Image payloads are omitted unless includeImages is true.',
+    'Read the active-page projection, file/page metadata, current context, and revision. Use export_document JSON or get_file to obtain the complete multi-page file. Image bytes are omitted by default.',
     z.object({ ...target, includeImages: z.boolean().default(false) })
   ),
   get_tree: read(
-    'Read the layer tree, stable IDs, names, and parent relationships.',
+    'Read the current page layer tree and all pages in the active file.',
     z.object(target)
   ),
   get_node: read(
@@ -128,12 +117,12 @@ export const tools = {
     name: z.string().trim().min(1).max(160),
   }),
   create_document: mutation(
-    'Replace the open document with a blank one. Undo restores previous work. Does not manage filesystem paths.',
+    'Create a new blank file in the active project and open it. Existing files are kept. Prefer create_file with an explicit project ID.',
     { name: z.string().trim().min(1).max(160) }
   ),
   open_document: mutation(
-    'Open validated Open Cavas JSON data. Undo restores previous work. Does not read local filesystem paths.',
-    { document: documentSchema }
+    'Import a validated version-1 legacy document or version-2 multi-page file as a NEW file in the active project. Existing files are kept. Does not read filesystem paths.',
+    { document: z.union([fileDocumentSchema, documentSchema]) }
   ),
   undo: mutation('Undo the latest document edit, including manual edits.', {}),
   redo: mutation('Redo the latest undone document edit.', {}),
@@ -182,8 +171,7 @@ export const tools = {
     }
   ),
 };
-export const targetSchema = z.object(target);
-export const mutationTargetSchema = z.object(write);
+export const tools = { ...canvasTools, ...workspaceTools };
 export const browserRequestSchema = z.object({
   type: z.literal('request'),
   id: z.string(),
@@ -196,11 +184,13 @@ export const browserMessageSchema = z.union([
     canvasId: id,
     name: z.string().max(160),
     revision: z.number().int().nonnegative(),
+    context: locationSchema,
   }),
   z.object({
     type: z.literal('state'),
     name: z.string().max(160),
     revision: z.number().int().nonnegative(),
+    context: locationSchema,
   }),
   z.object({
     type: z.literal('result'),
@@ -227,10 +217,13 @@ export const coverage = {
     'restricted static HTML import',
     'JSON/SVG/HTML/SVG-JSX export',
     'artwork PNG screenshots',
-    'document design tokens',
+    'file design tokens',
+    'projects, multiple files, page lifecycle and navigation',
+    'project/workspace JSON backups',
   ],
   limitations: [
-    'One page per document; no multi-page manager.',
+    'Library deletions are permanent; page/content edits use per-file session history.',
+    'Workspace data stays in IndexedDB in this browser origin; concurrent-tab saves reject conflicts rather than merging.',
     'No Paper file compatibility or official API dependency.',
     'HTML/CSS subset only; no flex, grid, remote assets, arbitrary DOM or rich-text fidelity.',
     'Tokens support color, number, and font values with explicit application, not dynamic bindings or CSS themes.',

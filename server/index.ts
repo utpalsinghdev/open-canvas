@@ -3,14 +3,15 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { createBroker } from './broker';
+import { locationSchema } from '../src/workspace/model';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
 const broker = await createBroker();
 const server = new McpServer(
-  { name: 'open-cavas', version: '0.2.0' },
+  { name: 'open-cavas', version: '0.3.0' },
   {
     instructions:
-      'Controls a paired Open Cavas browser, not Paper. Start with get_capabilities and list_canvases. Get current state before edits, pass its revision to every mutation, and read back your result. A successful edit is in-memory, not proof of durable storage. Never retry a timed-out mutation without reading state. No browser paired means no document access.',
+      'Controls a paired Open Cavas browser, not Paper. Start with get_capabilities and list_canvases. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. A successful edit is in-memory, not proof of durable storage. Never retry a timed-out mutation without reading state. No browser paired means no document access.',
   }
 );
 function text(result: unknown): CallToolResult {
@@ -29,7 +30,12 @@ server.registerTool(
       ...coverage,
       transport: 'stdio with authenticated private WebSocket browser pairing',
       limits: {
-        layers: 1000,
+        layersPerPage: 1000,
+        layersPerFile: 10_000,
+        pagesPerFile: 100,
+        projects: 50,
+        filesPerProject: 50,
+        totalFiles: 200,
         history: 80,
         tokens: 200,
         messageBytes: 12_000_000,
@@ -44,7 +50,7 @@ server.registerTool(
     inputSchema: {},
     annotations: { readOnlyHint: true },
   },
-  () => text({ canvases: broker.list() })
+  async () => text({ canvases: await broker.list() })
 );
 for (const [name, definition] of Object.entries(tools)) {
   server.registerTool(
@@ -75,6 +81,7 @@ for (const [name, definition] of Object.entries(tools)) {
           const image = z
             .object({
               revision: z.number(),
+              context: locationSchema,
               result: z.object({
                 data: z.string().max(12_000_000),
                 mimeType: z.literal('image/png'),
@@ -90,6 +97,7 @@ for (const [name, definition] of Object.entries(tools)) {
                 type: 'text',
                 text: JSON.stringify({
                   revision: image.revision,
+                  context: image.context,
                   width: image.result.width,
                   height: image.result.height,
                 }),

@@ -8,13 +8,15 @@ import {
 } from './tools';
 import { mutations } from './mutations';
 import { reads } from './reads';
+import { workspaceHandlers } from './workspace-commands';
 
 const MAX_BYTES = 12_000_000;
 const canvasId = newId();
 let revision = 0;
 useEditor.subscribe((state, previous) => {
   if (
-    state.document !== previous.document ||
+    state.workspace !== previous.workspace ||
+    state.location !== previous.location ||
     state.selectedIds !== previous.selectedIds
   )
     revision++;
@@ -45,11 +47,17 @@ export function connectBrowser(
   const unsubscribe = useEditor.subscribe((state, previous) => {
     if (
       !paired ||
-      (state.document === previous.document &&
+      (state.workspace === previous.workspace &&
+        state.location === previous.location &&
         state.selectedIds === previous.selectedIds)
     )
       return;
-    send({ type: 'state', name: state.document.name, revision });
+    send({
+      type: 'state',
+      name: state.document.name,
+      revision,
+      context: state.location,
+    });
   });
   socket.onopen = () => {
     paired = true;
@@ -58,6 +66,7 @@ export function connectBrowser(
       canvasId,
       name: useEditor.getState().document.name,
       revision,
+      context: useEditor.getState().location,
     });
     onStatus('connected');
   };
@@ -93,22 +102,36 @@ export function connectBrowser(
             throw new Error(
               `Revision conflict. Current revision is ${revision}. Read state and decide whether to retry.`
             );
+          const supplied = mutationTargetSchema.parse(args).context;
+          const current = useEditor.getState().location;
+          if (
+            supplied &&
+            (supplied.projectId !== current.projectId ||
+              supplied.fileId !== current.fileId ||
+              supplied.pageId !== current.pageId)
+          )
+            throw new Error(
+              'Project/file/page context mismatch. Open the intended file/page, then read state again.'
+            );
           const focused = document.activeElement;
           if (
             useEditor.getState().interactionActive ||
             (focused instanceof Element &&
               focused.closest(
-                '.properties-fields input,.properties-fields textarea,.selected-heading input,.document-name'
+                '.properties-fields input,.properties-fields textarea,.selected-heading input,.document-name,.projects-dialog input,.page-name-form input'
               ))
           )
             throw new Error(
               'Editor busy with a manual edit. Finish or cancel that edit, then read state before retrying.'
             );
         }
-        const handler = definition.mutation ? mutations[method] : reads[method];
+        const handler =
+          workspaceHandlers[method] ??
+          (definition.mutation ? mutations[method] : reads[method]);
         if (!handler) throw new Error('Tool implementation unavailable.');
         const outcome = handler(args);
         const resultRevision = revision;
+        const resultContext = useEditor.getState().location;
         const result = await outcome;
         send({
           type: 'result',
@@ -116,6 +139,7 @@ export function connectBrowser(
           ok: true,
           data: {
             revision: resultRevision,
+            context: resultContext,
             result,
             persistence: useEditor.getState().saveState,
           },

@@ -37,3 +37,10 @@ Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browse
 ## Agent pairing control
 
 The header has a compact Connect agent disclosure using the existing control/border tokens. It explains read/write access, accepts a masked private code, and shows an explicit Disconnect action when paired. Below 900 px the label becomes an accessible icon and the disclosure remains inside the viewport. Pairing adds no continuous animation. Agent edit receipts use the existing status message; the user retains normal history and document controls.
+
+
+## Project and page navigation
+
+A compact project-name action sits before the file name in the header. Its Projects dialog uses a project list and dense file rows, not decorative cards. File rows expose explicit open/rename/duplicate/backup/delete actions. A separate warning and confirmation precedes permanent library deletion. Project/workspace backup and JSON import remain visible above the list.
+
+Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.

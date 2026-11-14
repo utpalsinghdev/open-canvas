@@ -1,6 +1,6 @@
 # Document format
 
-The authoritative schema is `src/editor/model.ts`. TypeScript types derive from it. This document describes version 1, downloaded as `<name>.cavas.json`.
+The authoritative schema is `src/editor/model.ts`. TypeScript types derive from it. Current downloads use a version-2 multi-page file, described below. Version-1 single-page data remains accepted as a legacy import and used internally as the active-page projection. Both use `<name>.cavas.json`.
 
 ```json
 {
@@ -35,8 +35,31 @@ Every layer has `id`, `kind`, `name`, `parentId`, `x`, `y`, `width`, `height`, `
 
 The node array controls paint order among siblings. Artboard children are grouped under their parent for rendering and export even when other roots appear between them in the array. A document can have at most 1,000 nodes.
 
-Import rejects malformed JSON, unsupported versions, invalid geometry, duplicate IDs, and missing or non-artboard parents. It never executes imported content. Unknown object properties are dropped during parsing. JSON import is limited to 12 MB. The file picker additionally limits each newly added raster image to 2 MB and verifies that the browser can decode it.
+Import rejects malformed JSON, unsupported versions, invalid geometry, duplicate IDs, and missing or non-artboard parents. It never executes imported content. Unknown object properties are dropped during parsing. UI JSON import is limited to 40 MB. The file picker additionally limits each newly added raster image to 2 MB and verifies that the browser can decode it.
 
 The optional `tokens` field defaults to `{}` when loading earlier version-1 documents. It is a dictionary of up to 200 token names. Names begin with an ASCII letter and contain at most 80 letters, digits, underscores, or hyphens. Each value is `{ "type": "color", "value": "#d9f171" }`, `{ "type": "number", "value": 16 }`, or `{ "type": "font", "value": "Arial" }`. Numbers are finite and bounded by -100,000 and 100,000; fonts use the same family enum as text. Tokens are metadata with explicit literal application, not dynamic node references.
 
 Undo history, current selection, viewport, agent pairing, state revision, and panel state are not serialized. SVG exports do not reopen as editable Open Cavas documents.
+
+
+## Version-2 multi-page files
+
+```json
+{
+  "version": 2,
+  "name": "Website",
+  "tokens": {},
+  "pages": [
+    { "id": "desktop", "name": "Desktop", "nodes": [] },
+    { "id": "mobile", "name": "Mobile", "nodes": [] }
+  ]
+}
+```
+
+Pages have stable IDs and nonempty names. A file has 1 to 100 pages; each page has at most 1,000 nodes, with at most 10,000 nodes across the file. Node IDs must be unique across the file. Parent references must resolve to an artboard on the same page. Token metadata belongs to the file, not individual pages.
+
+Project archives use `{ "kind": "open-cavas-project", "version": 1, "project": ... }`. Workspace archives use `{ "kind": "open-cavas-workspace", "version": 1, "projects": [...] }`. A project has an ID/name and a nonempty `files` array. Each file record has an ID, a version-2 `document`, and `pageId` identifying its remembered active page. The runtime schema is `src/workspace/model.ts`.
+
+Workspace validation requires unique project IDs and unique file IDs across projects. Project/file/page names are trimmed and nonempty. Imported archives append projects with regenerated project/file IDs, retaining page/node IDs within each independent file. A version-1 document becomes a new version-2 file with one generated Page 1.
+
+Current UI JSON import limit is 40 MB. MCP request/response limits remain 12 MB, so browser backups are required for larger workspaces.
