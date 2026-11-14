@@ -1,15 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { runtimeSettings } from './scripts/runtime-settings.mjs';
 
-const agentProxy = { '/__cavas': { target: `http://127.0.0.1:${process.env.CAVAS_MCP_PORT ?? '4781'}`, ws: true } };
+const settings = runtimeSettings();
+const agentProxy = { '/__cavas': { target: `http://127.0.0.1:${settings.brokerPort}`, ws: true } };
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), {
+    name: 'cavas-runtime-info',
+    transformIndexHtml: () => [
+      { tag: 'meta', attrs: { name: 'cavas-profile', content: settings.profile }, injectTo: 'head' },
+      { tag: 'meta', attrs: { name: 'cavas-release', content: process.env.CAVAS_RELEASE_COMMIT ?? 'development' }, injectTo: 'head' },
+    ],
+  }],
   server: {
+    port: settings.appPort, strictPort: true,
     allowedHosts: ['localmachine'],
     proxy: agentProxy,
     fs: { deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/.cavas/**'] },
   },
-  preview: { allowedHosts: ['localmachine'], proxy: agentProxy },
+  preview: { port: settings.appPort, strictPort: true, allowedHosts: ['localmachine'], proxy: agentProxy },
 });

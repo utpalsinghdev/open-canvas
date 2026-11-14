@@ -4,14 +4,19 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5178 --strictPort",
+    "dev": "node scripts/runtime.mjs dev web",
     "check": "tsc --noEmit",
     "build": "npm run check && vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 5178 --strictPort",
-    "dev:agent": "vite --host 0.0.0.0 --port 5182 --strictPort",
-    "mcp": "tsx server/index.ts",
-    "mcp:pair": "node scripts/pair.mjs",
-    "mcp:config": "node scripts/config.mjs"
+    "preview": "node scripts/runtime.mjs main web",
+    "dev:agent": "node scripts/runtime.mjs dev web",
+    "mcp": "node scripts/runtime.mjs main mcp",
+    "mcp:pair": "node scripts/pair.mjs main",
+    "mcp:config": "node scripts/config.mjs main",
+    "start": "node scripts/runtime.mjs main web",
+    "release:main": "node scripts/release.mjs",
+    "mcp:dev": "node scripts/runtime.mjs dev mcp",
+    "mcp:config:dev": "node scripts/config.mjs dev",
+    "mcp:pair:dev": "node scripts/pair.mjs dev"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

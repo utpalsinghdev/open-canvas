@@ -122,3 +122,17 @@ The running legacy owner on default port 4781 and its private metadata were left
 `npm run check`, `npm run build`, and `git diff --check` passed during implementation. Zod dependency comment annotations still produce harmless build warnings. The UI detector returned no findings for Projects, Pages, App, and stylesheet. No full automated suite or independent security audit is claimed.
 
 Storage quota exhaustion, corrupted-database recovery UI, full 200-file saturation, all schema-invalid archives, and browser-termination timing were not deliberately forced. Conflict rejection is not multiplayer merging. Project/file deletion is permanent; page/content history is in-memory per file and clears on reload. Different ports/origins have different workspaces, requiring JSON transfer rather than automatic access to data at another origin.
+
+## Stable-main/development runtime configuration
+
+Added fixed profiles for main frontend/MCP 5182/4781 and development 5188/4785, separate pairing directories and agent config names, and a committed main snapshot publisher. Development runs only on a feature branch in a separate worktree. Main launchers use their selected release's frontend, server source, and installed dependencies; publishing does not restart services.
+
+Checks performed before the configuration commit:
+
+- `npm run check`, `npm run build`, and `git diff --check` passed. Existing dependency annotation warnings remain non-blocking.
+- Settings resolution returned the documented port pairs, exact origins, and distinct private metadata paths. Development rejected reserved main ports; main rejected custom port overrides.
+- Development launch from primary main was refused. The existing separate feature worktree passed the checkout guard. An explicit additional dev port pair resolved correctly.
+- Missing main release failed with an instruction to run release:main. Publishing from dirty main was refused without changing any pointer or process.
+- In an isolated temporary Git repository, release:main archived committed source, installed a separate locked dependency tree, built successfully, and wrote a valid release pointer. No app listener or broker was stopped by that operation.
+
+The existing main MCP owner and global agent settings are not automatically migrated or killed. A deliberate reconnect/restart is required to switch legacy clients from their old direct-source paths to generated main-release config. This is an explicit first-migration limit, not a claim of live client migration.

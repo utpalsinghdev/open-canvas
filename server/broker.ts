@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { mkdir, lstat, readFile, writeFile, rm } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { runtimeSettings, assertDevelopmentCheckout } from '../scripts/runtime-settings.mjs';
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Location } from '../src/workspace/model';
 import { browserMessageSchema } from '../src/mcp/tools';
@@ -23,22 +23,13 @@ type Pending = {
   cleanup: () => void;
 };
 export async function createBroker() {
-  const port = Number(process.env.CAVAS_MCP_PORT ?? 4781);
-  if (!Number.isInteger(port) || port < 1024 || port > 65535)
-    throw new Error('CAVAS_MCP_PORT must be between 1024 and 65535.');
-  const origin = process.env.CAVAS_APP_ORIGIN ?? 'http://localmachine:5182';
-  if (
-    !['http:', 'https:'].includes(new URL(origin).protocol) ||
-    new URL(origin).origin !== origin
-  )
-    throw new Error(
-      'CAVAS_APP_ORIGIN must be an exact HTTP(S) origin without a path.'
-    );
+  const settings = runtimeSettings();
+  if (settings.profile === 'dev') assertDevelopmentCheckout();
+  const port = settings.brokerPort;
+  const origin = settings.origin;
   const secret = randomBytes(32).toString('hex');
   const instanceId = randomUUID();
-  const pairingDirectory = fileURLToPath(
-    new URL('../.cavas/', import.meta.url)
-  );
+  const pairingDirectory = process.env.CAVAS_RUNTIME_STATE_ROOT ?? settings.stateDirectory;
   await mkdir(pairingDirectory, { recursive: true, mode: 0o700 });
   const directory = await lstat(pairingDirectory);
   if (

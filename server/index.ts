@@ -3,6 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { createBroker } from './broker';
+import { runtimeSettings } from '../scripts/runtime-settings.mjs';
 import { locationSchema } from '../src/workspace/model';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
@@ -28,6 +29,7 @@ server.registerTool(
   () =>
     text({
       ...coverage,
+      runtime: { profile: runtimeSettings().profile, origin: runtimeSettings().origin, release: process.env.CAVAS_RELEASE_COMMIT ?? 'development' },
       transport: 'stdio with authenticated private WebSocket browser pairing',
       limits: {
         layersPerPage: 1000,
