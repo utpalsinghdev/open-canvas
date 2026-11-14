@@ -67,11 +67,11 @@ Choose **Comment** beside the drawing tools, click a layer or canvas position, t
 
 ## Keep your work
 
-The complete workspace saves to IndexedDB in this browser origin after a 350 ms debounce. This is not cloud sync. The browser, hostname, port, profile, private-browsing state, cleanup, and storage quota determine which workspace is available. Different app ports do not share storage. Watch the header save status and **download JSON backups** from Projects.
+The complete workspace saves to IndexedDB in this browser origin after a 350 ms debounce. This is not cloud sync. The browser, hostname, port, profile, private-browsing state, cleanup, and storage quota determine which workspace is available. Different app ports do not share storage. Save failures remain visible in the header; routine saving/saved labels are hidden. **Download JSON backups** from Projects.
 
 File backups include every page and file token. Project backups include every file in that project. Workspace backups include all projects. Import accepts legacy version-1 documents, version-2 multi-page files, project backups, and workspace backups. It adds new items without replacing existing work. Imported project/file IDs are regenerated to prevent collisions. Invalid imports commit nothing.
 
-Edits are usable immediately in memory; `Saved locally` appears only after an IndexedDB transaction completes. Closing a tab before a pending save finishes can still lose recent work. Reloading clears undo history, not saved projects/pages. Failed or corrupt workspace loads never overwrite the stored workspace automatically.
+Edits are usable immediately in memory; persistence becomes `saved` only after an IndexedDB transaction completes. The header does not show a routine saved badge. Closing a tab before a pending save finishes can still lose recent work. Reloading clears undo history, not saved projects/pages. Failed or corrupt workspace loads never overwrite the stored workspace automatically.
 
 Multiple tabs do not merge work. Each save compares the stored revision inside its write transaction. If another tab has saved first, the stale tab stops saving and shows a conflict. Download a workspace backup from that tab, then reload before continuing. This prevents silent overwrites, not multiplayer collaboration.
 
@@ -103,6 +103,6 @@ The starter composition is original editable demonstration content. Paper's name
 
 ## Automatic agent connection
 
-Opening Open Cavas automatically makes that tab available to trusted local MCP agents. The header reports Agent connected or Waiting for agent. If the broker starts later or restarts, the browser reconnects automatically without replaying design writes. Use Pause agent access to disable this tab until resumed or reloaded.
+Opening Open Cavas automatically makes that tab available to trusted local MCP agents. Blue dots above the page artwork indicate a pending page-specific request, not an idle connection or an entire task. They appear with a short staggered entrance, stay static, and respect reduced motion. If the broker starts later or restarts, the browser reconnects automatically without replaying design writes. Use Pause agent access in the File menu to disable this tab until resumed or reloaded.
 
 Workspace data still lives in the browser, not the MCP server. `list_canvases` is empty when no application tabs are open or all tabs are paused. Reload an older pre-upgrade tab once to load automatic connection. Agent access is implicit when opening the app; keep the app on a trusted network and do not host untrusted scripts on its origin.
