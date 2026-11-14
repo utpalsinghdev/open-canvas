@@ -45,6 +45,8 @@ Selection, workspace edits, and file/page navigation advance the revision. Manua
 
 Each atomic content/page mutation is one file-specific undo step. Selection changes are separate session state. Read responses and edit receipts include a persistence state, `saved`, `pending`, or `failed`. A `pending` receipt means the document is in memory, not yet durably written. Download JSON backups.
 
+Browser tool responses also include `persistenceDetails: { blocked, failure }`. `blocked` means this tab cannot attempt further saves without recovery/reload, not that edits are disabled. `failure` is null or contains `kind` (`conflict`, `write`, or `load`), error `name` (up to 80 characters), `message` (up to 500 characters), and `recovery` guidance. Load-validation details are withheld to avoid returning document values. These diagnostics are session state, not stored artwork or backup content. A failure remains available while a later save is pending and clears only when the current snapshot saves successfully or storage reloads successfully. `blocked: false` is not a promise that a retry will succeed. Do not replay a mutation because its persistence failed.
+
 There is no automatic mutation retry. Cancellation, timeout, or disconnection after dispatch can leave the outcome unknown. Reconnect and inspect actual state before deciding whether to repeat an operation. Late responses cannot satisfy another request or another tab's pending call.
 
 ## Tools
