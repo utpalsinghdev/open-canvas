@@ -70,9 +70,9 @@ export const useEditor = create<EditorState>((set, get) => ({
     const mapping = new Map([...ids].map((id) => [id, crypto.randomUUID()]));
     const copies = document.nodes.filter((node) => ids.has(node.id)).map((node): DesignNode => {
       const common = {
-      ...node, id: mapping.get(node.id) ?? node.id, name: `${node.name} copy`, x: node.x + 24, y: node.y + 24,
+        id: mapping.get(node.id) ?? node.id, name: `${node.name} copy`, x: node.x + 24, y: node.y + 24,
       };
-      return node.kind === 'artboard' ? { ...common, kind: 'artboard', rotation: 0, parentId: null } : { ...node, ...common, parentId: node.parentId ? mapping.get(node.parentId) ?? node.parentId : null };
+      return node.kind === 'artboard' ? { ...node, ...common, parentId: null } : { ...node, ...common, parentId: node.parentId ? mapping.get(node.parentId) ?? node.parentId : null };
     });
     if (!copies.length || document.nodes.length + copies.length > 1000) { get().notify('Select layers to duplicate, within the 1,000-layer limit.'); return; }
     get().edit((doc) => ({ ...doc, nodes: [...doc.nodes, ...copies] }));
