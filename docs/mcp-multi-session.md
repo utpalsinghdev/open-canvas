@@ -11,3 +11,19 @@ The owner remains the single writer for browser sockets and pending requests. Ea
 Existing legacy brokers that lack PID/instance metadata are not automatically adopted or overwritten. Deliberately restart the owner under the new code, then reload dependent MCP clients. Existing sessions may also need their normal agent reload to discover newly registered tools.
 
 Main and development use separate internal metadata and generated MCP entries. Keep the owner alive while attached sessions use it. Browser tabs register automatically without a code and retry after owner restart. No manual Pair action is required. Use the same checkout/profile/port/Origin for shared clients; mismatched configuration is refused. See runtime.md for release boundaries and mcp.md for the automatic one-use browser ticket protocol.
+
+## Broker loss and coordinated recovery
+
+`get_capabilities` describes the local stdio process, not broker health. Use `list_canvases` to check broker access, then read an explicit canvas to establish document access. A successful empty list means no browser is registered; it is different from a transport error.
+
+An attached client can remain running after its owner exits. Transport failures now identify unavailability, a response deadline, or caller cancellation instead of only `fetch failed`. A replacement owner creates new credentials; old attached clients report credential rejection and must reconnect. A valid broker-returned canvas or revision error remains unchanged. None of these diagnostics establishes why the original owner stopped.
+
+For recovery:
+
+1. Keep the existing browser workspace open at the same origin and in the same browser profile. Do not clear storage or reload the page as a broker repair. Broker recovery does not itself save pending browser edits; preserve JSON backups when needed.
+2. Coordinate with other attached sessions before restoring the intended owner through the configured MCP launcher. Do not stop an unidentified process, replace live-owner metadata, or change global settings to bypass ownership errors. Main owner restarts still require the coordinated release boundary in runtime.md.
+3. Reconnect dependent MCP stdio clients using the same checkout, profile, ports, and exact Origin. Old clients retain old credentials even after the browser has automatically reconnected to a replacement owner.
+4. Call `list_canvases`, select the intended canvas explicitly, and read current document/context/revision and persistence status. A successful read is not proof of durable storage; check `saved`, `pending`, or `failed` separately.
+5. A dispatched mutation may have completed before its response was lost. Inspect actual state before deciding whether to issue another mutation. No request is retried automatically, and no attached client takes over ownership automatically.
+
+Issue #37's controlled reproduction intentionally terminated an isolated owner with SIGTERM while another client stayed attached. It reproduced the missing listener and raw fetch errors, with the frontend still available. It does not explain the original incident's shutdown cause or prove recovery from every crash scenario.
