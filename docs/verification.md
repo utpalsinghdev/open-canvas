@@ -369,6 +369,15 @@ The first browser verification attempt was blocked by a stopped development list
 
 The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.
 
+## Issue #4: collapse all artboard branches
+
+- Reproduced the missing bulk action in local Brave. Existing individual collapse controls preserved selection and canvas artwork.
+- Added a labeled native Collapse all button to the Layers heading. It updates only session-local tree state for current-page artboards, retains individual toggles, and disables when no artboards remain expanded. Other pages retain their collapse state.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. The UI detector returned no findings. Active LSP checking found no TSX errors; CSS warnings concerned the existing reduced-motion rule. Existing Zod annotation warnings did not block the build. No automated test suite or CI workflow is configured; no test files were added.
+- Independent local Brave verification passed click, Enter, and Space activation, individual reopening, empty-page disabled state, page switching, and root-level layer visibility. With a root rectangle selected, canvas SVG markup matched before and after collapse; selection and Properties stayed unchanged. Undo remained enabled, but complete history equivalence was not measured.
+- Checked 1440 by 1000, 1000 by 800, and 390 by 844 layouts. The action remained within the viewport, mobile Layers remained accessible, and no document-width overflow or page errors appeared. Desktop/mobile screenshots were inspected.
+- Brave ran headless after a headed launch found no display server. macOS, Firefox, and Safari were not tested. Hidden/locked artboards and undo safety received static review rather than browser coverage.
+- Independent security/edge-case review found no actionable findings. Main runtime, MCP, authentication, Origin/Host checks, and Tailscale settings were unchanged. The isolated browser sessions were closed after verification.
 ## Issue #21 reopened: compact destination tokens
 
 - `npm run build` passed, including `npm run check`; `npm run changeset:status`
