@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useState, type PointerEvent } from 'react';
 import { Maximize, Minus, Plus } from 'lucide-react';
 import { createNode, isHidden, isLocked, withChildren, type DesignNode } from '../editor/model';
 import { intersects, resized, translated } from '../editor/geometry';
 import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
+import { CanvasTextEditor } from './CanvasTextEditor';
+import { textBounds } from '../editor/textBounds';
 
 type Point = { x: number; y: number };
 type Gesture =
@@ -20,7 +22,6 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   const [gesture, setGesture] = useState<Gesture | null>(null);
   const [space, setSpace] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const textInput = useRef<HTMLTextAreaElement>(null);
   const editing = document.nodes.find((node) => node.id === editingId);
   const editingNode = editing?.kind === 'text' ? editing : null;
 
@@ -41,7 +42,6 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     useEditor.setState({ interactionActive: gesture !== null || editingId !== null });
     return () => { useEditor.setState({ interactionActive: false }); };
   }, [gesture, editingId]);
-  useEffect(() => { if (editingId) { textInput.current?.focus(); textInput.current?.select(); } }, [editingId]);
 
   function world(event: PointerEvent): Point {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -146,7 +146,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     return node;
   });
   const preview = gesture?.mode === 'draw' ? drawnNode(gesture) : null;
-  // The textarea replaces the edited artwork and its selection decorations locally.
+  // Keep stored text frames distinct from the content-sized editing area.
   const visible = nodes.filter((node) => !isHidden(node, nodes) && node.id !== editingId);
   const selected = visible.filter((node) => selectedIds.includes(node.id));
 
@@ -169,17 +169,18 @@ export function Canvas({ controls }: { controls: CameraControls }) {
           </g>
         </g> : <NodeView key={node.id} node={node} />)}
         {preview && <NodeView node={preview} />}
+        {editingNode && <rect x={editingNode.x} y={editingNode.y} width={editingNode.width} height={editingNode.height} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${editingNode.x + editingNode.width / 2} ${editingNode.y + editingNode.height / 2})`} />}
         {selected.map((node) => <g key={node.id} transform={`rotate(${node.rotation} ${node.x + node.width / 2} ${node.y + node.height / 2})`}>
-          <rect x={node.x} y={node.y} width={node.width} height={node.height} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />
+          <rect x={node.x} y={node.y} width={node.width} height={node.height} className="selection-outline" strokeWidth={1 / camera.zoom} strokeDasharray={node.kind === 'text' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} pointerEvents="none" />
+          {node.kind === 'text' && <rect {...textBounds(node)} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />}
           {selected.length === 1 && !isLocked(node, nodes) && ['nw', 'ne', 'sw', 'se'].map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={node.x + (corner.includes('e') ? node.width : 0) - 4 / camera.zoom} y={node.y + (corner.includes('s') ? node.height : 0) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
         </g>)}
         {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}
       </g>
     </svg>
-    {editingNode && <textarea ref={textInput} key={editingNode.id} className="canvas-text-editor" aria-label="Edit text on canvas" wrap="off" defaultValue={editingNode.text}
-      style={{ left: camera.x + editingNode.x * camera.zoom, top: camera.y + editingNode.y * camera.zoom, width: editingNode.width * camera.zoom, height: editingNode.height * camera.zoom, fontSize: editingNode.fontSize * camera.zoom, fontFamily: editingNode.fontFamily, fontWeight: editingNode.fontWeight, color: editingNode.fill, textAlign: editingNode.align, transform: `rotate(${editingNode.rotation}deg)` }}
-      onBlur={(event) => { if (event.currentTarget.value !== editingNode.text) patch(editingNode.id, { text: event.currentTarget.value }); setEditingId(null); }}
-      onKeyDown={(event) => { if (event.key === 'Escape') { setEditingId(null); } if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') event.currentTarget.blur(); }} />}
+    {editingNode && <CanvasTextEditor key={editingNode.id} node={editingNode} camera={camera}
+      commit={(text) => { if (text !== editingNode.text) patch(editingNode.id, { text }); setEditingId(null); }}
+      cancel={() => setEditingId(null)} />}
     {!nodes.length && <div className="canvas-empty"><h2>Your space to make.</h2><p>Choose artboard, then click or drag on the canvas.</p><button className="text-button" onClick={() => setTool('artboard')}>Create an artboard</button></div>}
     <div className="canvas-caption">{tool === 'select' ? 'Space to pan / Double-click text to edit' : tool === 'hand' ? 'Drag to move around' : `Click or drag to create ${tool}`}</div>
     <div className="zoom-controls">
