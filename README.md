@@ -14,6 +14,12 @@ npm start            # Main app at http://localmachine:5182
 
 Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds.
 
+## Versions and changelog
+
+Use `npm run changeset` to record a feature/fix and its patch/minor/major bump. Commit that Markdown entry with the change. `npm run changeset:status` shows pending releases. Before an authorized release, `npm run version:apply` consumes entries, updates package versions and the lockfile, and generates `CHANGELOG.md`. Review and commit the result before `npm run release:main`.
+
+The app stays private. Versioning does not publish to npm, create tags, deploy, or restart main automatically. Detailed workflow is in [docs/versioning.md](docs/versioning.md).
+
 ## Feature development
 
 Use a feature branch in a separate worktree:

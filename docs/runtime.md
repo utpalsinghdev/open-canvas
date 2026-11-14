@@ -63,7 +63,7 @@ Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare s
 
 1. Verify the feature in its own development app and broker.
 2. Merge locally into main when authorized. Do not point main agents at the feature worktree.
-3. Commit any release-related changes, then run `npm run release:main` from clean main.
+3. Review pending Changesets with `npm run changeset:status`. When a version release is authorized, run `npm run version:apply`, inspect package/lockfile/changelog changes, and commit them. Then run `npm run release:main` from clean main. Versioning and runtime publication are separate steps; see versioning.md.
 4. Schedule the restart. Have active users wait for Saved locally and keep JSON backups. Stop only the known main frontend and main broker owner, not unrelated services or attached client processes by broad name.
 5. Run `npm start` and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
 6. Verify HTTP through localmachine, matching frontend/MCP release IDs, and document read-back before resuming experiments.
