@@ -4,11 +4,13 @@ import {
   type DesignDocument,
   type DesignNode,
 } from './model';
+import { embeddedFontStyle, fontStatus, textLayout } from './typography';
 
 const escape = (value: string) =>
   value.replace(/[&<>"'{}]/g, (character) => `&#${character.charCodeAt(0)};`);
 export function nodeSvg(node: DesignNode): string {
-  const common = `opacity="${node.opacity}" transform="rotate(${node.rotation} ${node.x + node.width / 2} ${node.y + node.height / 2})"`;
+  const bounds = node.kind === 'text' ? textLayout(node) : node;
+  const common = `opacity="${node.opacity}" transform="rotate(${node.rotation} ${node.x + bounds.width / 2} ${node.y + bounds.height / 2})"`;
   const geometry = `x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}"`;
   switch (node.kind) {
     case 'artboard':
@@ -19,12 +21,13 @@ export function nodeSvg(node: DesignNode): string {
     case 'image':
       return `<image ${geometry} href="${escape(node.src)}" preserveAspectRatio="xMidYMid slice" ${common}/>`;
     case 'text': {
+      const layout = textLayout(node);
       const x =
         node.x +
         (node.align === 'center'
-          ? node.width / 2
+          ? layout.width / 2
           : node.align === 'right'
-            ? node.width
+            ? layout.width
             : 0);
       const anchor =
         node.align === 'center'
@@ -32,11 +35,10 @@ export function nodeSvg(node: DesignNode): string {
           : node.align === 'right'
             ? 'end'
             : 'start';
-      return `<text fill="${node.fill}" font-family="${node.fontFamily}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" text-anchor="${anchor}" ${common}>${node.text
-        .split('\n')
+      return `<text fill="${node.fill}" font-family="${fontStatus(node.fontFamily).resolved}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" letter-spacing="${node.letterSpacing}" text-anchor="${anchor}" data-text-overflow="${layout.overflow}" ${common}>${layout.lines
         .map(
           (line, index) =>
-            `<tspan x="${x}" y="${node.y + node.fontSize + index * node.fontSize * 1.2}">${escape(line)}</tspan>`
+            `<tspan x="${x}" y="${node.y + node.fontSize + index * node.fontSize * node.lineHeight}">${escape(line)}</tspan>`
         )
         .join('')}</text>`;
     }
@@ -57,8 +59,10 @@ export function renderSvg(doc: DesignDocument, selectedIds: string[]) {
         node.id === selectedBoard.id ||
         node.parentId === selectedBoard.id)
   );
-  const bounds =
-    selectedBoard ?? getBounds(nodes.filter((node) => node.parentId === null));
+  const rootNodes = nodes.filter((node) => node.parentId === null);
+  const bounds = selectedBoard ?? getBounds(rootNodes.map((node) => node.kind === 'text'
+    ? { ...node, ...textLayout(node) }
+    : node));
   if (!bounds || !nodes.length)
     throw new Error('There are no visible layers to export.');
   const content = nodes
@@ -72,8 +76,10 @@ export function renderSvg(doc: DesignDocument, selectedIds: string[]) {
         .join('')}</g>`;
     })
     .join('');
+  const families = nodes.flatMap((node) => node.kind === 'text' ? [fontStatus(node.fontFamily).resolved] : []);
+  const fontStyle = embeddedFontStyle(families);
   return {
-    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}"><title>${escape(selectedBoard?.name ?? doc.name)}</title>${content}</svg>`,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}"><title>${escape(selectedBoard?.name ?? doc.name)}</title>${fontStyle ? `<style>${fontStyle}</style>` : ''}${content}</svg>`,
     width: bounds.width,
     height: bounds.height,
     name: selectedBoard?.name ?? doc.name,

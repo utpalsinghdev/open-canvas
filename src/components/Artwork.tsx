@@ -1,4 +1,5 @@
 import type { DesignNode } from '../editor/model';
+import { fontStatus, textLayout } from '../editor/typography';
 
 export function Artwork({ node }: { node: DesignNode }) {
   const geometry = { x: node.x, y: node.y, width: node.width, height: node.height };
@@ -8,17 +9,20 @@ export function Artwork({ node }: { node: DesignNode }) {
     case 'ellipse': return <ellipse cx={node.x + node.width / 2} cy={node.y + node.height / 2} rx={node.width / 2} ry={node.height / 2} fill={node.fill} />;
     case 'image': return <image {...geometry} href={node.src} preserveAspectRatio="xMidYMid slice" />;
     case 'text': {
-      const x = node.x + (node.align === 'center' ? node.width / 2 : node.align === 'right' ? node.width : 0);
-      return <text fill={node.fill} fontFamily={node.fontFamily} fontSize={node.fontSize} fontWeight={node.fontWeight} textAnchor={node.align === 'center' ? 'middle' : node.align === 'right' ? 'end' : 'start'}>
-        {node.text.split('\n').map((line, index) => <tspan key={index} x={x} y={node.y + node.fontSize + index * node.fontSize * 1.2}>{line}</tspan>)}
+      const layout = textLayout(node);
+      const x = node.x + (node.align === 'center' ? layout.width / 2 : node.align === 'right' ? layout.width : 0);
+      const fontFamily = fontStatus(node.fontFamily).resolved;
+      return <text data-text-overflow={layout.overflow || undefined} fill={node.fill} fontFamily={fontFamily} fontSize={node.fontSize} fontWeight={node.fontWeight} letterSpacing={node.letterSpacing} textAnchor={node.align === 'center' ? 'middle' : node.align === 'right' ? 'end' : 'start'}>
+        {layout.lines.map((line, index) => <tspan key={index} x={x} y={node.y + node.fontSize + index * node.fontSize * node.lineHeight}>{line}</tspan>)}
       </text>;
     }
   }
 }
 
 export function NodeView({ node }: { node: DesignNode }) {
-  return <g data-node-id={node.id} opacity={node.opacity} transform={`rotate(${node.rotation} ${node.x + node.width / 2} ${node.y + node.height / 2})`}>
+  const bounds = node.kind === 'text' ? textLayout(node) : node;
+  return <g data-node-id={node.id} opacity={node.opacity} transform={`rotate(${node.rotation} ${node.x + bounds.width / 2} ${node.y + bounds.height / 2})`}>
     <Artwork node={node} />
-    {node.kind === 'text' && <rect x={node.x} y={node.y} width={node.width} height={node.height} fill="transparent" />}
+    {node.kind === 'text' && <rect x={node.x} y={node.y} width={textLayout(node).width} height={textLayout(node).height} fill="transparent" />}
   </g>;
 }

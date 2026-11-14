@@ -99,6 +99,10 @@ Scripts, stylesheets, embeds, SVG/MathML markup, network image URLs, CSS variabl
 
 `get_design_tokens`, `set_design_tokens`, `apply_design_token`.
 
+### Typography
+
+`get_fonts` reports the application font registry and per-font availability. Inter and Bricolage Grotesque are bundled variable fonts; the UI and MCP can use variable weights including 620. Arial, Georgia, and Courier New use browser system resolution (`system` status; local availability is not guaranteed by web APIs). Document font names cannot select URLs or arbitrary assets. `get_node` adds `font.requested`, `font.resolved`, `font.fallback`, availability, measured dimensions, and overflow for text nodes. `create_nodes` and `update_nodes` accept `fontFamily`, numeric `fontWeight`, `lineHeight`, `letterSpacing`, `align`, `wrap`, and `sizing`. Legacy string weights are normalized during validation. Fonts load before the editor mounts. SVG/HTML/JSX artwork exports embed loaded bundled font data; JSON keeps editable typography fields. An unavailable bundled font keeps its requested family in the document and falls back to Arial for rendering; read status makes that substitution explicit.
+
 Documents store at most 200 named color, number, or font tokens. Applying a token copies its value to compatible node properties in one undo step. There are no dynamic references; later token edits do not change previously styled layers. Tokens are managed through MCP and JSON in this increment, not a new visual token editor.
 
 ## Security and limits

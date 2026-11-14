@@ -146,6 +146,9 @@ kbd { font-family: var(--font-ui); font-size: 10px; color: var(--muted); }
 .properties-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
 .inspector-section { padding: 20px 16px; border-top: 1px solid var(--line); }
 .inspector-section h3 { font-weight: 500; margin: 0 0 16px; font-size: 11px; }
+.font-status { color: var(--muted); font-size: 10px; line-height: 1.5; margin: 8px 0; }
+.text-option { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--muted); font-size: 11px; }
+.text-option input { accent-color: var(--accent); }
 .field-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
 .number-field { display: flex; align-items: center; gap: 8px; padding: 8px; height: 33px; background: var(--control); border: 1px solid var(--line); border-radius: 4px; min-width: 0; font-size: 11px; }
 .number-field span { color: var(--muted); flex: none; font-size: 10px; }

@@ -5,7 +5,7 @@ export function starterDocument(): DesignDocument {
   const note = { ...createNode('artboard', 800, 100), id: 'note', name: '02 / A fresh start', width: 320, height: 500, fill: '#d6d5f2' };
   const text = (name: string, content: string, x: number, y: number, width: number, fontSize: number, parentId: string, fill = '#172015'): DesignNode => ({
     ...createNode('text', x, y), kind: 'text', id: newId(), name,
-    text: content, width, height: fontSize * 2.6, fontSize, fontFamily: 'Arial', fontWeight: '500', align: 'left', parentId, fill,
+    text: content, width, height: fontSize * 2.6, fontSize, fontFamily: 'Arial', fontWeight: 500, lineHeight: 1.2, letterSpacing: 0, align: 'left', wrap: false, sizing: 'fixed', parentId, fill,
   });
   return {
     version: 1, name: 'A little space', tokens: {},
