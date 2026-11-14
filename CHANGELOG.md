@@ -1,5 +1,16 @@
 # open-cavas
 
+## 0.3.0
+
+### Minor Changes
+
+- 7534217: Add independent desktop sidebar collapse controls, preserving panel content and expanding the canvas into the freed space.
+- b6062af: Use shorter `/file/<fileId>/<pageId>` links while preserving existing query-parameter bookmarks, browser history, and unavailable-destination recovery.
+
+### Patch Changes
+
+- c057c31: Distinguish stored text frames from content bounds and size inline editing areas to the text without changing document dimensions.
+
 ## 0.2.0
 
 ### Minor Changes
