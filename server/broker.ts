@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import { mkdir, lstat, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdir, lstat, readFile, rm } from 'node:fs/promises';
 import {
   runtimeSettings,
   assertDevelopmentCheckout,
@@ -12,6 +12,7 @@ import { browserMessageSchema } from '../src/mcp/tools';
 import { z } from 'zod';
 import {
   brokerMetadataSchema,
+  publishBrokerMetadata,
   connectToExistingBroker,
   removeStaleMetadata,
 } from './shared-broker';
@@ -328,17 +329,9 @@ export async function createBroker() {
         resolve();
       });
     });
-    await writeFile(
-      metadataPath,
-      JSON.stringify({
-        token: secret,
-        port,
-        origin,
-        pid: process.pid,
-        instanceId,
-      }),
-      { mode: 0o600, flag: 'wx' }
-    );
+    await publishBrokerMetadata(metadataPath, {
+      token: secret, port, origin, pid: process.pid, instanceId,
+    });
   } catch (error) {
     http.close();
     sockets.close();
