@@ -23,7 +23,7 @@ server.registerTool(
   'get_capabilities',
   {
     description:
-      'Read supported capabilities and documented feature limits. No browser required.',
+      'Read local supported capabilities and documented feature limits, not broker health. Use list_canvases to check broker access, then read a canvas to check document access. No browser required.',
     inputSchema: {},
     annotations: { readOnlyHint: true },
   },
