@@ -24,10 +24,19 @@ export function Layers() {
       </div>
     </div>;
   }
+  const artboards = document.nodes.filter((node) => node.kind === 'artboard');
   const roots = document.nodes.filter((node) => node.parentId === null).reverse();
   return <aside id="layers-panel" className="layers-panel" aria-label="Layers">
     <Pages />
-    <div className="panel-heading"><span>Layers</span><span className="muted tabular-nums">{document.nodes.length}</span></div>
+    <div className="panel-heading">
+      <span>Layers <span className="muted tabular-nums">{document.nodes.length}</span></span>
+      <button
+        type="button"
+        className="collapse-all-button"
+        disabled={!artboards.some((node) => !collapsed.has(node.id))}
+        onClick={() => setCollapsed((previous) => new Set([...previous, ...artboards.map((node) => node.id)]))}
+      >Collapse all</button>
+    </div>
     <div className="layer-list">{roots.map((node) => <div key={node.id}>
       {row(node)}
       {node.kind === 'artboard' && !collapsed.has(node.id) && document.nodes.filter((child) => child.parentId === node.id).reverse().map((child) => row(child, true))}
