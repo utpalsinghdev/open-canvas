@@ -1,5 +1,19 @@
 # open-cavas
 
+## 0.4.0
+
+### Minor Changes
+
+- 4144b4d: Add a keyboard-accessible Collapse all action to the Layers panel. It folds artboard branches on the current page without changing selection or artwork, and individual branches can still be reopened.
+- 57b41ea: Add local page-aware review threads anchored to layers or canvas positions, with replies, resolve/reopen controls, complete JSON backups, and MCP thread reads and status changes.
+- 083967e: Show page-specific MCP request activity above the canvas, with cleanup on completion, failure, timeout, cancellation, and disconnection.
+
+### Patch Changes
+
+- d948461: Share unchanged validated pages and layers across undo snapshots and workspace navigation to reduce retained memory in multi-page files.
+- 4df2266: Shorten file and page URLs with lossless base64url ID tokens while preserving existing path and query bookmarks.
+- 46904a5: Show tool-specific canvas cursors and preserve pan, resize, and text-edit cursor feedback.
+
 ## 0.3.0
 
 ### Minor Changes
