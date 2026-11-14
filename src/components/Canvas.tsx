@@ -6,6 +6,8 @@ import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
 import { CanvasTextEditor } from './CanvasTextEditor';
+import { Reviews, type ReviewControls } from './Reviews';
+import { usePageReview } from '../review/drafts';
 import { textNodeBounds, textContentBounds } from '../editor/typography';
 
 type Point = { x: number; y: number };
@@ -16,12 +18,18 @@ type Gesture =
   | { mode: 'draw'; start: Point; current: Point; node: DesignNode }
   | { mode: 'marquee'; start: Point; current: Point; additive: boolean };
 
-export function Canvas({ controls }: { controls: CameraControls }) {
+export function Canvas({ controls, review }: { controls: CameraControls; review: ReviewControls }) {
   const { bindViewport, camera, setCamera, zoomTo, fit } = controls;
   const { document, selectedIds, tool, select, setTool, edit, patch } = useEditor();
   const [gesture, setGesture] = useState<Gesture | null>(null);
   const [space, setSpace] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const placing = tool === 'comment';
+  const setPlacing = (placing: boolean) => setTool(placing ? 'comment' : 'select');
+  const location = useEditor((state) => state.location);
+  const { page: reviewPage, update: updateReview } = usePageReview(location);
+  const draftAnchor = reviewPage.anchor;
+  const setDraftAnchor = (anchor: typeof draftAnchor) => updateReview({ anchor });
   const editing = document.nodes.find((node) => node.id === editingId);
   const editingNode = editing?.kind === 'text' ? editing : null;
 
@@ -58,6 +66,16 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     const point = world(event);
     if (tool === 'hand' || space || event.button === 1) {
       setGesture({ mode: 'pan', start: { x: event.clientX, y: event.clientY }, origin: { x: camera.x, y: camera.y } });
+      return;
+    }
+    if (tool === 'comment') {
+      const id = event.target instanceof Element ? event.target.closest('[data-node-id]')?.getAttribute('data-node-id') : null;
+      const node = document.nodes.find((node) => node.id === id);
+      updateReview({ threadId: null, anchor: node ? { kind: 'layer', nodeId: node.id } : { kind: 'position', x: Math.round(point.x), y: Math.round(point.y) } });
+      select(node ? [node.id] : []);
+      review.setOpen(true);
+      setPlacing(false);
+      useEditor.setState({ interactionActive: false });
       return;
     }
     if (tool !== 'select') {
@@ -198,8 +216,9 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     {editingNode && <CanvasTextEditor key={editingNode.id} node={editingNode} camera={camera}
       commit={(text) => { if (text !== editingNode.text) patch(editingNode.id, { text }); setEditingId(null); }}
       cancel={() => setEditingId(null)} />}
-    {!nodes.length && <div className="canvas-empty"><h2>Your space to make.</h2><p>Choose artboard, then click or drag on the canvas.</p><button className="text-button" onClick={() => setTool('artboard')}>Create an artboard</button></div>}
-    <div className="canvas-caption">{tool === 'select' ? 'Space to pan / Double-click text to edit' : tool === 'hand' ? 'Drag to move around' : `Click or drag to create ${tool}`}</div>
+    <Reviews controls={controls} review={review} draftAnchor={draftAnchor} setDraftAnchor={setDraftAnchor} placing={placing} setPlacing={setPlacing} />
+    {!nodes.length && !placing && <div className="canvas-empty"><h2>Your space to make.</h2><p>Choose artboard, then click or drag on the canvas.</p><button className="text-button" onClick={() => setTool('artboard')}>Create an artboard</button></div>}
+    <div className="canvas-caption">{tool === 'comment' ? 'Click a layer or canvas position to comment' : tool === 'select' ? 'Space to pan / Double-click text to edit' : tool === 'hand' ? 'Drag to move around' : `Click or drag to create ${tool}`}</div>
     <div className="zoom-controls">
       <button title="Zoom out" aria-label="Zoom out" onClick={() => zoomTo(camera.zoom / 1.2)}><Minus size={14} /></button>
       <button className="zoom-value" title="Reset zoom to 100%" onClick={() => zoomTo(1)}>{Math.round(camera.zoom * 100)}%</button>

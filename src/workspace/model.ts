@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { documentSchema, newId, type DesignDocument } from '../editor/model';
+import { threadsSchema } from '../review/model';
 
 export const workspaceId = z
   .string()
@@ -12,6 +13,7 @@ export const pageSchema = z
     id: workspaceId,
     name: itemName,
     nodes: documentSchema.shape.nodes,
+    threads: threadsSchema,
   })
   .superRefine((page, ctx) => {
     const parsed = documentSchema.safeParse({
@@ -37,6 +39,10 @@ export const fileDocumentSchema = z
   .superRefine((file, ctx) => {
     const pageIds = new Set<string>();
     const nodeIds = new Set<string>();
+    const reviewIds = new Set<string>();
+    let threadCount = 0;
+    let commentCount = 0;
+    let commentCharacters = 0;
     for (const page of file.pages) {
       if (pageIds.has(page.id))
         ctx.addIssue({
@@ -44,6 +50,15 @@ export const fileDocumentSchema = z
           message: 'Page IDs must be unique in a file.',
         });
       pageIds.add(page.id);
+      for (const thread of page.threads) {
+        threadCount++;
+        for (const id of [thread.id, ...thread.comments.map((comment) => comment.id)]) {
+          if (reviewIds.has(id)) ctx.addIssue({ code: 'custom', message: 'Thread and comment IDs must be unique across a file.' });
+          reviewIds.add(id);
+        }
+        commentCount += thread.comments.length;
+        commentCharacters += thread.comments.reduce((count, comment) => count + comment.body.length, 0);
+      }
       for (const node of page.nodes) {
         if (nodeIds.has(node.id))
           ctx.addIssue({
@@ -51,6 +66,16 @@ export const fileDocumentSchema = z
             message: 'Layer IDs must be unique across a file.',
           });
         nodeIds.add(node.id);
+      }
+    }
+    if (threadCount > 500 || commentCount > 2000 || commentCharacters > 1_000_000)
+      ctx.addIssue({ code: 'custom', message: 'File review limits: 500 threads, 2,000 comments, and 1,000,000 text characters.' });
+    // Missing anchors are legitimate after layer deletion; cross-page anchors are not.
+    for (const page of file.pages) {
+      const localIds = new Set(page.nodes.map((node) => node.id));
+      for (const thread of page.threads) {
+        if (thread.anchor.kind === 'layer' && nodeIds.has(thread.anchor.nodeId) && !localIds.has(thread.anchor.nodeId))
+          ctx.addIssue({ code: 'custom', message: 'Thread anchor belongs to a different page.' });
       }
     }
     if (nodeIds.size > 10_000)
@@ -131,7 +156,7 @@ export function fromLegacy(document: DesignDocument): FileDocument {
     version: 2,
     name: document.name.trim() || 'Untitled',
     tokens: document.tokens,
-    pages: [{ id: newId(), name: 'Page 1', nodes: document.nodes }],
+    pages: [{ id: newId(), name: 'Page 1', nodes: document.nodes, threads: [] }],
   };
 }
 export function newFile(name: string, document?: FileDocument): FileRecord {
@@ -139,7 +164,7 @@ export function newFile(name: string, document?: FileDocument): FileRecord {
     version: 2,
     name,
     tokens: {},
-    pages: [{ id: newId(), name: 'Page 1', nodes: [] }],
+    pages: [{ id: newId(), name: 'Page 1', nodes: [], threads: [] }],
   };
   return { id: newId(), document: data, pageId: data.pages[0].id };
 }
