@@ -185,6 +185,15 @@ export async function connectToExistingBroker(
       const body = await request('call', JSON.stringify({ canvasId, method, args }), signal);
       return z.object({ result: z.unknown() }).parse(body).result;
     },
+    workspace: async (value: unknown) => {
+      const response = await fetch(`${base}/__cavas_internal/workspace`, {
+        method: 'POST', headers: { ...headers, 'content-type': 'application/json' },
+        body: JSON.stringify(value), signal: AbortSignal.timeout(TIMEOUT_MS + 3000), redirect: 'error',
+      });
+      const body: unknown = await response.json();
+      if (!response.ok) throw new Error(z.object({ error: z.string() }).parse(body).error);
+      return z.object({ result: z.unknown() }).parse(body).result;
+    },
     close: async () => {},
     metadataPath,
   };

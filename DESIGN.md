@@ -40,7 +40,7 @@ Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browse
 
 ## Automatic agent connection
 
-App startup connects automatically, with no connection badge, masked-code field, Pair button, or pairing instructions. Pause/Resume agent access lives in the File menu and lets users opt out per tab. Routine saving/saved labels are omitted from the header; failed saves remain visible, including at narrow widths.
+App startup connects automatically, with no connection badge, masked-code field, Pair button, or pairing instructions. Pause/Resume agent access lives in the File menu and lets users persistently opt out for the selected service workspace. Routine saving/saved labels are omitted from the header; failed saves remain visible, including at narrow widths.
 
 ## Project and page navigation
 
@@ -63,3 +63,7 @@ Active pan overrides tool and resize cursors without changing pointer geometry.
 ## Page request activity
 
 Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static blue pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.
+
+## Local workspace selection
+
+First load shows a dense local workspace chooser before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.

@@ -2,8 +2,14 @@ import { z } from 'zod';
 import { workspaceId, locationSchema } from '../workspace/model';
 
 export const target = {
-  canvasId: workspaceId.describe(
-    'Use the browser canvas ID returned by list_canvases.'
+  canvasId: workspaceId.optional().describe(
+    'Browser-only target from list_canvases. Do not combine with workspaceId.'
+  ),
+  workspaceId: workspaceId.optional().describe(
+    'Durable local workspace ID from list_workspaces. No browser required.'
+  ),
+  context: locationSchema.optional().describe(
+    'Explicit project/file/page target for backend reads; never redirects the browser.'
   ),
 };
 export const revisionTarget = {

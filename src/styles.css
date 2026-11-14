@@ -365,3 +365,10 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 @media (max-width: 600px) {
   .review-panel { top: auto; max-height: 58%; }
 }
+
+.workspace-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}

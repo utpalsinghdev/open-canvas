@@ -13,7 +13,7 @@ npm run service:install # Persistent main frontend at http://localmachine:5182
 # npm start remains available for manual foreground use
 ```
 
-Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
+Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and select an explicit workspace with `list_workspaces`. Data operations do not need an open browser. Browser rendering connects automatically when the application is open. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
 
 ## Versions and changelog
 
@@ -38,7 +38,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 
 ## Agent control through MCP
 
-48 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. The actual browser workspace must remain open and connects automatically. This is not complete Paper MCP parity.
+50 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent data operations. Screenshots, HTML import, and visual exports still need an explicit connected `canvasId`. This is not complete Paper MCP parity.
 
 ## Editor
 
@@ -67,13 +67,11 @@ Choose **Comment** beside the drawing tools, click a layer or canvas position, t
 
 ## Keep your work
 
-The complete workspace saves to IndexedDB in this browser origin after a 350 ms debounce. This is not cloud sync. The browser, hostname, port, profile, private-browsing state, cleanup, and storage quota determine which workspace is available. Different app ports do not share storage. Save failures remain visible in the header; routine saving/saved labels are hidden. **Download JSON backups** from Projects.
+Select a local service workspace on first load. **Copy browser workspace** explicitly transfers existing IndexedDB artwork into a new workspace without changing IDs or touching the original browser data. No profiles or origins merge automatically. Download backups before migrating valuable work.
 
-File backups include every page and file token. Project backups include every file in that project. Workspace backups include all projects. Import accepts legacy version-1 documents, version-2 multi-page files, project backups, and workspace backups. It adds new items without replacing existing work. Imported project/file IDs are regenerated to prevent collisions. Invalid imports commit nothing.
+The local service owns durable documents. Browser edits save after a 350 ms debounce; workspace-target MCP mutations acknowledge completed durable writes. Idle browsers refresh remote changes without following agent navigation. Stale writes stop instead of replacing newer work. Download a workspace backup before reloading a conflicted tab. Incoming changes clear obsolete undo history.
 
-Edits are usable immediately in memory; persistence becomes `saved` only after an IndexedDB transaction completes. The header does not show a routine saved badge. Closing a tab before a pending save finishes can still lose recent work. Reloading clears undo history, not saved projects/pages. Failed or corrupt workspace loads never overwrite the stored workspace automatically.
-
-Multiple tabs do not merge work. Each save compares the stored revision inside its write transaction. If another tab has saved first, the stale tab stops saving and shows a conflict. Download a workspace backup from that tab, then reload before continuing. This prevents silent overwrites, not multiplayer collaboration.
+File/project/workspace JSON backups and append-only imports remain available through Projects. Closing a tab before its pending save finishes can still lose recent browser edits. Keep downloaded backups. See [local workspaces](docs/local-workspaces.md) for storage, migration, concurrency, lifecycle, authentication, and recovery limits.
 
 ## MVP limits
 
@@ -92,6 +90,7 @@ Multiple tabs do not merge work. Each save compares the stored revision inside i
 - [Runtime profiles and main releases](docs/runtime.md)
 - [Architecture and state flow](docs/architecture.md)
 - [Projects, files, and persistence](docs/workspace.md)
+- [Browser-independent local workspaces](docs/local-workspaces.md)
 - [Document format](docs/document-format.md)
 - [Paper investigation and limits](docs/paper-research.md)
 - [Verification record](docs/verification.md)
