@@ -27,7 +27,7 @@
 - Inspect CI requirements before changes when CI exists. Never claim an unrun check passed.
 
 ## Git
-- Use Conventional Commits for commit titles and pull request titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.
+- Use Conventional Commits for commit titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.
 - User authorizes atomic local commits during this implementation without further confirmation. Keep each commit coherent and verify staged files.
 - Do not add Co-authored-by, agent Signed-off-by, or other agent attribution. Do not change author identity.
 - Do not publish, push, force-push, rewrite published history, or open a PR without explicit authorization for that action.
@@ -35,7 +35,7 @@
 
 ## GitHub issues and pull requests
 - Prefix issue titles with a bracketed type, such as `[Bug]` or `[Feature Request]`, followed by a specific description.
-- Use Conventional Commits for PR titles: `type: description` or `type(scope): description`. Use a lowercase type and a concise imperative description without a trailing period.
+- Use Conventional Commits for PR titles with a required scope: `type(scope): description`. Use a lowercase type, a meaningful scope, and a concise imperative description without a trailing period.
 - Write PR descriptions in direct, specific, conversational English. Scale the structure to the change; use Summary, Linked issue, Reproduction, Verification, and Docs sections when useful. Explain the problem, the change, preserved behavior, and relevant limitations. Use `Closes #N` only when the PR resolves that issue.
 - Report exact relevant verification commands and observed outcomes. Never claim unrun or failed checks passed. Keep incidental local environment details and the complete validation ledger private; disclose limitations that affect confidence or required checks.
 - Do not invent experience, results, or measurements. Avoid em dashes, inflated praise, generic chatbot phrases, and unrequested tool attribution. Follow repository disclosure requirements honestly.
