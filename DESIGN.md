@@ -36,7 +36,7 @@ Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browse
 
 ## Automatic agent connection
 
-The header uses the existing compact agent disclosure to show Agent connected, Waiting for agent, or Agent access paused. App startup connects automatically, with no masked-code field, Pair button, or pairing instructions. A Pause/Resume control lets users opt out per tab. Waiting uses static text, not animation. The disclosure states that trusted local MCP agents can access the workspace while the tab stays open. At narrow widths the accessible icon opens a viewport-contained panel.
+App startup connects automatically, with no connection badge, masked-code field, Pair button, or pairing instructions. Pause/Resume agent access lives in the File menu and lets users opt out per tab. Routine saving/saved labels are omitted from the header; failed saves remain visible, including at narrow widths.
 
 ## Project and page navigation
 
@@ -46,4 +46,4 @@ Pages live above Layers with compact add/rename/duplicate/delete controls. Curre
 
 ## Page request activity
 
-A compact non-interactive status sits at the top center of the canvas viewport, outside the artwork SVG. “Agent processing request” describes observed page-specific MCP calls, not an entire task or an idle connection. It uses the existing black surface, white text, hairline border, and Bot icon. A 160 ms entrance runs once; pending state is static and reduced motion disables the entrance. Clearing status makes no success or save claim. Header connection controls remain unchanged.
+Six blue dots sit just above the displayed page artwork's leading corner, outside the artwork SVG. Their screen-space size stays fixed while zooming; the cluster follows the page bounds and clamps inside the viewport when panned offscreen. Dots rise and fade into place with a staggered 600 ms entrance, then stay static while a page-specific request remains pending. Reduced motion disables the entrance. An accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.

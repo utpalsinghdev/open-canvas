@@ -16,6 +16,7 @@
   --subtle: #777777;
   --accent: #a6c7ff;
   --selection: #8cb7ff;
+  --agent-activity: #4c8ef7;
   --selection-wash: #8cb7ff20;
   --grid: #272727;
   --warning: #ffc486;
@@ -139,10 +140,15 @@ button svg, summary svg { flex: none; }
 .design-canvas[data-cursor="select"] :is(.resize-handle.e, .resize-handle.w) { cursor: ew-resize; }
 .marquee { fill: var(--selection-wash); stroke: var(--selection); pointer-events: none; }
 .canvas-text-editor { position: absolute; z-index: 2; margin: -2px; padding: 1px; line-height: 1.2; border: 1px solid var(--selection); background: var(--text-edit-background); resize: none; outline: none; overflow: auto; }
-.agent-activity-region { position: absolute; z-index: 2; top: 12px; left: 12px; right: 12px; display: flex; justify-content: center; pointer-events: none; }
-.agent-activity { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--background); color: var(--foreground); font-size: 11px; animation: agent-activity-enter 160ms ease-out; }
-@keyframes agent-activity-enter { from { opacity: 0.5; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .agent-activity { animation: none; } }
+.agent-activity-region { position: absolute; z-index: 2; top: 18px; left: 24px; pointer-events: none; }
+.agent-activity-dots { display: grid; grid-template-columns: repeat(3, 6px); gap: 4px; }
+.agent-activity-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--agent-activity); animation: agent-dot-arrive 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.agent-activity-dots i:nth-child(2) { animation-delay: 60ms; }
+.agent-activity-dots i:nth-child(3) { animation-delay: 120ms; }
+.agent-activity-dots i:nth-child(4) { animation-delay: 90ms; }
+.agent-activity-dots i:nth-child(5) { animation-delay: 150ms; }
+.agent-activity-dots i:nth-child(6) { animation-delay: 210ms; }
+@keyframes agent-dot-arrive { from { opacity: 0; transform: translateY(7px) scale(0.5); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .canvas-caption { position: absolute; left: 18px; bottom: 20px; font-size: 10px; color: var(--muted); pointer-events: none; }
 .zoom-controls { position: absolute; right: 18px; bottom: 13px; display: flex; align-items: center; padding: 4px; background: var(--background); border: 1px solid var(--line); border-radius: 5px; gap: 4px; }
 .zoom-controls button { height: 27px; min-width: 27px; display: grid; place-items: center; border-radius: 3px; color: var(--muted); }
@@ -227,7 +233,8 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
   .app-header { gap: 12px; height: 52px; }
   .brand { font-size: 12px; gap: 8px; }
   .brand-mark svg { width: 16px; }
-  .header-slash, .save-status { display: none; }
+  .header-slash { display: none; }
+  .save-status { font-size: 10px; margin-right: 8px; }
   .document-name { font-size: 11px; max-width: 24vw; width: 95px; }
   .header-actions { gap: 0; }
   .export-button { padding: 8px; }
@@ -246,15 +253,6 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
-
-.agent-menu { position: relative; }
-.agent-menu summary { display: flex; align-items: center; gap: 8px; color: var(--muted); list-style: none; padding: 8px; border-radius: 4px; }
-.agent-menu summary::-webkit-details-marker { display: none; }
-.agent-menu-content { position: absolute; right: 0; top: 40px; z-index: 40; width: 300px; padding: 16px; border: 1px solid var(--line); background: var(--panel); border-radius: 4px; }
-.agent-menu-content h2 { margin: 0 0 12px; font-size: 14px; font-weight: 500; }
-.agent-menu-content p { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 0 0 12px; }
-.agent-access-button { display: flex; align-items: center; gap: 8px; width: 100%; margin: 12px 0; padding: 8px; background: var(--active); border: 1px solid var(--line); border-radius: 4px; }
-@media (max-width: 900px) { .agent-menu summary span { display: none; } .agent-menu-content { position: fixed; top: 54px; right: 12px; width: min(300px, calc(100% - 24px)); } }
 
 .project-switcher { display: flex; align-items: center; gap: 8px; max-width: 160px; padding: 8px; border-radius: 4px; color: var(--muted); }
 .project-switcher span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
