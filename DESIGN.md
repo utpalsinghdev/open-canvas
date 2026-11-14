@@ -43,3 +43,7 @@ The header uses the existing compact agent disclosure to show Agent connected, W
 A compact project-name action sits before the file name in the header. Its Projects dialog uses a project list and dense file rows, not decorative cards. File rows expose explicit open/rename/duplicate/backup/delete actions. A separate warning and confirmation precedes permanent library deletion. Project/workspace backup and JSON import remain visible above the list.
 
 Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.
+
+## Page request activity
+
+A compact non-interactive status sits at the top center of the canvas viewport, outside the artwork SVG. “Agent processing request” describes observed page-specific MCP calls, not an entire task or an idle connection. It uses the existing black surface, white text, hairline border, and Bot icon. A 160 ms entrance runs once; pending state is static and reduced motion disables the entrance. Clearing status makes no success or save claim. Header connection controls remain unchanged.

@@ -120,3 +120,13 @@ Documents store at most 200 named color, number, or font tokens. Applying a toke
 - Requests/responses are limited to 12 MB and 30 seconds. The editor limits each page to 1,000 layers, each file to 100 pages/10,000 layers and 80 session-history snapshots, and the workspace to 50 projects/50 files per project/200 files total.
 - The connected browser owns data. Closing it stops document access. There is no headless editor, server document database, or cross-browser file/page synchronization.
 - After editing connector or tool source in development, reload the browser. An existing WebSocket callback can retain the previous hot-reloaded implementation. Restart the MCP client after server/schema changes.
+
+## Page-specific request activity
+
+The canvas viewport shows **Agent processing request** while a page-targeted tool call is pending. It is editor chrome and is excluded from artwork exports and MCP screenshots. The header connection status remains separate. No task lifecycle is inferred between tool calls, and clearing the label does not mean an edit succeeded or was saved.
+
+Content mutations use their validated project/file/page context. Explicit page operations, including `open_file` with `pageId`, use those supplied IDs. Active-page reads and visual exports capture the displayed context when dispatched and reject navigation during their brief pre-execution paint opportunity. File-wide operations, JSON file exports, token definition changes, library reads, and calls without a specific page target do not light up a page. Opening a file without `pageId` therefore does not establish page activity.
+
+Pending calls are tracked independently. Navigating away hides another page's activity; returning shows it only if the call is still pending. Completion and failure remove the label. Pause, socket disconnection, cancellation, and the 30-second deadline clear presence without retrying or claiming that a dispatched write was rolled back. Reconnect and read actual state after an uncertain outcome. The broker sends a request-specific presence-end message on cancellation or timeout; it grants no new browser or internal API access.
+
+The label uses a short entrance transition and stays static while pending. Reduced-motion preferences disable the transition. It does not intercept pointer input. Reload development browser tabs after connector changes, and restart development MCP clients after broker changes.
