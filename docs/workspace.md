@@ -10,7 +10,7 @@ Pages above Layers support creation, switching, rename, duplicate, and delete. S
 
 ## History and deletion
 
-History is capped at 80 immutable file snapshots per file and lasts only for the current tab session. It includes all pages and file tokens. Switch between files without losing their individual histories. Undo/redo can restore page creation, rename, deletion, and content edits. Restoring a snapshot restores its active page too.
+History is capped at 80 immutable file snapshots per file and lasts only for the current tab session. It includes all pages and file tokens. Snapshots share unchanged validated pages, tokens, and layers rather than retaining fresh copies of the entire file. File/page navigation preserves unchanged artwork references. Full schema validation still runs before publishing content or library changes; sharing does not bypass import validation or change the history limit. Navigation checks that its target file and page exist, then updates only the active-page ID without reparsing unchanged artwork. Switch between files without losing their individual histories. Undo/redo can restore page creation, rename, deletion, and content edits. Restoring a snapshot restores its active page too.
 
 Project/file creation, duplication, and import add library entries, not undo steps. Project/file deletion is permanent, removes their histories, and requires confirmation in the UI. MCP deletion calls are explicit destructive operations without a separate UI confirmation. Download backups first. At least one project, one file per project, and one page per file must remain.
 
