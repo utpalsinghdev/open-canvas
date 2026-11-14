@@ -9,20 +9,20 @@ export const brokerMetadataSchema = z.object({
   pid: z.number().int().positive(),
   instanceId: z.string().uuid(),
 });
-export async function removeStaleMetadata(pairingPath: string) {
+export async function removeStaleMetadata(metadataPath: string) {
   let raw: string;
   let metadata: z.infer<typeof brokerMetadataSchema>;
   try {
-    const file = await lstat(pairingPath);
+    const file = await lstat(metadataPath);
     if (!file.isFile() || file.isSymbolicLink() || file.mode & 0o077)
-      throw new Error('Pairing metadata is not a private regular file.');
-    raw = await readFile(pairingPath, 'utf8');
+      throw new Error('Broker metadata is not a private regular file.');
+    raw = await readFile(metadataPath, 'utf8');
     metadata = brokerMetadataSchema.parse(JSON.parse(raw));
   } catch (error) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT')
       return;
     throw new Error(
-      'Existing pairing metadata is invalid; refusing to replace it.'
+      'Existing broker metadata is invalid; refusing to replace it.'
     );
   }
   try {
@@ -57,21 +57,21 @@ export async function removeStaleMetadata(pairingPath: string) {
   } catch {
     /* Listener is gone or no longer owns this private identity. */
   }
-  const current = await readFile(pairingPath, 'utf8').catch(() => null);
-  if (current === raw) await rm(pairingPath);
+  const current = await readFile(metadataPath, 'utf8').catch(() => null);
+  if (current === raw) await rm(metadataPath);
 }
 export async function connectToExistingBroker(
-  pairingPath: string,
+  metadataPath: string,
   port: number,
   origin: string
 ) {
-  const file = await lstat(pairingPath);
+  const file = await lstat(metadataPath);
   if (!file.isFile() || file.isSymbolicLink() || file.mode & 0o077)
     throw new Error('Existing broker metadata is not a private regular file.');
   let metadata: z.infer<typeof brokerMetadataSchema>;
   try {
     metadata = brokerMetadataSchema.parse(
-      JSON.parse(await readFile(pairingPath, 'utf8'))
+      JSON.parse(await readFile(metadataPath, 'utf8'))
     );
   } catch {
     throw new Error(
@@ -147,6 +147,6 @@ export async function connectToExistingBroker(
       return z.object({ result: z.unknown() }).parse(body).result;
     },
     close: async () => {},
-    pairingPath,
+    metadataPath,
   };
 }

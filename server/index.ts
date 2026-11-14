@@ -9,10 +9,10 @@ import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
 const broker = await createBroker();
 const server = new McpServer(
-  { name: 'open-cavas', version: '0.3.0' },
+  { name: 'open-cavas', version: '0.4.0' },
   {
     instructions:
-      'Controls a paired Open Cavas browser, not Paper. Start with get_capabilities and list_canvases. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. A successful edit is in-memory, not proof of durable storage. Never retry a timed-out mutation without reading state. No browser paired means no document access.',
+      'Controls an automatically connected Open Cavas browser, not Paper. Start with get_capabilities and list_canvases. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. A successful edit is in-memory, not proof of durable storage. Never retry a timed-out mutation without reading state. Keep the actual browser workspace open. Browser connections are automatic; no pairing code is needed.',
   }
 );
 function text(result: unknown): CallToolResult {
@@ -29,8 +29,13 @@ server.registerTool(
   () =>
     text({
       ...coverage,
-      runtime: { profile: runtimeSettings().profile, origin: runtimeSettings().origin, release: process.env.CAVAS_RELEASE_COMMIT ?? 'development' },
-      transport: 'stdio with authenticated private WebSocket browser pairing',
+      runtime: {
+        profile: runtimeSettings().profile,
+        origin: runtimeSettings().origin,
+        release: process.env.CAVAS_RELEASE_COMMIT ?? 'development',
+      },
+      transport:
+        'stdio with authenticated private WebSocket browser registration',
       limits: {
         layersPerPage: 1000,
         layersPerFile: 10_000,
@@ -48,7 +53,7 @@ server.registerTool(
   'list_canvases',
   {
     description:
-      'List explicitly paired browser canvases and their latest state revisions.',
+      'List automatically connected browser canvases and their latest state revisions.',
     inputSchema: {},
     annotations: { readOnlyHint: true },
   },
@@ -141,5 +146,5 @@ server.server.onclose = () => {
 };
 await server.connect(transport);
 process.stderr.write(
-  `Open Cavas MCP ready. Browser pairing file: ${broker.pairingPath}\n`
+  `Open Cavas MCP ready. Private broker metadata: ${broker.metadataPath}\n`
 );

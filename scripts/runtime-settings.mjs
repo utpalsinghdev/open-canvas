@@ -23,7 +23,7 @@ export function runtimeSettings(profile = process.env.CAVAS_PROFILE ?? 'dev', ro
   if (main && (appPort !== 5182 || brokerPort !== 4781 || origin !== 'http://localmachine:5182')) throw new Error('Main runtime is fixed at http://localmachine:5182 and private broker 4781.');
   if (!main && ([5182, 4781].includes(appPort) || [5182, 4781].includes(brokerPort))) throw new Error('Development cannot use reserved main ports 5182 or 4781.');
   const stateDirectory = path.join(root, '.cavas', 'runtime', profile, `${appPort}-${brokerPort}`);
-  return { profile, appPort, brokerPort, origin, stateDirectory, pairingPath: path.join(stateDirectory, 'pairing.json') };
+  return { profile, appPort, brokerPort, origin, stateDirectory, metadataPath: path.join(stateDirectory, 'broker.json') };
 }
 export function git(root, ...args) {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();

@@ -150,3 +150,18 @@ The existing main MCP owner and global agent settings are not automatically migr
 - Production main is served on the same 5182 browser origin, so no browser workspace migration between ports was introduced. Future feature work uses 5188/4785, and future rollouts follow docs/runtime.md.
 
 No new test files or public Git actions were used. Automatic service restart after reboot, hot migration of paired sockets, and unannounced broker-owner termination are intentionally not implemented. Release preparation does not kill services. A coordinated restart remains the deployment boundary.
+
+## Automatic MCP browser connection
+
+The user explicitly requested removal of manual pairing, tested on a separate branch and then rolled out to main. This increment removes the Pair UI, code input, scripts/pair.mjs, and mcp:pair npm commands. Historical pairing checks above describe earlier releases, not current setup.
+
+- Opened a dedicated synthetic dev browser at localmachine:5188 before starting the broker. It showed Waiting for agent. Starting an actual official SDK stdio client on the dev profile made that same tab automatically register, without entering a code or clicking Connect/Pair. The SDK listed its canvas and current context.
+- Through that SDK connection, created an artboard/text layer, read the exact text back, and captured a 500×300 PNG as MCP image content. No user portfolio content was used.
+- Paused agent access and confirmed list_canvases became empty. Resumed without a code and reconnected. Reloaded the browser and confirmed automatic registration and zero password/code inputs. Initial UI test selectors incorrectly expected aria-label attributes on native text buttons; corrected selectors and exercised the actual controls.
+- Stopped the task-owned dev broker, restarted it, and confirmed the already-open browser reconnected with no manual action. No design mutation was replayed.
+- Bootstrap is a same-origin POST with exact Origin/Host validation and a custom browser header. Wrong Origin, wrong Host, cross-site Fetch Metadata, missing custom header, and GET each returned 403. A valid request returned 200 with Cache-Control no-store; a WebSocket using a previously consumed ticket returned 403. Unauthenticated internal tool HTTP returned 403.
+- An initial direct Node fetch tried overriding Host; the client did not produce the intended valid app request. Corrected positive checks to use the real frontend proxy Origin/Host. Negative Host checks still used the direct loopback listener. No protection was relaxed.
+- Inspected connection disclosure at desktop/mobile widths. Mobile document width remained 390 and the 300 px disclosure stayed inside its viewport. No continuously repainting animation or password field remains.
+- `npm ci`, `npm run check`, `npm run build`, and `git diff --check` passed. Existing esbuild install-script policy and dependency annotation warnings did not prevent the build. No test files were created.
+
+Automatic access changes the trust model: opening an app tab implicitly exposes it to trusted local MCP clients. The app remains trusted-network-only. Browser tickets grant registration of that browser's canvas, not authority to list/control other sockets; internal broker credentials remain private. Tickets expire after 20 seconds and pending tickets are bounded at 32. Expiry/saturation were inspected in source, not waited out or load-tested. A real browser holding the user's workspace is still required. Old loaded pages need one reload to receive the new connector.

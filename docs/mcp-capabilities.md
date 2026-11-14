@@ -13,7 +13,7 @@ The earlier read-only reference project was `/home/utpal/work/paper-custom-bridg
 - SVG, standalone SVG-based HTML, and SVG JSX export. PNG artwork capture returned as MCP image content.
 - Persisted design token definition/read-back and explicit token application.
 - Manual text changes visible through MCP, stale-revision rejection, and focused manual-edit protection.
-- Wrong pairing code, wrong Origin, and missing Origin rejected with HTTP 403.
+- Automatic browser registration without human code entry. Wrong Origin/Host, cross-site metadata, missing custom header, reused tickets, and unauthenticated internal requests are rejected.
 
 Live verification used synthetic artwork in a dedicated browser session. It did not mutate Paper or the earlier portfolio document. Source-boundary checks and remaining checks are recorded in `verification.md`.
 
@@ -36,3 +36,8 @@ No placeholder tools claim those capabilities. `get_tree` reports the active-pag
 ## Multi-project increment
 
 Projects contain multiple files, files contain multiple pages. Live SDK calls created/renamed/deleted projects/files/pages, duplicated complete files/pages, exercised per-file undo, read inactive files, exported project/workspace backups, and rejected wrong-file content context and last-file/page deletion. Browser UI migrated legacy storage, restored saved hierarchies after reload, and rejected stale-tab saves. These are implemented capabilities, not claims of complete Paper parity. Shared-broker support is documented separately in mcp-multi-session.md; adopting it requires restarting any pre-existing legacy owner.
+
+
+## Automatic browser registration
+
+Manual pairing commands and UI were removed at the user's request. Opening the real application tab is sufficient for registration when its local MCP broker is running. Late broker startup, page reload, and broker restart reconnect automatically; Pause/Resume is available as a per-tab opt-out. The internal shared-broker credential remains private and is not replaced by public unauthenticated tool access. No headless document storage or access to a closed browser's IndexedDB is claimed.

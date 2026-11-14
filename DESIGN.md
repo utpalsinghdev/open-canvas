@@ -34,10 +34,9 @@ A dotted world grid provides position context without repainting animation. Artb
 Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browser. Mobile has no document-width overflow and exposes both panels. Design detector returned no findings. Static Hallmark checks have no floor failures; pure black and white are explicitly waived because they are user requirements. Hallmark's render tier was unavailable, so browser captures and interactions provide visual evidence instead. This was a single-agent review, not an independent review.
 
 
-## Agent pairing control
+## Automatic agent connection
 
-The header has a compact Connect agent disclosure using the existing control/border tokens. It explains read/write access, accepts a masked private code, and shows an explicit Disconnect action when paired. Below 900 px the label becomes an accessible icon and the disclosure remains inside the viewport. Pairing adds no continuous animation. Agent edit receipts use the existing status message; the user retains normal history and document controls.
-
+The header uses the existing compact agent disclosure to show Agent connected, Waiting for agent, or Agent access paused. App startup connects automatically, with no masked-code field, Pair button, or pairing instructions. A Pause/Resume control lets users opt out per tab. Waiting uses static text, not animation. The disclosure states that trusted local MCP agents can access the workspace while the tab stays open. At narrow widths the accessible icon opens a viewport-contained panel.
 
 ## Project and page navigation
 

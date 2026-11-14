@@ -10,13 +10,11 @@
     "preview": "node scripts/runtime.mjs main web",
     "dev:agent": "node scripts/runtime.mjs dev web",
     "mcp": "node scripts/runtime.mjs main mcp",
-    "mcp:pair": "node scripts/pair.mjs main",
     "mcp:config": "node scripts/config.mjs main",
     "start": "node scripts/runtime.mjs main web",
     "release:main": "node scripts/release.mjs",
     "mcp:dev": "node scripts/runtime.mjs dev mcp",
-    "mcp:config:dev": "node scripts/config.mjs dev",
-    "mcp:pair:dev": "node scripts/pair.mjs dev"
+    "mcp:config:dev": "node scripts/config.mjs dev"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

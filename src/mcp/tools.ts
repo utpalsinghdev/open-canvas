@@ -228,6 +228,6 @@ export const coverage = {
     'HTML/CSS subset only; no flex, grid, remote assets, arbitrary DOM or rich-text fidelity.',
     'Tokens support color, number, and font values with explicit application, not dynamic bindings or CSS themes.',
     'No multiplayer merging; stale state revisions reject writes.',
-    'A paired browser must be open. No headless editor or server-side document storage.',
+    'The actual browser workspace must be open; it connects automatically. No headless editor or server-side document storage.',
   ],
 };
