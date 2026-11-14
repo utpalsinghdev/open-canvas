@@ -1,8 +1,10 @@
 import { useEditor } from '../editor/store';
+import type { EditorStore } from '../editor/state';
 import { currentFile, type Location, type Page } from '../workspace/model';
 import { anchorPoint, type ReviewThread } from '../review/model';
 import { reviewTools } from './review-tools';
 
+export function createReviewHandlers(useEditor: Pick<EditorStore, 'getState'>) {
 function pageAt(location: Location) {
   const file = currentFile(useEditor.getState().workspace, location);
   const page = file.document.pages.find((page) => page.id === location.pageId);
@@ -16,7 +18,7 @@ function threadResult(thread: ReviewThread, page: Page) {
     position: anchorPoint(thread.anchor, page.nodes),
   };
 }
-export const reviewHandlers: Record<string, (value: unknown) => unknown> = {
+const reviewHandlers: Record<string, (value: unknown) => unknown> = {
   list_comment_threads(value) {
     const args = reviewTools.list_comment_threads.schema.parse(value);
     const page = pageAt(args);
@@ -46,3 +48,7 @@ export const reviewHandlers: Record<string, (value: unknown) => unknown> = {
     return { ...args.context, thread: threadResult(thread, page) };
   },
 };
+
+return reviewHandlers;
+}
+export const reviewHandlers = createReviewHandlers(useEditor);

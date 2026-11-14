@@ -9,7 +9,7 @@ Main is the stable application used by other threads. Feature work runs in separ
 | Main | http://localmachine:5182 | 127.0.0.1:4781 | open-cavas |
 | Development | http://localmachine:5188 | 127.0.0.1:4785 | open-cavas-dev-5188 |
 
-These are different browser origins and have independent IndexedDB workspaces. Import JSON backups to transfer work. Never use the development app to access main's saved browser data directly. Both app listeners bind 0.0.0.0; brokers remain loopback-only and require automatic browser tickets and exact Origin/Host. Keep app listeners on a trusted network, without public ingress.
+These profiles have separate private service workspace directories. Existing browser IndexedDB data remains origin-specific until explicitly copied. Import JSON backups to transfer work. Never use the development app to access main's saved browser data directly. Both app listeners bind 0.0.0.0; brokers remain loopback-only and require automatic browser tickets and exact Origin/Host. Keep app listeners on a trusted network, without public ingress.
 
 Main ports and Origin cannot be overridden. Development refuses either main port. An additional simultaneous feature worktree needs a different explicitly assigned development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when launching that app, generating its config. Development Origin defaults to `http://localmachine:<app-port>`; any explicit Origin must match that port.
 
@@ -79,14 +79,14 @@ Do not delete old worktrees or broker metadata while active clients depend on th
 
 ## No manual pairing
 
-Browser workspaces register automatically after the app opens and retry when the broker becomes available. Main and dev ticket issuance remain bound to their own exact browser Origin/Host. Internal credential sharing between stdio clients remains private. The old mcp:pair commands and pairing-code UI were removed; do not ask users to paste secrets or generate codes. A real workspace tab is still required, and Pause agent access opts out until resumed/reloaded.
+Browser workspaces register automatically after the app opens and retry when the broker becomes available. Main and dev ticket issuance remain bound to their own exact browser Origin/Host. Internal credential sharing between stdio clients remains private. The old mcp:pair commands and pairing-code UI were removed; do not ask users to paste secrets or generate codes. A real workspace tab is required only for browser rendering. Durable workspace data operations need no tab. Pause agent access persists for that workspace until explicitly resumed.
 
 Older running brokers and pages do not gain this behavior without a release restart/page reload. Restart only the explicitly identified main owner at the coordinated release boundary. Old pairing.json files are unused by the new broker; do not delete them while a legacy process still depends on them.
 
 
 ## Automatic frontend updates
 
-Main release builds include `/runtime.json` with profile and commit identity. Main browser tabs check it at startup, on focus/visibility changes, and every 30 seconds. A different valid main commit becomes a pending update. The tab reloads automatically only when IndexedDB reports Saved locally, persistence is not blocked, no manual interaction/form draft/dialog is active, no MCP request is running, and five seconds have passed since document/selection/save/agent activity. The updater revalidates the served manifest before reloading. Offline or restarting servers do not justify discarding work.
+Main release builds include `/runtime.json` with profile and commit identity. Main browser tabs check it at startup, on focus/visibility changes, and every 30 seconds. A different valid main commit becomes a pending update. The tab reloads automatically only when the selected service workspace reports saved, persistence is not blocked, no manual interaction/form draft/dialog is active, no MCP request is running, and five seconds have passed since document/selection/save/agent activity. The updater revalidates the served manifest before reloading. Offline or restarting servers do not justify discarding work.
 
 Development/HMR tabs do not use this main-release updater. Browser timer throttling can delay checks in background tabs; focus triggers a fresh check. A failed save or focused form intentionally delays updates until resolved. The updater preserves saved workspace data, but a full page reload clears session-only selection/undo history and produces a new canvas ID. Agents must rediscover the canvas/context, not replay a mutation.
 
@@ -106,3 +106,7 @@ journalctl --user -u open-cavas-main.service -n 50 --no-pager
 ```
 
 The frontend service does not own the MCP stdio sessions or their broker. Starting/restarting it never terminates those client processes. Existing automatically connected browser tabs retry transport registration once the frontend returns; a reload is not required merely because the frontend had temporarily stopped. Older pages without automatic-connection code are not modified by this service.
+
+## Local workspace service lifecycle
+
+Frontend launch now starts or attaches to the profile's private workspace broker before serving the app. Standalone stdio MCP can own the same broker without a frontend or browser. Attachment never transfers ownership: if an existing MCP owner exits, attached frontend/clients lose service until a coordinated restart. Do not restart another thread's owner silently. Graceful owner shutdown drains accepted storage writes before releasing ownership. Workspace records live beside broker metadata in `workspaces/`, not inside release snapshots; never delete runtime directories as credential cleanup. See [local workspaces](local-workspaces.md).

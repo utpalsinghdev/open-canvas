@@ -30,7 +30,7 @@ Rotated node bounds drive export/viewport fitting. Marquee uses unrotated node b
 2. Pointer moves update transient React preview state, not the document or undo history.
 3. Pointer release creates a validated active-page mutation. Cancellation discards the preview.
 4. Workspace actions replace that page inside its version-2 file and keep an immutable file snapshot in its own 80-entry history.
-5. A 350 ms debounce queues an IndexedDB save of the workspace. The transaction compares the disk revision before replacing data.
+5. A 350 ms debounce sends the selected workspace to the private local service with its expected durable revision. Stale saves reject without replacing newer data.
 
 Selection, tools, camera, and open panels are session state. File/page navigation clears selection, resets the tool, remounts pointer/text editing, and fits the new page. Reloading clears per-file histories. Imports and new files append library entries rather than overwriting the active file. Page changes, including deletion, use per-file history; project/file deletion is permanent and requires UI confirmation.
 
@@ -40,16 +40,9 @@ IDs use `crypto.getRandomValues`, which works on plain HTTP tailnet origins wher
 
 ## Persistence and boundaries
 
-IndexedDB database `open-cavas`, object store `workspace`, key `current` holds the validated workspace, navigation location, and disk revision. A missing record permits migration from `open-cavas.document.v1`; the original local-storage key is never removed. Corrupt/unavailable storage leaves fallback work in memory with saving blocked and a backup warning. It never silently resets or overwrites saved data.
+`src/editor/state.ts` creates isolated vanilla editor stores shared by browser and backend. The React hook remains in `store.ts`. MCP handlers accept a store rather than relying only on the browser singleton. `server/workspaces.ts` owns durable workspace records and a serialization queue; `workspace-storage.ts` validates and publishes private fsynced JSON snapshots. Browser copy is explicit and preserves identities; IndexedDB remains untouched as a recovery source.
 
-`src/workspace/model.ts` owns project/file/page schemas and backward-compatible legacy conversion. The editor's version-1-shaped `document` is an active-page projection only. Version-2 file documents contain all pages and file-wide tokens. `state.ts` derives the projection and session history from the canonical workspace. `actions.ts` validates and updates library/file/page state. `storage.ts` owns IndexedDB transactions; `persistence.ts` serializes saves and status updates.
-
-A save reads the stored revision inside the same read-write transaction as its put. A different revision aborts the transaction and blocks further writes in that tab. This prevents two tabs from silently replacing one another's workspace; it does not merge edits. Save status becomes `saved` only if the committed snapshot is still current in memory. Visibility/pagehide events request a flush, but asynchronous completion before tab termination is not guaranteed.
-
-JSON backups can represent files, projects, or the complete workspace. Imports validate every page and parent relationship, regenerate project/file IDs, and append items. Files are limited to 100 pages and 10,000 layers, with 1,000 layers per page. History is in memory per file. Pure SVG serialization and screenshots use only the active page. JSON file export includes all pages.
-
-No account, analytics, or cloud document storage is used. Raster images remain embedded data URLs. Local data belongs to the browser origin; switching port or hostname selects a different storage namespace. No automatic cross-origin transfer occurs. Browser cleanup or quota errors require downloaded backups for recovery.
-
+`src/workspace/persistence.ts` saves browser snapshots with durable expected revisions, polls idle tabs, preserves local navigation, and stops on stale writes without discarding unsaved work. Backend edits execute against an isolated page projection with explicit IDs, not the displayed browser page. Remote refresh clears stale undo history. See [local workspaces](local-workspaces.md) for complete storage, access, synchronization, recovery and lifecycle contracts.
 
 ## MCP control
 
@@ -59,7 +52,7 @@ No account, analytics, or cloud document storage is used. Raster images remain e
 
 `src/mcp/html.ts` parses a restricted inert HTML subset into native primitives without mounting elements, executing code, or fetching assets. `src/editor/svg.ts` is the shared pure artwork serializer used by UI downloads and MCP exports. PNG capture rasterizes its SVG in the connected browser. Tokens persist at file scope and are shared across its pages. Legacy version-1 documents still import with their token dictionary.
 
-Read-back is the same state the user edits. The server does not retain documents, run the Mac helper, or claim a mutation timeout means failure. Disconnect/cancellation after dispatch reports unknown outcome and never retries a mutation automatically. Internal broker credentials rotate on owner startup and remain separate from browser registration. src/mcp/connection.ts automatically retries only transport establishment; design commands are never replayed. AgentConnection offers opt-out, not a pairing form.
+Read-back is the same state the user edits. The optional browser-routing path does not run the Mac helper, or claim a mutation timeout means failure. Disconnect/cancellation after dispatch reports unknown outcome and never retries a mutation automatically. Internal broker credentials rotate on owner startup and remain separate from browser registration. src/mcp/connection.ts automatically retries only transport establishment; design commands are never replayed. AgentConnection offers opt-out, not a pairing form.
 
 
 See [workspace.md](workspace.md) for the hierarchy, migration policy, deletion semantics, and backup format.
@@ -72,7 +65,7 @@ See [workspace.md](workspace.md) for the hierarchy, migration policy, deletion s
 
 ## Safe frontend release updates
 
-Vite emits runtime.json with the same main profile/commit as the HTML metadata. src/editor/release-updates.ts polls this served manifest, not Git or a mutable release pointer. It runs only in a main page with a valid committed release ID. A workspace/store subscription and transport-level agentActivity track safe idle time. Pending saves, blocked persistence, pointer/text interactions, focused form controls, open dialogs, and in-flight agent requests prevent automatic reload. A fresh valid manifest is required before reloading; transient deployment failures retain local state. Normal reload rehydrates saved IndexedDB content and automatically reconnects MCP with a new canvas ID. Session-only history is not migrated.
+Vite emits runtime.json with the same main profile/commit as the HTML metadata. src/editor/release-updates.ts polls this served manifest, not Git or a mutable release pointer. It runs only in a main page with a valid committed release ID. A workspace/store subscription and transport-level agentActivity track safe idle time. Pending saves, blocked persistence, pointer/text interactions, focused form controls, open dialogs, and in-flight agent requests prevent automatic reload. A fresh valid manifest is required before reloading; transient deployment failures retain local state. Normal reload reads the explicitly selected service workspace and automatically reconnects MCP with a new canvas ID. Session-only history is not migrated.
 
 ### Page request presence
 

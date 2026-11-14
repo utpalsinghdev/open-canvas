@@ -113,6 +113,7 @@ export type TextLayout = {
 };
 
 function textContext(node: Extract<DesignNode, { kind: 'text' }>) {
+  if (typeof document === 'undefined') return null;
   const context = document.createElement('canvas').getContext('2d');
   if (!context) return null;
   const family = fontStatus(node.fontFamily).resolved;

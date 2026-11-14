@@ -191,6 +191,7 @@ export const browserMessageSchema = z.union([
   z.object({
     type: z.literal('hello'),
     canvasId: id,
+    workspaceId: id,
     name: z.string().max(160),
     revision: z.number().int().nonnegative(),
     context: locationSchema,
@@ -234,11 +235,11 @@ export const coverage = {
   ],
   limitations: [
     'Library deletions are permanent; page/content edits use per-file session history.',
-    'Workspace data stays in IndexedDB in this browser origin; concurrent-tab saves reject conflicts rather than merging.',
+    'Explicitly selected local workspaces persist in private service storage; stale browser and agent revisions reject writes rather than merging.',
     'No Paper file compatibility or official API dependency.',
     'HTML/CSS subset only; no flex, grid, remote assets, arbitrary DOM or rich-text fidelity.',
     'Tokens support color, number, and font values with explicit application, not dynamic bindings or CSS themes.',
     'No multiplayer merging; stale state revisions reject writes.',
-    'The actual browser workspace must be open; it connects automatically. No headless editor or server-side document storage.',
+    'workspaceId supports browser-independent data operations and JSON exports. Screenshots, HTML import and non-JSON visual exports require an explicit connected canvasId. Headless text metrics are unmeasured.',
   ],
 };

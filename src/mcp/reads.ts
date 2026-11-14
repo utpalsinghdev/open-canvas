@@ -1,5 +1,6 @@
 import { currentFile } from '../workspace/model';
 import { useEditor } from '../editor/store';
+import type { EditorStore } from '../editor/state';
 import { renderSvg } from '../editor/svg';
 import { tools } from './tools';
 import type { DesignDocument, DesignNode } from '../editor/model';
@@ -10,6 +11,7 @@ export function withoutImageBytes(node: DesignNode) {
   const { src, ...rest } = node;
   return { ...rest, imageBytesOmitted: true, encodedLength: src.length };
 }
+export function createReads(useEditor: Pick<EditorStore, 'getState'>) {
 function exportArtwork(document: DesignDocument, artboardId?: string) {
   if (
     artboardId &&
@@ -56,7 +58,7 @@ async function screenshot(artboardId: string | undefined, scale: number) {
     URL.revokeObjectURL(url);
   }
 }
-export const reads: Record<
+const reads: Record<
   string,
   (value: unknown) => unknown | Promise<unknown>
 > = {
@@ -211,3 +213,7 @@ export const reads: Record<
     return screenshot(args.artboardId, args.scale);
   },
 };
+
+return reads;
+}
+export const reads = createReads(useEditor);

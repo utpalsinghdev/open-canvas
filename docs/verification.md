@@ -433,3 +433,19 @@ Recorded the real development app in isolated local Brave using live MCP screens
 - Independent security/edge-case review found no blocking defect in sharing. Focused temporary verification passed 235 checks, including malformed commits, differential action sequences and frozen histories. The checks were rerun after the navigation-only change. That final navigation fast path was checked by the primary implementer, not a second independent review.
 - `npm run build`, `npm run changeset:status`, `git diff --check`, and active TypeScript diagnostics passed. No repository CI workflow or test suite is configured. A reusable state profiler was added, not a new test suite.
 - Dedicated local/Mac browsers and Mac tunnels were closed. Main runtime and network/authentication configuration were not changed. No claim of a confirmed unbounded leak or complete resolution of issue #38 is made.
+
+## Issue 34: local service workspaces
+
+Verified in the isolated development worktree, app 5206/private broker 4806, with synthetic documents only:
+
+- `npm ci --ignore-scripts`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. No CI workflow files were present. Build emitted dependency annotation warnings, not application errors.
+- Official MCP SDK stdio client listed/created durable workspaces, read documents, created artwork, and renamed a file with `list_canvases` empty. Mutation returned `persistence: saved`. After stopping the owned frontend/broker, a standalone MCP owner read the same saved data from disk with no frontend or browser running. Session history correctly reset.
+- Local Brave copied browser starter data explicitly, preserving IDs. Manual file rename survived reload. Independent MCP page rename appeared in an idle browser without changing its displayed Page 1 or URL. Stale MCP revision rejected without changing saved content.
+- Real browser conflict: focused local rename draft, intervening successful MCP rename, then blur. Browser showed Not saved, retained its unsaved name, and blocked persistence. MCP retained the newer backend name. Unsaved synthetic workspace was backed up before reload.
+- Persistent Pause survived reload, rejected workspace-target MCP reads, and removed associated canvases. Resume restored access. A real access request with an intentionally delayed browser response did not strand an intervening edit: subsequent save completed and MCP read it back.
+- Explicit workspace URL overrode a different remembered workspace selection. An unavailable workspace URL showed chooser/error rather than editor fallback. Service IDs are included in canonical file/page links; legacy links require explicit selection.
+- Exact-origin ticket request succeeded; reused ticket, cross-site Fetch Metadata, wrong Host, wrong Origin, missing browser credentials, and unauthenticated internal workspace requests returned 403.
+- Security review found and fixed exclusive-creation, persistent-pause, autosave scheduling, shutdown-drain, page-context, and workspace-link issues. Handler page-context checks were also exercised independently in memory.
+- Before/after, migration and conflict screenshots used temporary files, not repository assets. Verification used dedicated local Brave sessions with synthetic data.
+
+Limits: the original baseline connection-timing sequence was inconclusive, not a reproduced connection bug. No performance claim or benchmark was made. No Mac-specific behavior was required or verified. Power-loss recovery, disk-failure injection and an abrupt multi-process shutdown race were not exercised. Headless screenshots/HTML import/visual exports are intentionally unsupported. Existing-owner attachment still requires coordinated restart when that owner exits; there is no automatic ownership transfer. This increment does not claim complete resolution of every operation requested by issue 34.
