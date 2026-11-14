@@ -97,6 +97,7 @@ button svg, summary svg { flex: none; }
 .inspector-panel { border-left: 1px solid var(--line); }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px 16px; font-weight: 500; }
 .panel-heading > :last-child:not(:first-child) { font-weight: 400; font-size: 11px; }
+.collapse-all-button { padding: 4px; border-radius: 3px; white-space: nowrap; }
 .muted { color: var(--muted); }
 .page-row { display: flex; align-items: center; gap: 8px; height: 35px; margin: 0 8px 16px; padding: 0 8px; border: 1px solid var(--line); border-radius: 3px; font-size: 11px; }
 .page-row svg { color: var(--muted); }
