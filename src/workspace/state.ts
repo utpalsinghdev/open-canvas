@@ -22,6 +22,12 @@ export type WorkspaceState = {
   message: string;
   saveState: 'saved' | 'pending' | 'failed';
   persistenceBlocked: boolean;
+  persistenceFailure: {
+    kind: 'conflict' | 'write' | 'load';
+    name: string;
+    message: string;
+    recovery: string;
+  } | null;
 };
 /** IDs originate in imported files; inherited object keys are not history entries. */
 export function historyFor(
