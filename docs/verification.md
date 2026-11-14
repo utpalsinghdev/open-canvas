@@ -165,3 +165,9 @@ The user explicitly requested removal of manual pairing, tested on a separate br
 - `npm ci`, `npm run check`, `npm run build`, and `git diff --check` passed. Existing esbuild install-script policy and dependency annotation warnings did not prevent the build. No test files were created.
 
 Automatic access changes the trust model: opening an app tab implicitly exposes it to trusted local MCP clients. The app remains trusted-network-only. Browser tickets grant registration of that browser's canvas, not authority to list/control other sockets; internal broker credentials remain private. Tickets expire after 20 seconds and pending tickets are bounded at 32. Expiry/saturation were inspected in source, not waited out or load-tested. A real browser holding the user's workspace is still required. Old loaded pages need one reload to receive the new connector.
+
+## Changesets setup
+
+Installed @changesets/cli as a development dependency. Config includes private-package versioning, restricted access, main as base branch, no automatic commit, and no tagging. Added changeset, changeset:status, and version:apply scripts and documented the separation between semantic versioning and frozen main deployment.
+
+`npm run changeset:status` reports the pending setup patch for open-cavas. In an isolated temporary package copy, `npm run version:apply` consumed the entry, generated CHANGELOG.md, and updated package.json, package-lock.json top-level version, and lockfile root-package version to0.1.1. The real repo remains private at0.1.0 with its pending entry intact. `npm run check` passed. No npm publish, tags, service restart, or actual repository version bump occurred.
