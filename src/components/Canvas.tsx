@@ -51,6 +51,8 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   function down(event: PointerEvent<SVGSVGElement>) {
     if (event.button !== 0 && event.button !== 1) return;
     if (editingId) return;
+    // preventDefault keeps form focus unless the canvas explicitly takes it.
+    event.currentTarget.focus({ preventScroll: true });
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     useEditor.setState({ interactionActive: true });
@@ -145,11 +147,12 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     return node;
   });
   const preview = gesture?.mode === 'draw' ? drawnNode(gesture) : null;
-  const visible = nodes.filter((node) => !isHidden(node, nodes));
+  // The textarea replaces the edited artwork and its selection decorations locally.
+  const visible = nodes.filter((node) => !isHidden(node, nodes) && node.id !== editingId);
   const selected = visible.filter((node) => selectedIds.includes(node.id));
 
   return <div ref={bindViewport} className={`canvas-viewport ${space || tool === 'hand' ? 'is-panning' : tool !== 'select' ? 'is-drawing' : ''}`}>
-    <svg className="design-canvas" aria-label="Design canvas" onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
+    <svg className="design-canvas" aria-label="Design canvas" tabIndex={-1} onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
       // Pointer capture retargets dblclick to the SVG; hit-test the artwork instead.
       const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node-id]');
       const node = nodes.find((item) => item.id === target?.getAttribute('data-node-id'));
@@ -180,7 +183,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
       </g>
     </svg>
     {editingNode && <textarea ref={textInput} key={editingNode.id} className="canvas-text-editor" aria-label="Edit text on canvas" defaultValue={editingNode.text} wrap={editingNode.wrap ? 'soft' : 'off'}
-      style={{ left: camera.x + editingNode.x * camera.zoom, top: camera.y + editingNode.y * camera.zoom, width: Math.max(120, textNodeBounds(editingNode).width * camera.zoom), height: Math.max(60, textNodeBounds(editingNode).height * camera.zoom), fontSize: editingNode.fontSize * camera.zoom, lineHeight: editingNode.lineHeight, letterSpacing: `${editingNode.letterSpacing * camera.zoom}px`, fontFamily: fontStatus(editingNode.fontFamily).resolved, fontWeight: editingNode.fontWeight, color: editingNode.fill, textAlign: editingNode.align, whiteSpace: editingNode.wrap ? 'pre-wrap' : 'pre', overflow: 'auto', transform: `rotate(${editingNode.rotation}deg)` }}
+      style={{ left: camera.x + editingNode.x * camera.zoom, top: camera.y + editingNode.y * camera.zoom, width: textNodeBounds(editingNode).width * camera.zoom, height: textNodeBounds(editingNode).height * camera.zoom, fontSize: editingNode.fontSize * camera.zoom, lineHeight: editingNode.lineHeight, letterSpacing: `${editingNode.letterSpacing * camera.zoom}px`, fontFamily: fontStatus(editingNode.fontFamily).resolved, fontWeight: editingNode.fontWeight, color: editingNode.fill, textAlign: editingNode.align, whiteSpace: editingNode.wrap ? 'pre-wrap' : 'pre', overflow: 'auto', transform: `rotate(${editingNode.rotation}deg)` }}
       onBlur={(event) => { if (event.currentTarget.value !== editingNode.text) patch(editingNode.id, { text: event.currentTarget.value }); setEditingId(null); }}
       onKeyDown={(event) => { if (event.key === 'Escape') { setEditingId(null); } if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') event.currentTarget.blur(); }} />}
     {!nodes.length && <div className="canvas-empty"><h2>Your space to make.</h2><p>Choose artboard, then click or drag on the canvas.</p><button className="text-button" onClick={() => setTool('artboard')}>Create an artboard</button></div>}
