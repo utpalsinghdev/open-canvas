@@ -131,7 +131,7 @@ button svg, summary svg { flex: none; }
 .resize-handle.nw, .resize-handle.se { cursor: nwse-resize; }
 .resize-handle.ne, .resize-handle.sw { cursor: nesw-resize; }
 .marquee { fill: var(--selection-wash); stroke: var(--selection); pointer-events: none; }
-.canvas-text-editor { position: absolute; z-index: 2; margin: 0; padding: 0; line-height: 1.2; border: 1px solid var(--selection); background: var(--text-edit-background); resize: none; outline: none; overflow: auto; }
+.canvas-text-editor { position: absolute; z-index: 2; margin: -2px; padding: 1px; line-height: 1.2; border: 1px solid var(--selection); background: var(--text-edit-background); resize: none; outline: none; overflow: auto; }
 .canvas-caption { position: absolute; left: 18px; bottom: 20px; font-size: 10px; color: var(--muted); pointer-events: none; }
 .zoom-controls { position: absolute; right: 18px; bottom: 13px; display: flex; align-items: center; padding: 4px; background: var(--background); border: 1px solid var(--line); border-radius: 5px; gap: 4px; }
 .zoom-controls button { height: 27px; min-width: 27px; display: grid; place-items: center; border-radius: 3px; color: var(--muted); }

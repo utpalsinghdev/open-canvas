@@ -65,3 +65,9 @@ Project archives use `{ "kind": "open-cavas-project", "version": 1, "project": .
 Workspace validation requires unique project IDs and unique file IDs across projects. Project/file/page names are trimmed and nonempty. Imported archives append projects with regenerated project/file IDs, retaining page/node IDs within each independent file. A version-1 document becomes a new version-2 file with one generated Page 1.
 
 Current UI JSON import limit is 40 MB. MCP request/response limits remain 12 MB, so browser backups are required for larger workspaces.
+
+## Text frames and editing bounds
+
+Text `width` and `height` describe the stored frame, not glyph extents. Selection shows the resolved frame dashed and a solid content outline based on the same font and line layout as the artwork. Resize handles follow the selected sizing mode. Inline editing grows with the draft while preserving the frame width for wrapped text. Edits do not change stored frame dimensions. Alignment and rotation remain anchored to the resolved frame.
+
+Artwork preserves whitespace. The textarea preserves draft whitespace and uses eight-space tab stops. Native textarea and SVG font metrics and wrapping may differ.
