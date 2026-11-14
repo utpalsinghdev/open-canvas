@@ -204,3 +204,19 @@ Wheel registration now uses a stable React callback ref with cleanup. After page
 - `npm run build` passed, including `tsc --noEmit`. Existing Zod dependency annotation warnings were nonfatal. `git diff --check` and `npm run changeset:status` passed. No CI workflow files exist in the checked base. No test files were added.
 - Screenshots captured before editing fix, during editing at fit/100% zoom, and after commit. Screenshot attachments require a separate upload; local artifact paths are reported with the change rather than inventing public image URLs.
 - Limitations: Chromium only. No Safari/Firefox, rotated-text interaction, or pixel-exact cross-font baseline comparison was performed. Native textarea font metrics may differ slightly from SVG. Main runtime and MCP metadata were not used or restarted.
+
+## Issue #5: direct file/page links
+
+- `npm run check` and `npm run build` passed. No CI workflows are configured.
+- Real browser: bare URL gained complete IDs; adding a page and creating a file
+  changed the URL. Back/Forward restored both page and file destinations.
+- Opening a copied page URL selected that page instead of the last saved file;
+  reloading preserved it.
+- Deleted an active page with the existing confirmation, then navigated Back to its
+  old entry. The unavailable screen appeared; Forward returned to the surviving page.
+- Missing IDs and an incomplete URL displayed persistent errors. Explicit recovery
+  restored a complete local destination URL and editor access.
+- Screenshots captured for the page destination and unavailable destinations.
+  GitHub image upload is not available through the CLI; captures remain local artifacts.
+- No new test files, main release rebuild/restart, global agent settings, or main MCP
+  metadata changes. Links remain browser-origin-local, not remote sharing.
