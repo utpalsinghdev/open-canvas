@@ -203,3 +203,38 @@ Persistent-service live result: installation from primary main succeeded and ena
 Most importantly, a native list_canvases read before restoration returned an empty array; after the persistent frontend started, the actual existing browser workspace registered automatically. No browser reload, personal-profile control, substitute browser, pairing code, document mutation, or inter-thread message was used for that recovery. The service wraps the existing frozen application release; these service-only changes did not require changing the current broker's code version. Restart-on-failure is configured, but the live user service was not deliberately crashed while a real workspace was connected.
 
 A repeat service:install invocation exceeded its foreground command budget while re-running systemd setup. Follow-up checks confirmed the service remained healthy with the same PID and there were no leftover installer processes. The installer now fast-returns for an identical already-active managed unit instead of unnecessarily reloading systemd.
+
+## Canvas wheel handling after navigation (#1)
+
+Reproduced in Chromium 154 on Linux with a dedicated development browser. Initial canvas handled a cancelable Ctrl+wheel event, but creating a page replaced the viewport and the same event was no longer canceled or handled. App owns useCamera across the keyed Canvas remount, so the mount-only effect retained the detached viewport.
+
+Wheel registration now uses a stable React callback ref with cleanup. After page creation, page switching, file creation, and switching back to the original file, injected Ctrl/Meta wheel events were canceled and updated canvas zoom. Detached viewport events were no longer canceled. Pointer anchor error was under 0.00003 world units; ordinary wheel panning changed camera translation by exactly the supplied deltas without changing zoom. Browser visualViewport scale remained 1. Screenshots captured the original file before and after zoom.
+
+`npm run build` passed, including TypeScript checks, with dependency annotation warnings. `npm run changeset:status` and `git diff --check` passed. No repository CI workflows or new test files were present. Verification used injected DOM wheel events in a real browser; automation's native wheel/key commands did not establish modifier-wheel delivery. Physical mouse/trackpad and macOS Command behavior remain unverified. No main runtime or MCP metadata was used or changed.
+
+## Issue #6: inline text overlap
+
+- Reproduced simultaneous SVG text and textarea rendering in Chromium. Before the fix, entering an edit left one SVG text copy, one selection outline, and four resize handles beneath the textarea.
+- The canvas now omits the edited node from its local artwork/selection rendering only. The document node remains unchanged until commit. Both artboard children and root text share this filter.
+- The textarea uses the node's zoom-scaled bounds without minimum dimensions, preserving its rotation center and center/right alignment width. `wrap="off"` matches the document's explicit-line-break text model.
+- Real browser interactions through the isolated development origin verified editing at fit zoom (60%), 100%, and 83%. During editing there was one textarea, no underlying SVG copy for that node, no selection outline, and no resize handles.
+- Typing multiline text and Ctrl+Enter committed one SVG copy. Escape discarded a changed draft and restored the committed text. Clicking a property field committed on blur. The rendered node count returned to the original ten after commit/cancel, with no stale draft text.
+- `npm run build` passed, including `tsc --noEmit`. Existing Zod dependency annotation warnings were nonfatal. `git diff --check` and `npm run changeset:status` passed. No CI workflow files exist in the checked base. No test files were added.
+- Screenshots captured before editing fix, during editing at fit/100% zoom, and after commit. Screenshot attachments require a separate upload; local artifact paths are reported with the change rather than inventing public image URLs.
+- Limitations: Chromium only. No Safari/Firefox, rotated-text interaction, or pixel-exact cross-font baseline comparison was performed. Native textarea font metrics may differ slightly from SVG. Main runtime and MCP metadata were not used or restarted.
+
+## Issue #5: direct file/page links
+
+- `npm run check` and `npm run build` passed. No CI workflows are configured.
+- Real browser: bare URL gained complete IDs; adding a page and creating a file
+  changed the URL. Back/Forward restored both page and file destinations.
+- Opening a copied page URL selected that page instead of the last saved file;
+  reloading preserved it.
+- Deleted an active page with the existing confirmation, then navigated Back to its
+  old entry. The unavailable screen appeared; Forward returned to the surviving page.
+- Missing IDs and an incomplete URL displayed persistent errors. Explicit recovery
+  restored a complete local destination URL and editor access.
+- Screenshots captured for the page destination and unavailable destinations.
+  GitHub image upload is not available through the CLI; captures remain local artifacts.
+- No new test files, main release rebuild/restart, global agent settings, or main MCP
+  metadata changes. Links remain browser-origin-local, not remote sharing.

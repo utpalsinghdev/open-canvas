@@ -37,8 +37,28 @@ import {
 import { Projects } from './components/Projects';
 import { currentFile } from './workspace/model';
 import { createNode, newId } from './editor/model';
+import { useDestination } from './workspace/useDestination';
 
 export default function App() {
+  const destination = useDestination();
+  if (destination.error === undefined) return <main>Opening destination</main>;
+  if (destination.error) {
+    return (
+      <main className="help-dialog" aria-labelledby="destination-heading">
+        <h1 id="destination-heading">Destination unavailable</h1>
+        <p role="alert">{destination.error}</p>
+        <p>Links identify local files. They do not share their contents.</p>
+        <button className="export-button" onClick={destination.recover}>
+          Open last workspace
+        </button>
+      </main>
+    );
+  }
+
+  return <EditorApp />;
+}
+
+function EditorApp() {
   const {
     document,
     workspace,
