@@ -29,7 +29,7 @@ npm run preview # Serve dist on port 5178, after stopping this project's dev ser
 - **History:** undo and redo apply to document edits. A completed drag is one history entry. Camera movement is not part of undo history.
 - **Files:** File menu opens JSON, creates an empty document, renames, or downloads JSON. Export SVG exports the selected artboard when exactly one artboard is selected; otherwise it exports the visible document.
 
-Press `?` by clicking the help button for the complete shortcut list. On narrow screens, use Layers and Properties buttons to open panels.
+Click the help button for the complete shortcut list. On narrow screens, use Layers and Properties buttons to open panels.
 
 ## Keep your work
 
