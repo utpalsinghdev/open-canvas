@@ -67,6 +67,7 @@ function EditorApp() {
     location,
     selectedIds,
     saveState,
+    persistenceFailure,
     message,
     notify,
     edit,
@@ -382,7 +383,27 @@ function EditorApp() {
         <span>Open Cavas / Web preview</span>
         <button onClick={save}>Download backup</button>
       </footer>
-      {message && (
+      {persistenceFailure && (
+        <div className="toast persistence-notice" role="alert">
+          <span>{persistenceFailure.recovery}</span>
+          <details>
+            <summary>Storage error details</summary>
+            <p>{persistenceFailure.name}: {persistenceFailure.message}</p>
+          </details>
+          <button className="text-button" onClick={() => setProjectsOpen(true)}>
+            Open Projects for workspace backup
+          </button>
+          {message && (
+            <div className="persistence-action-message" role="status">
+              <span>{message}</span>
+              <IconButton label="Dismiss message" onClick={() => notify('')}>
+                <X size={14} />
+              </IconButton>
+            </div>
+          )}
+        </div>
+      )}
+      {!persistenceFailure && message && (
         <div className="toast" role="status">
           <span>{message}</span>
           <IconButton label="Dismiss message" onClick={() => notify('')}>

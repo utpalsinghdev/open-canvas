@@ -20,7 +20,7 @@ The workspace saves to IndexedDB database `open-cavas`, store `workspace`, key `
 
 When IndexedDB has no saved record, a valid `open-cavas.document.v1` local-storage document migrates into Personal → one named file → Page 1. Layers, IDs, geometry, images, and tokens survive conversion. The original local-storage value is preserved. Subsequent loads prefer IndexedDB and do not repeat migration.
 
-Corrupt or unavailable saved data does not trigger automatic replacement. The editor exposes fallback work in memory, reports the problem, and blocks saving. Existing source data remains intact. A failed write displays Not saved; backups are required to preserve in-memory work. IndexedDB uses browser quota and is not guaranteed permanent storage.
+Corrupt or unavailable saved data does not trigger automatic replacement. The editor exposes fallback work in memory, reports the problem, and blocks saving. Existing source data remains intact. A failed write displays Not saved; backups are required to preserve in-memory work. Unresolved failures also keep a persistent recovery notice with storage error details and a link to Projects for a complete workspace backup. Routine notifications and their dismissal do not clear this notice. It clears only after the current workspace saves successfully, or after a successful reload. No new save retry is triggered by the notice. IndexedDB uses browser quota and is not guaranteed permanent storage.
 
 Different browser profiles and origins, including different ports, have separate workspaces. To move data from an older running editor on another port, download its JSON and import it in the new editor. There is no silent cross-origin migration.
 
