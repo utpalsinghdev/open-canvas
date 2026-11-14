@@ -1,13 +1,21 @@
 import { createServer } from 'node:http';
 import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import { mkdir, lstat, writeFile, rename, rm } from 'node:fs/promises';
+import { mkdir, lstat, readFile, writeFile, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { WebSocketServer, WebSocket } from 'ws';
+import type { Location } from '../src/workspace/model';
 import { browserMessageSchema } from '../src/mcp/tools';
+import { z } from 'zod';
+import { brokerMetadataSchema, connectToExistingBroker, removeStaleMetadata } from './shared-broker';
 
 const MAX_BYTES = 12_000_000;
 const TIMEOUT_MS = 30_000;
-type Canvas = { socket: WebSocket; name: string; revision: number };
+type Canvas = {
+  socket: WebSocket;
+  name: string;
+  revision: number;
+  context: Location;
+};
 type Pending = {
   socket: WebSocket;
   resolve: (data: unknown) => void;
@@ -27,6 +35,7 @@ export async function createBroker() {
       'CAVAS_APP_ORIGIN must be an exact HTTP(S) origin without a path.'
     );
   const secret = randomBytes(32).toString('hex');
+  const instanceId = randomUUID();
   const pairingDirectory = fileURLToPath(
     new URL('../.cavas/', import.meta.url)
   );
@@ -41,12 +50,88 @@ export async function createBroker() {
       '.cavas must be a private directory, mode 0700, not a symlink.'
     );
   const pairingPath = `${pairingDirectory}/pairing.json`;
-  const temporaryPath = `${pairingPath}.${randomUUID()}`;
+  await removeStaleMetadata(pairingPath);
   const canvases = new Map<string, Canvas>();
   const pending = new Map<string, Pending>();
-  const http = createServer((_request, response) => {
-    response.writeHead(404);
-    response.end();
+  const http = createServer((request, response) => {
+    if (!request.url?.startsWith('/__cavas_internal/')) {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+    const authorization = request.headers.authorization ?? '';
+    const supplied = authorization.startsWith('Bearer ')
+      ? authorization.slice(7)
+      : '';
+    if (
+      !/^[a-f0-9]{64}$/.test(supplied) ||
+      !timingSafeEqual(Buffer.from(supplied), Buffer.from(secret))
+    ) {
+      response.writeHead(403);
+      response.end();
+      return;
+    }
+    const chunks: Buffer[] = [];
+    let bytes = 0;
+    request.on('data', (chunk: Buffer) => {
+      bytes += chunk.length;
+      if (bytes > MAX_BYTES) request.destroy();
+      else chunks.push(chunk);
+    });
+    request.on('end', () => {
+      void (async () => {
+        try {
+          const route = request.url;
+          if (
+            route === '/__cavas_internal/identity' &&
+            request.method === 'GET'
+          ) {
+            response.writeHead(200, { 'content-type': 'application/json' });
+            response.end(JSON.stringify({ instanceId }));
+            return;
+          }
+          if (request.method !== 'POST')
+            throw new Error('Invalid internal request.');
+          const input: unknown = JSON.parse(Buffer.concat(chunks).toString());
+          const body = z.record(z.string(), z.unknown()).safeParse(input);
+          if (!body.success) throw new Error('Invalid internal request.');
+          const controller = new AbortController();
+          request.on('aborted', () => controller.abort());
+          response.on('close', () => {
+            if (!response.writableEnded) controller.abort();
+          });
+          const result =
+            route === '/__cavas_internal/list'
+              ? [...canvases].map(([canvasId, canvas]) => ({
+                  canvasId,
+                  name: canvas.name,
+                  revision: canvas.revision,
+                  context: canvas.context,
+                }))
+              : route === '/__cavas_internal/call' &&
+                  typeof body.data.canvasId === 'string' &&
+                  typeof body.data.method === 'string'
+                ? await callLocal(
+                    body.data.canvasId,
+                    body.data.method,
+                    body.data.args,
+                    controller.signal
+                  )
+                : (() => {
+                    throw new Error('Invalid internal request.');
+                  })();
+          response.writeHead(200, { 'content-type': 'application/json' });
+          response.end(JSON.stringify({ result }));
+        } catch (error) {
+          response.writeHead(400, { 'content-type': 'application/json' });
+          response.end(
+            JSON.stringify({
+              error: error instanceof Error ? error.message : 'Request failed.',
+            })
+          );
+        }
+      })();
+    });
   });
   const sockets = new WebSocketServer({
     noServer: true,
@@ -120,6 +205,7 @@ export async function createBroker() {
           socket,
           name: message.name,
           revision: message.revision,
+          context: message.context,
         });
         return;
       }
@@ -132,6 +218,7 @@ export async function createBroker() {
           socket,
           name: message.name,
           revision: message.revision,
+          context: message.context,
         });
         return;
       }
@@ -159,6 +246,80 @@ export async function createBroker() {
       }
     });
   });
+  const listLocal = () =>
+    [...canvases].map(([canvasId, canvas]) => ({
+      canvasId,
+      name: canvas.name,
+      revision: canvas.revision,
+      context: canvas.context,
+    }));
+  const callLocal = (
+    canvasId: string,
+    method: string,
+    args: unknown,
+    signal: AbortSignal
+  ) =>
+    new Promise<unknown>((resolve, reject) => {
+      const canvas = canvases.get(canvasId);
+      if (!canvas || canvas.socket.readyState !== WebSocket.OPEN) {
+        reject(
+          new Error(
+            'Canvas not connected. Pair a browser and call list_canvases.'
+          )
+        );
+        return;
+      }
+      if (signal.aborted) {
+        reject(new Error('Request cancelled before dispatch.'));
+        return;
+      }
+      const id = randomUUID();
+      const message = JSON.stringify({ type: 'request', id, method, args });
+      if (Buffer.byteLength(message) > MAX_BYTES) {
+        reject(new Error('Request exceeds 12 MB transport limit.'));
+        return;
+      }
+      const fail = (error: Error) => {
+        const call = pending.get(id);
+        if (!call) return;
+        pending.delete(id);
+        call.cleanup();
+        reject(error);
+      };
+      const timer = setTimeout(
+        () =>
+          fail(
+            new Error(
+              'Canvas request timed out. Outcome may be unknown. Read state before retrying.'
+            )
+          ),
+        TIMEOUT_MS
+      );
+      const abort = () =>
+        fail(
+          new Error(
+            'Request cancelled after dispatch. Outcome may be unknown. Read state before retrying.'
+          )
+        );
+      pending.set(id, {
+        socket: canvas.socket,
+        resolve,
+        reject,
+        cleanup: () => {
+          clearTimeout(timer);
+          signal.removeEventListener('abort', abort);
+        },
+      });
+      signal.addEventListener('abort', abort, { once: true });
+      canvas.socket.send(message, (error) => {
+        if (error)
+          fail(
+            new Error(
+              'Send failed. Outcome may be unknown. Read state before retrying.'
+            )
+          );
+      });
+    });
   try {
     await new Promise<void>((resolve, reject) => {
       http.once('error', reject);
@@ -168,96 +329,43 @@ export async function createBroker() {
       });
     });
     await writeFile(
-      temporaryPath,
-      JSON.stringify({ token: secret, port, origin }),
+      pairingPath,
+      JSON.stringify({
+        token: secret,
+        port,
+        origin,
+        pid: process.pid,
+        instanceId,
+      }),
       { mode: 0o600, flag: 'wx' }
     );
-    await rename(temporaryPath, pairingPath);
   } catch (error) {
-    await rm(temporaryPath, { force: true });
     http.close();
     sockets.close();
+    if (
+      error instanceof Error &&
+      'code' in error &&
+      error.code === 'EADDRINUSE'
+    ) {
+      return connectToExistingBroker(pairingPath, port, origin);
+    }
     throw error;
   }
   return {
-    list: () =>
-      [...canvases].map(([canvasId, canvas]) => ({
-        canvasId,
-        name: canvas.name,
-        revision: canvas.revision,
-      })),
-    call: (
-      canvasId: string,
-      method: string,
-      args: unknown,
-      signal: AbortSignal
-    ) =>
-      new Promise<unknown>((resolve, reject) => {
-        const canvas = canvases.get(canvasId);
-        if (!canvas || canvas.socket.readyState !== WebSocket.OPEN) {
-          reject(
-            new Error(
-              'Canvas not connected. Pair a browser and call list_canvases.'
-            )
-          );
-          return;
-        }
-        if (signal.aborted) {
-          reject(new Error('Request cancelled before dispatch.'));
-          return;
-        }
-        const id = randomUUID();
-        const message = JSON.stringify({ type: 'request', id, method, args });
-        if (Buffer.byteLength(message) > MAX_BYTES) {
-          reject(new Error('Request exceeds 12 MB transport limit.'));
-          return;
-        }
-        const fail = (error: Error) => {
-          const call = pending.get(id);
-          if (!call) return;
-          pending.delete(id);
-          call.cleanup();
-          reject(error);
-        };
-        const timer = setTimeout(
-          () =>
-            fail(
-              new Error(
-                'Canvas request timed out. Outcome may be unknown. Read state before retrying.'
-              )
-            ),
-          TIMEOUT_MS
-        );
-        const abort = () =>
-          fail(
-            new Error(
-              'Request cancelled after dispatch. Outcome may be unknown. Read state before retrying.'
-            )
-          );
-        pending.set(id, {
-          socket: canvas.socket,
-          resolve,
-          reject,
-          cleanup: () => {
-            clearTimeout(timer);
-            signal.removeEventListener('abort', abort);
-          },
-        });
-        signal.addEventListener('abort', abort, { once: true });
-        canvas.socket.send(message, (error) => {
-          if (error)
-            fail(
-              new Error(
-                'Send failed. Outcome may be unknown. Read state before retrying.'
-              )
-            );
-        });
-      }),
+    list: listLocal,
+    call: callLocal,
     close: async () => {
       for (const socket of sockets.clients) socket.terminate();
       sockets.close();
       http.close();
-      await rm(pairingPath, { force: true });
+      try {
+        const stored = brokerMetadataSchema.parse(
+          JSON.parse(await readFile(pairingPath, 'utf8'))
+        );
+        if (stored.instanceId === instanceId) await rm(pairingPath);
+      } catch {
+        /* Another process may have replaced or removed the metadata. */
+      }
     },
     pairingPath,
   };
