@@ -3,6 +3,7 @@ import { useEditor } from '../editor/store';
 import { renderSvg } from '../editor/svg';
 import { tools } from './tools';
 import type { DesignNode } from '../editor/model';
+import { fontAvailability, fontFamilies, fontRegistry, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
 
 export function withoutImageBytes(node: DesignNode) {
   if (node.kind !== 'image') return node;
@@ -21,6 +22,7 @@ function exportArtwork(artboardId?: string) {
   return renderSvg(state.document, artboardId ? [artboardId] : []);
 }
 async function screenshot(artboardId: string | undefined, scale: number) {
+  await loadDocumentFonts();
   const artwork = exportArtwork(artboardId);
   const width = Math.ceil(artwork.width * scale);
   const height = Math.ceil(artwork.height * scale);
@@ -46,6 +48,9 @@ async function screenshot(artboardId: string | undefined, scale: number) {
       mimeType: 'image/png',
       width,
       height,
+      scale,
+      bounds: artwork.bounds,
+      fonts: fontAvailability(),
     };
   } finally {
     URL.revokeObjectURL(url);
@@ -113,7 +118,25 @@ export const reads: Record<
       .getState()
       .document.nodes.find((item) => item.id === args.nodeId);
     if (!node) throw new Error('Layer not found.');
-    return { node: withoutImageBytes(node) };
+    if (node.kind !== 'text') return { node: withoutImageBytes(node) };
+    return {
+      node: withoutImageBytes(node),
+      font: fontStatus(node.fontFamily),
+      layout: textLayout(node),
+    };
+  },
+  get_fonts(value) {
+    tools.get_fonts.schema.parse(value);
+    const availability = fontAvailability();
+    return {
+      fonts: fontFamilies.map((family) => ({
+        family,
+        source: fontRegistry[family].source === 'system' ? 'system' : 'bundled',
+        weight: fontRegistry[family].weight,
+        availability: availability[family],
+      })),
+      fallback: 'Arial',
+    };
   },
   get_styles(value) {
     const args = tools.get_styles.schema.parse(value);
@@ -140,7 +163,7 @@ export const reads: Record<
     tools.get_design_tokens.schema.parse(value);
     return { tokens: useEditor.getState().document.tokens };
   },
-  export_document(value) {
+  async export_document(value) {
     const args = tools.export_document.schema.parse(value);
     if (args.format === 'json') {
       if (args.artboardId)
@@ -157,6 +180,7 @@ export const reads: Record<
         ),
       };
     }
+    await loadDocumentFonts();
     const artwork = exportArtwork(args.artboardId);
     if (args.format === 'svg') return { format: 'svg', content: artwork.svg };
     if (args.format === 'html')
@@ -165,6 +189,11 @@ export const reads: Record<
         content: `<!doctype html><html><head><meta charset="utf-8"><title>Open Cavas export</title></head><body style="margin:0">${artwork.svg}</body></html>`,
       };
     const jsx = artwork.svg
+      .replace(/<style>([\s\S]*?)<\/style>/g, (_match: string, css: string) => `<style>{${JSON.stringify(css)}}</style>`)
+      .replace(/letter-spacing=/g, 'letterSpacing=')
+      .replace(/xml:space=/g, 'xmlSpace=')
+      .replace(/text-rendering=/g, 'textRendering=')
+      .replace(/style="font-kerning:normal"/g, 'style={{fontKerning:"normal"}}')
       .replace(/clip-path=/g, 'clipPath=')
       .replace(/font-family=/g, 'fontFamily=')
       .replace(/font-size=/g, 'fontSize=')

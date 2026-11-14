@@ -38,7 +38,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 
 ## Agent control through MCP
 
-44 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. The actual browser workspace must remain open and connects automatically.
+45 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. The actual browser workspace must remain open and connects automatically.
 
 ## Editor
 
@@ -50,7 +50,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 - **History:** undo and redo belong to each file, including all its pages. Switching files preserves separate histories during this session. A completed drag is one history entry. Camera and page navigation are not undo steps.
 - **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. Export SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page.
 
-Click the help button for the complete shortcut list. On narrow screens, use Layers and Properties buttons to open panels.
+Click the help button for the complete shortcut list. On desktop, use the sidebar icons at the left and right ends of the toolbar row to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
 
 ## Projects, files, and pages
 
@@ -75,8 +75,8 @@ Multiple tabs do not merge work. Each save compares the stored revision inside i
 - Up to 50 projects, 50 files per project, and 200 files total. Up to 100 pages per file, 1,000 layers per page, and 10,000 layers per file. One page is active at a time. Each file keeps at most 80 undo snapshots in memory.
 - UI JSON imports up to 40 MB; MCP messages remain limited to 12 MB; raster images up to 2 MB each. Browser storage may have a smaller total quota.
 - Only artboards are containers. Children use absolute world coordinates and clip to their artboard.
-- Text uses explicit line breaks, not automatic wrapping. Font availability follows the browser's system fonts.
-- SVG export preserves supported artwork, clipping, rotation, opacity, and embedded images. It does not include editor chrome. It is a visual export, not a JSON round trip.
+- Text supports bundled Inter and Bricolage Grotesque variable fonts (including weight 620), Arial/Georgia/Courier New system fonts, line height, tracking, alignment, optional measured wrapping, and fixed/auto-height/auto-width sizing. Requested/resolved font availability and measured overflow are visible in Properties and MCP reads. Older files default safely to prior typography behavior.
+- SVG export preserves supported artwork, clipping, rotation, opacity, embedded images, and loaded bundled typography fonts. It does not include editor chrome. It is a visual export, not a JSON round trip.
 - No third-party editable design document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, snapping, or PDF export. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
 - Desktop mouse/keyboard is the primary workflow. Mobile has responsive controls and panel access; multi-touch/pinch gestures are not implemented.
 

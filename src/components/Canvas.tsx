@@ -6,7 +6,7 @@ import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
 import { CanvasTextEditor } from './CanvasTextEditor';
-import { textBounds } from '../editor/textBounds';
+import { textNodeBounds, textContentBounds } from '../editor/typography';
 
 type Point = { x: number; y: number };
 type Gesture =
@@ -28,7 +28,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
   useEffect(() => {
     function down(event: KeyboardEvent) {
       if (event.target instanceof HTMLElement && (event.target.closest('input,textarea,select') || event.target.isContentEditable)) return;
-      if (event.code === 'Space') { event.preventDefault(); setSpace(true); }
+      if (event.code === 'Space' && !(event.target instanceof Element && event.target.closest('button,summary,a[href],[role="button"]'))) { event.preventDefault(); setSpace(true); }
       if (event.key === 'Escape') { setGesture(null); setEditingId(null); }
     }
     const up = (event: KeyboardEvent) => { if (event.code === 'Space') setSpace(false); };
@@ -78,7 +78,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     const handle = target?.getAttribute('data-handle');
     const selected = document.nodes.find((node) => node.id === selectedIds[0]);
     if (handle && selected && !isLocked(selected, document.nodes)) {
-      setGesture({ mode: 'resize', start: point, delta: { x: 0, y: 0 }, node: selected, corner: handle });
+      setGesture({ mode: 'resize', start: point, delta: { x: 0, y: 0 }, node: selected.kind === 'text' ? { ...selected, ...textNodeBounds(selected) } : selected, corner: handle });
       return;
     }
     const id = target?.closest('[data-node-id]')?.getAttribute('data-node-id');
@@ -130,7 +130,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     }
     if (gesture.mode === 'marquee') {
       const box = { x: Math.min(gesture.start.x, gesture.current.x), y: Math.min(gesture.start.y, gesture.current.y), width: Math.abs(gesture.current.x - gesture.start.x), height: Math.abs(gesture.current.y - gesture.start.y) };
-      const ids = document.nodes.filter((node) => node.kind !== 'artboard' && !isHidden(node, document.nodes) && !isLocked(node, document.nodes) && intersects(box, node)).map((node) => node.id);
+      const ids = document.nodes.filter((node) => node.kind !== 'artboard' && !isHidden(node, document.nodes) && !isLocked(node, document.nodes) && intersects(box, node.kind === 'text' ? { ...node, ...textNodeBounds(node) } : node)).map((node) => node.id);
       if (box.width > 3 || box.height > 3) select([...new Set([...(gesture.additive ? selectedIds : []), ...ids])]);
     }
     useEditor.setState({ interactionActive: false });
@@ -169,12 +169,17 @@ export function Canvas({ controls }: { controls: CameraControls }) {
           </g>
         </g> : <NodeView key={node.id} node={node} />)}
         {preview && <NodeView node={preview} />}
-        {editingNode && <rect x={editingNode.x} y={editingNode.y} width={editingNode.width} height={editingNode.height} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${editingNode.x + editingNode.width / 2} ${editingNode.y + editingNode.height / 2})`} />}
-        {selected.map((node) => <g key={node.id} transform={`rotate(${node.rotation} ${node.x + node.width / 2} ${node.y + node.height / 2})`}>
-          <rect x={node.x} y={node.y} width={node.width} height={node.height} className="selection-outline" strokeWidth={1 / camera.zoom} strokeDasharray={node.kind === 'text' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} pointerEvents="none" />
-          {node.kind === 'text' && <rect {...textBounds(node)} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />}
-          {selected.length === 1 && !isLocked(node, nodes) && ['nw', 'ne', 'sw', 'se'].map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={node.x + (corner.includes('e') ? node.width : 0) - 4 / camera.zoom} y={node.y + (corner.includes('s') ? node.height : 0) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
-        </g>)}
+        {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <rect {...bounds} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
+        {selected.map((node) => {
+          const bounds = node.kind === 'text' ? textNodeBounds(node) : node;
+          const handles = node.kind !== 'text' || node.sizing === 'fixed' ? ['nw', 'ne', 'sw', 'se']
+            : node.sizing === 'auto-height' ? ['w', 'e'] : ['n', 's'];
+          return <g key={node.id} transform={`rotate(${node.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`}>
+            <rect x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height} className="selection-outline" strokeWidth={1 / camera.zoom} strokeDasharray={node.kind === 'text' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} pointerEvents="none" />
+            {node.kind === 'text' && <rect {...textContentBounds(node)} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />}
+            {selected.length === 1 && !isLocked(node, nodes) && handles.map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : corner.includes('w') ? 0 : bounds.width / 2) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : corner.includes('n') ? 0 : bounds.height / 2) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
+          </g>;
+        })}
         {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}
       </g>
     </svg>
