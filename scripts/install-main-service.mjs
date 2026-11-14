@@ -54,6 +54,10 @@ try {
     if (!previous.startsWith(MARKER)) throw new Error('Service name already belongs to another owner. No changes made.');
   } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const active = spawnSync('systemctl', ['--user', 'is-active', '--quiet', UNIT]).status === 0;
+  if (active && previous === unit) {
+    process.stdout.write(`${UNIT} is already installed and running. No service changes made.\n`);
+    process.exit(0);
+  }
   if (!active && await portOccupied(5182)) throw new Error('Port 5182 is already owned by another process. Coordinate stopping that frontend before installing the service.');
   await mkdir(directory, { recursive: true });
   if (previous !== undefined && previous !== unit) await writeFile(`${target}.backup-${Date.now()}`, previous, { flag: 'wx', mode: 0o600 });
