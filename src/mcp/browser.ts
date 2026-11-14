@@ -10,6 +10,7 @@ import { mutations } from './mutations';
 import { reads } from './reads';
 import { workspaceHandlers } from './workspace-commands';
 import { automaticConnection, type ConnectionStatus } from './connection';
+import { agentActivity } from './activity';
 
 const MAX_BYTES = 12_000_000;
 const canvasId = newId();
@@ -80,6 +81,7 @@ function attachBrowser(socket: WebSocket) {
         return;
       }
       const { id, method, args } = request.data;
+      agentActivity.active++;
       try {
         const definition = Object.entries(tools).find(
           ([name]) => name === method
@@ -147,6 +149,9 @@ function attachBrowser(socket: WebSocket) {
             : 'Tool failed.'
           ).slice(0, 2000),
         });
+      } finally {
+        agentActivity.active--;
+        agentActivity.lastUsed = Date.now();
       }
     })().catch(() => {
       socket.close(1011, 'Response failed');

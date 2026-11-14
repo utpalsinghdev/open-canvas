@@ -33,7 +33,7 @@ npm run build                      # TypeScript and source bundle; not a main re
 
 The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
 
-After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
+After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
 
 ## Agent control through MCP
 

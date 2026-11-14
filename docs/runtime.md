@@ -82,3 +82,12 @@ Do not delete old worktrees or broker metadata while active clients depend on th
 Browser workspaces register automatically after the app opens and retry when the broker becomes available. Main and dev ticket issuance remain bound to their own exact browser Origin/Host. Internal credential sharing between stdio clients remains private. The old mcp:pair commands and pairing-code UI were removed; do not ask users to paste secrets or generate codes. A real workspace tab is still required, and Pause agent access opts out until resumed/reloaded.
 
 Older running brokers and pages do not gain this behavior without a release restart/page reload. Restart only the explicitly identified main owner at the coordinated release boundary. Old pairing.json files are unused by the new broker; do not delete them while a legacy process still depends on them.
+
+
+## Automatic frontend updates
+
+Main release builds include `/runtime.json` with profile and commit identity. Main browser tabs check it at startup, on focus/visibility changes, and every 30 seconds. A different valid main commit becomes a pending update. The tab reloads automatically only when IndexedDB reports Saved locally, persistence is not blocked, no manual interaction/form draft/dialog is active, no MCP request is running, and five seconds have passed since document/selection/save/agent activity. The updater revalidates the served manifest before reloading. Offline or restarting servers do not justify discarding work.
+
+Development/HMR tabs do not use this main-release updater. Browser timer throttling can delay checks in background tabs; focus triggers a fresh check. A failed save or focused form intentionally delays updates until resolved. The updater preserves saved workspace data, but a full page reload clears session-only selection/undo history and produces a new canvas ID. Agents must rediscover the canvas/context, not replay a mutation.
+
+This removes routine requests to manually refresh a saved, idle workspace after future main releases. A page from before the updater was introduced needs one page load to install it; this cannot be retroactively executed by old frontend code. MCP stdio processes still follow the coordinated server restart/reconnect workflow. Automatic browser update is not transparent live migration of an old MCP server.

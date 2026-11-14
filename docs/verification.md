@@ -170,3 +170,17 @@ Automatic access changes the trust model: opening an app tab implicitly exposes 
 Installed @changesets/cli as a development dependency. Config includes private-package versioning, restricted access, main as base branch, no automatic commit, and no tagging. Added changeset, changeset:status, and version:apply scripts and documented the separation between semantic versioning and frozen main deployment.
 
 `npm run changeset:status` reports the pending setup patch for open-cavas. In an isolated temporary package copy, `npm run version:apply` consumed the entry, generated CHANGELOG.md, and updated package.json, package-lock.json top-level version, and lockfile root-package version to0.1.1. The real repo remains private at0.1.0 with its pending entry intact. `npm run check` passed. No npm publish, tags, service restart, or actual repository version bump occurred.
+
+
+## Automatic main frontend release updates
+
+Implemented on feat/automatic-release-updates in a separate feature worktree. Main-only browser monitoring detects served runtime.json commit changes and reloads only after saved/idle checks. MCP request entry/finally tracks active requests and recent agent activity. Normal dev/HMR remains excluded.
+
+`npm run build` initially found an unsafe closure narrowing of a Zod result; captured the validated release value before installing callbacks, then TypeScript/build passed. Actual browser verification used the production bundle through a temporary static server on checked-free5194, with synthetic main HTML/manifest commits A/B/C/D. It did not change the running main service or user portfolio.
+
+- While an uncommitted title input held a draft, advancing the served manifest left release A and the draft intact beyond the idle interval. Committing the field allowed automatic reload to B, restoring the saved title. An initial selector waited for a visible meta element and timed out; direct read-back confirmed reload had already succeeded. Later checks used DOM-expression waits.
+- Injected a synthetic IndexedDB write failure in that dedicated browser. Header became Not saved. Advancing to C did not reload or discard the in-memory title. Removing the fault and committing a new edit saved the whole workspace, then automatic reload to C restored the recovered title.
+- Held an actual pointer drag while advancing to D. Browser remained on C until pointer release, save completion, and idle grace, then reloaded to D with the workspace name preserved.
+- No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
+
+The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
