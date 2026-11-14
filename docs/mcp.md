@@ -1,6 +1,6 @@
 # Agent control through MCP
 
-Open Cavas exposes 27 tools over the official MCP SDK's stdio transport. It controls a paired Open Cavas browser directly.
+Open Cavas exposes 44 tools over the official MCP SDK's stdio transport. It controls a paired Open Cavas browser directly.
 
 ## Start and pair
 
@@ -61,7 +61,7 @@ Defaults:
 - `CAVAS_MCP_PORT` overrides the broker port. Set it identically for the MCP process and Vite process.
 - `CAVAS_APP_ORIGIN` overrides the exact allowed origin for the MCP process. Use it when changing the browser hostname, scheme, or port. No trailing slash or path.
 
-One MCP process owns each broker port. Starting a second process on the same port fails rather than stealing the existing connection. Up to eight browser tabs can pair with one process. This is not a multi-agent synchronization or hosted Streamable HTTP service.
+One owner process holds each broker port. Additional stdio clients using the same checkout/port/origin authenticate to that owner and share paired browser access. Keep the owner running; legacy owners require a deliberate restart before sharing. See [multiple sessions](mcp-multi-session.md). Up to eight browser tabs can pair with one process. This is not a multi-agent synchronization or hosted Streamable HTTP service.
 
 For a production preview, first run `npm run build`, then start Vite preview on the configured app port. The WebSocket proxy is also configured for preview. A static-file-only host without the authenticated broker/proxy does not provide agent control.
 
@@ -70,13 +70,13 @@ For a production preview, first run `npm run build`, then start Vite preview on 
 1. Call `get_capabilities`, then `list_canvases`.
 2. Choose an explicit canvas ID. Never infer which browser tab the user intends.
 3. Read `get_document`, `get_tree`, `get_node`, or `get_selection`.
-4. Supply that response's `revision` as `expectedRevision` on every mutation.
+4. Supply that response's `revision` as `expectedRevision` on every mutation. Page/content mutations also require its exact `context` object containing projectId, fileId, and pageId.
 5. Read the relevant node/tree after changing it. Tool success is not a screenshot or proof of durable browser storage.
 6. Use `get_screenshot` to inspect artwork or an artboard when visual confirmation matters.
 
-Selection and document changes advance the revision. Manual browser edits advance it too. Stale mutations fail without changing state. A manually active drag, on-canvas text edit, or focused inspector/document-name field blocks agent writes until the user finishes or cancels the edit.
+Selection, workspace edits, and file/page navigation advance the revision. Manual browser edits advance it too. Stale mutations fail without changing state. A manually active drag, on-canvas text edit, or focused inspector/document-name field blocks agent writes until the user finishes or cancels the edit.
 
-Each atomic document mutation is one undo step. Selection changes are separate session state. Read responses and edit receipts include a persistence state, `saved`, `pending`, or `failed`. A `pending` receipt means the document is in memory, not yet durably written. Download JSON backups.
+Each atomic content/page mutation is one file-specific undo step. Selection changes are separate session state. Read responses and edit receipts include a persistence state, `saved`, `pending`, or `failed`. A `pending` receipt means the document is in memory, not yet durably written. Download JSON backups.
 
 There is no automatic mutation retry. Cancellation, timeout, or disconnection after dispatch can leave the outcome unknown. Reconnect and inspect actual state before deciding whether to repeat an operation. Late responses cannot satisfy another request or another tab's pending call.
 
@@ -98,7 +98,19 @@ Coordinates are absolute world pixels, including when a parent is supplied. Only
 
 `rename_document`, `create_document`, `open_document`, `export_document`, `get_screenshot`.
 
-New/open operations replace this tab's document and remain undoable. They do not manage arbitrary disk paths or a multi-file library. Export returns content to the agent, not a server-side file write.
+New/open operations add a new file to the active project and keep existing work. `open_document` accepts either a legacy version-1 document or a complete version-2 multi-page file. Use `open_file` to navigate to an existing file/page. JSON export returns the complete active file; visual exports use only the active page or a selected artboard. Exports do not write server-side filesystem paths.
+
+### Project/file/page lifecycle
+
+`list_projects`, `get_file`, `list_pages`, `create_project`, `rename_project`, `delete_project`, `create_file`, `rename_file`, `delete_file`, `duplicate_file`, `open_file`, `create_page`, `rename_page`, `delete_page`, `duplicate_page`, `export_project`, `export_workspace`.
+
+Library mutations require `canvasId`, `expectedRevision`, and explicit target IDs; their schemas do not require active-page `context` because they already identify the library target. `list_canvases` and every tool response return active context. Use `open_file` with optional `pageId` to focus the intended page, then read state before content edits. Wrong context fails even if node IDs happen to be identical across copied files.
+
+`get_document` returns a legacy-shaped active-page projection plus file/page metadata, not a whole-file backup. Use `get_file` or `export_document` JSON for every page. `get_tree` returns the active-page layer tree and a file page index. Node IDs are scoped to a file and remain unique across that file's pages. Imported/duplicated files receive new file IDs; duplicated pages receive new page/node IDs.
+
+Project/file deletion is permanent and not in canvas undo history. Page deletion and file renames use that file's undo history. At least one project, file per project, and page per file must remain. File duplication creates an independent copy and a fresh history. Tokens are shared across a file's pages. The complete workspace is stored in IndexedDB with stale-tab write rejection.
+
+This is a tool-schema change for existing agents: reload the MCP client and re-pair after upgrading. Older callers without context cannot mutate page content. The separate shared-broker increment is documented in mcp-multi-session.md.
 
 SVG preserves supported artwork. HTML export is a standalone document containing that SVG, not semantic HTML/CSS layout. JSX export is a React component containing SVG JSX, not a semantic component reconstruction. JSON exports the complete editable document.
 
@@ -128,6 +140,6 @@ Documents store at most 200 named color, number, or font tokens. Applying a toke
 - Loopback binding, code validation, exact-origin validation, explicit canvas IDs, and per-request socket binding are separate checks.
 - Browser commands and document mutations validate through shared Zod schemas. Unsupported kinds and properties fail.
 - No shell execution, arbitrary file reads/writes, remote asset fetching, HTML execution, or third-party credentials are exposed.
-- Requests/responses are limited to 12 MB and 30 seconds. The editor retains its 1,000-layer and 80-undo-snapshot limits.
-- The paired browser owns data. Closing it stops document access. There is no headless editor, server document database, or file/page synchronization.
+- Requests/responses are limited to 12 MB and 30 seconds. The editor limits each page to 1,000 layers, each file to 100 pages/10,000 layers and 80 session-history snapshots, and the workspace to 50 projects/50 files per project/200 files total.
+- The paired browser owns data. Closing it stops document access. There is no headless editor, server document database, or cross-browser file/page synchronization.
 - After editing connector or tool source in development, reload and re-pair the browser. An existing WebSocket callback can retain the previous hot-reloaded implementation. Restart the MCP client after server/schema changes.

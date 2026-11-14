@@ -82,3 +82,43 @@ An official SDK client launched the actual stdio server and drove tools/call thr
 Timeout and cancellation error paths exist but were not deliberately forced end-to-end. Eight-session saturation, all malformed-message combinations, storage-quota failure, and cross-browser rendering were not exhaustively exercised. No independent security review is claimed. Multi-page management, arbitrary HTML/CSS layout, dynamic token bindings, semantic web-code reconstruction, headless documents, and hosted HTTP MCP remain unsupported. See `mcp-capabilities.md`.
 
 The production app remains available on the worktree's port 5182. The temporary MCP driver is stopped; a real agent must launch the configured stdio process, then the user pairs its browser through the documented flow.
+
+## Multi-project/files/pages increment
+
+Branch `feat/multi-projects` begins at the locally merged MCP commit `57fc1c8`. Existing main checkout remains unchanged. This increment implements project → files → pages → artboards/layers, with version-2 file backups and a versioned IndexedDB workspace. No test files were added.
+
+### Actual browser and storage checks
+
+- Prepared a synthetic legacy local-storage document named Legacy board with a rectangle and a color token in a dedicated browser origin. Removed only that session's synthetic IndexedDB record, then reloaded. Migration produced Personal → Legacy board → Page 1. Layer identity/content and token metadata survived; original local-storage value remained intact.
+- Created Page 2, drew a rectangle, undid/redid it, and switched pages. Each page retained its own layers; file history remained usable across page switches.
+- Created Client work project and Website file through Projects. Opened Legacy board again and confirmed its history remained available while Website had a fresh history. Reloaded and inspected the IndexedDB record: both projects, all files/pages/layer counts, and active page were restored.
+- Downloaded a version-2 file through the UI and parsed it as JSON. It included Desktop and Mobile pages. Imported it as another file without changing existing files.
+- Imported a complete project archive and a workspace backup. After reload, a downloaded workspace contained seven synthetic projects and seventeen files with seventeen distinct file IDs. Original entries remained. Duplicate names were permitted; IDs differed.
+- Opened two actual browser tabs on the same origin. After one saved, an edit in the stale tab displayed Workspace changed in another tab and Not saved. Direct IndexedDB read confirmed the newer stored value and disk revision had not been overwritten. The stale tab's edit remained in memory until reloaded. An initial tab-switch command used unsupported integer indices; corrected to stable tab IDs before exercising the actual conflict.
+- Served the production bundle on port 5188 and confirmed HTTP 200 through localmachine and from the Mac over SSH. Existing origins and running main app were not modified.
+- On the production bundle, renamed a page, duplicated it, confirmed page deletion, and restored it with Undo. Created and permanently deleted a disposable project through the explicit warning/confirmation flow.
+- Inspected Projects at desktop 1440×1000 and mobile 390×844. Mobile document width was 390; dialog and file-list bounds stayed inside the viewport. Pages were accessible through Layers overlay. No browser errors were reported.
+
+### Actual MCP checks
+
+- Official SDK stdio tool listing returned 44 tools, including 17 project/file/page/library operations.
+- Created/renamed/deleted synthetic projects/files, created Desktop/Mobile pages, created artboards/text on separate pages, listed pages, opened explicit files/pages, and read a complete inactive file.
+- Duplicated a page, undid the duplication, deleted another page, and restored it through per-file Undo.
+- Duplicated a complete file. Its history began empty. Changed original text, opened its copy and confirmed copied text stayed unchanged, returned to the original, then undid that original edit.
+- A wrong file context was rejected even with a current revision and an otherwise valid copied node ID. Last-file and last-page deletion returned explicit errors.
+- Exported a complete version-2 file with every page, a project archive, and a workspace archive. A page PNG screenshot returned its precise project/file/page context and expected 640×480 dimensions.
+- Browser/client reloads were required after tool and connector changes. One pairing attempt found its file absent despite a live older broker; this exposed the separate multi-session ownership issue. The user requested a subagent for that issue; its implementation and limitations are documented in mcp-multi-session.md.
+
+### Shared broker integration
+
+The subagent's change preserves the parent's Location metadata and supports secondary authenticated stdio clients. Parent review found that list_canvases had to await an attached broker's asynchronous result; corrected this before verification. Added bounded identity/list requests, refused redirects on internal requests, and propagated closed HTTP responses to cancellation. Extracted metadata/attached-client code into `server/shared-broker.ts` to keep modules focused.
+
+Two official SDK clients were then started in an isolated temporary source copy on a checked-unused port. Both listed the same synthetic paired WebSocket canvas and completed a broker request/response round trip. Closing the secondary preserved identical owner metadata. Owner shutdown completed, and the isolated copy was removed. This verifies shared transport with a synthetic socket, not a second independent real-browser artwork run. Earlier real-browser MCP checks verify domain behavior separately.
+
+The running legacy owner on default port 4781 and its private metadata were left untouched. It cannot be safely adopted under the new ownership format; its owner must be deliberately restarted before using shared-broker behavior. Global agent settings and portfolio content were not changed. Multiple-session tool discovery may still require the agent's normal reload.
+
+### Checks and limits
+
+`npm run check`, `npm run build`, and `git diff --check` passed during implementation. Zod dependency comment annotations still produce harmless build warnings. The UI detector returned no findings for Projects, Pages, App, and stylesheet. No full automated suite or independent security audit is claimed.
+
+Storage quota exhaustion, corrupted-database recovery UI, full 200-file saturation, all schema-invalid archives, and browser-termination timing were not deliberately forced. Conflict rejection is not multiplayer merging. Project/file deletion is permanent; page/content history is in-memory per file and clears on reload. Different ports/origins have different workspaces, requiring JSON transfer rather than automatic access to data at another origin.

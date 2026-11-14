@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Circle, Eye, EyeOff, Frame, Image, Layers2, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
 import type { DesignNode } from '../editor/model';
 import { useEditor } from '../editor/store';
+import { Pages } from './Pages';
 import { IconButton } from './Button';
 
 const icons = { artboard: Frame, rectangle: RectangleHorizontal, ellipse: Circle, text: Type, image: Image };
@@ -25,8 +26,8 @@ export function Layers() {
   }
   const roots = document.nodes.filter((node) => node.parentId === null).reverse();
   return <aside className="layers-panel" aria-label="Layers">
+    <Pages />
     <div className="panel-heading"><span>Layers</span><span className="muted tabular-nums">{document.nodes.length}</span></div>
-    <div className="page-row"><Layers2 size={14} /><span>Page 1</span><span className="page-mark">1</span></div>
     <div className="layer-list">{roots.map((node) => <div key={node.id}>
       {row(node)}
       {node.kind === 'artboard' && !collapsed.has(node.id) && document.nodes.filter((child) => child.parentId === node.id).reverse().map((child) => row(child, true))}

@@ -26,11 +26,11 @@ Rotated node bounds drive export/viewport fitting. Marquee uses unrotated node b
 
 1. A pointer gesture starts with document geometry and selected IDs.
 2. Pointer moves update transient React preview state, not the document or undo history.
-3. Pointer release creates a single validated document mutation. Cancellation discards the preview.
-4. Zustand stores the previous immutable document in a capped 80-entry history and clears redo.
-5. A 350 ms debounce writes the document to local storage. Pending writes flush on pagehide.
+3. Pointer release creates a validated active-page mutation. Cancellation discards the preview.
+4. Workspace actions replace that page inside its version-2 file and keep an immutable file snapshot in its own 80-entry history.
+5. A 350 ms debounce queues an IndexedDB save of the workspace. The transaction compares the disk revision before replacing data.
 
-Selection, tools, camera, and open panels are session state. Reloading clears history. Stored data is parsed with Zod before use. Import and creation replace the current document through ordinary history, so users can undo those operations.
+Selection, tools, camera, and open panels are session state. File/page navigation clears selection, resets the tool, remounts pointer/text editing, and fits the new page. Reloading clears per-file histories. Imports and new files append library entries rather than overwriting the active file. Page changes, including deletion, use per-file history; project/file deletion is permanent and requires UI confirmation.
 
 Every committed edit passes schema validation, including internal operations that could exceed geometry or layer limits. Failed changes display an error instead of introducing invalid state. Property fields commit on blur or Enter. Pointer capture retains gestures outside artwork; double-click uses a point hit-test because captured pointer events retarget the SVG root.
 
@@ -38,19 +38,26 @@ IDs use `crypto.getRandomValues`, which works on plain HTTP tailnet origins wher
 
 ## Persistence and boundaries
 
-Local storage key: `open-cavas.document.v1`. No account, analytics, or cloud document upload service is used. Optional MCP control uses a private local broker and an explicitly paired browser. Raster images embed as data URLs. The first load creates starter artwork when no valid saved document exists. Corrupt stored data produces a warning and is not overwritten unless the user edits.
+IndexedDB database `open-cavas`, object store `workspace`, key `current` holds the validated workspace, navigation location, and disk revision. A missing record permits migration from `open-cavas.document.v1`; the original local-storage key is never removed. Corrupt/unavailable storage leaves fallback work in memory with saving blocked and a backup warning. It never silently resets or overwrites saved data.
 
-JSON downloads are the portable document format. SVG is a visual export with XML-escaped text, safe raster data URLs, and generated clip IDs. The renderer and serializer intentionally support the same small set of primitives. Imported HTML, scripts, external image URLs, and SVG image payloads are not allowed.
+`src/workspace/model.ts` owns project/file/page schemas and backward-compatible legacy conversion. The editor's version-1-shaped `document` is an active-page projection only. Version-2 file documents contain all pages and file-wide tokens. `state.ts` derives the projection and session history from the canonical workspace. `actions.ts` validates and updates library/file/page state. `storage.ts` owns IndexedDB transactions; `persistence.ts` serializes saves and status updates.
 
-Local storage quota failure leaves the in-memory document usable and displays a backup instruction. It does not mean the document is durable. File downloads and browser backup remain necessary.
+A save reads the stored revision inside the same read-write transaction as its put. A different revision aborts the transaction and blocks further writes in that tab. This prevents two tabs from silently replacing one another's workspace; it does not merge edits. Save status becomes `saved` only if the committed snapshot is still current in memory. Visibility/pagehide events request a flush, but asynchronous completion before tab termination is not guaranteed.
+
+JSON backups can represent files, projects, or the complete workspace. Imports validate every page and parent relationship, regenerate project/file IDs, and append items. Files are limited to 100 pages and 10,000 layers, with 1,000 layers per page. History is in memory per file. Pure SVG serialization and screenshots use only the active page. JSON file export includes all pages.
+
+No account, analytics, or cloud document storage is used. Raster images remain embedded data URLs. Local data belongs to the browser origin; switching port or hostname selects a different storage namespace. No automatic cross-origin transfer occurs. Browser cleanup or quota errors require downloaded backups for recovery.
 
 
 ## MCP control
 
-`server/index.ts` registers official-SDK stdio tools. `server/broker.ts` owns an authenticated loopback WebSocket listener, up to eight paired browser sessions, per-request correlation, 30-second deadlines, cancellation, and socket-bound responses. The Vite proxy forwards the private broker's WebSocket route. Its filesystem deny rules block `.cavas/**` and preserve Vite's existing secret-file protections. Codes and allowed Origin are checked before upgrade; codes live only in an ignored mode-0600 pairing file and browser memory.
+`server/index.ts` registers official-SDK stdio tools. `server/broker.ts` owns an authenticated loopback WebSocket listener, up to eight paired browser sessions, per-request correlation, 30-second deadlines, cancellation, and socket-bound responses. `server/shared-broker.ts` validates owner metadata and authenticates secondary stdio clients against the same broker instance. Secondary shutdown does not stop the owner or remove its pairing file. The Vite proxy forwards the private broker's WebSocket route. Its filesystem deny rules block `.cavas/**` and preserve Vite's existing secret-file protections. Codes and allowed Origin are checked before upgrade; codes live only in an ignored mode-0600 pairing file and browser memory.
 
-`src/mcp/tools.ts` owns shared input schemas, tool descriptions, message schemas, and honest capability limits. `src/mcp/browser.ts` targets one browser instance and validates requests before dispatching `reads.ts` or `mutations.ts`. Mutations commit through the existing validated Zustand history, not a shadow document. Selection/document changes advance a session revision; exact expected revisions prevent stale writes. Active manual edits block agent mutations. Responses distinguish current state from browser persistence status.
+`src/mcp/tools.ts` owns shared input schemas, tool descriptions, message schemas, and honest capability limits. `src/mcp/browser.ts` targets one browser instance and validates requests before dispatching `reads.ts` or `mutations.ts`. Mutations commit through the existing validated Zustand history, not a shadow document. Workspace/navigation/selection changes advance a session revision; exact expected revisions prevent stale writes. Page mutations also require the exact current project/file/page context. Explicit library operations receive project/file/page IDs and return the resulting context. Active manual edits block agent mutations. Responses distinguish current state from browser persistence status.
 
-`src/mcp/html.ts` parses a restricted inert HTML subset into native primitives without mounting elements, executing code, or fetching assets. `src/editor/svg.ts` is the shared pure artwork serializer used by UI downloads and MCP exports. PNG capture rasterizes its SVG in the paired browser. Tokens persist as a backward-compatible optional dictionary in version-1 documents.
+`src/mcp/html.ts` parses a restricted inert HTML subset into native primitives without mounting elements, executing code, or fetching assets. `src/editor/svg.ts` is the shared pure artwork serializer used by UI downloads and MCP exports. PNG capture rasterizes its SVG in the paired browser. Tokens persist at file scope and are shared across its pages. Legacy version-1 documents still import with their token dictionary.
 
 Read-back is the same state the user edits. The server does not retain documents, run the Mac helper, or claim a mutation timeout means failure. Disconnect/cancellation after dispatch reports unknown outcome and never retries a mutation automatically. Pairing codes are rotated on process startup, never stored in document JSON, and removed on normal shutdown.
+
+
+See [workspace.md](workspace.md) for the hierarchy, migration policy, deletion semantics, and backup format.
