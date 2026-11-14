@@ -184,3 +184,9 @@ Implemented on feat/automatic-release-updates in a separate feature worktree. Ma
 - No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
 
 The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
+
+## Atomic broker metadata publication
+
+After the automatic-release rollout, a client reported startup refusal because its final broker.json was an empty mode-0600 file and no listener owned4781. The code wrote the final path directly; an interrupted writer could expose an empty credential file. Changed publication to write complete validated metadata into an exclusively created private sibling temporary file, then hard-link it atomically to the final path without overwriting an owner. Temporary cleanup is scoped to that publication.
+
+Direct temporary-directory verification produced complete parseable mode-0600 metadata. A second publication returned EEXIST and left the original owner metadata byte-identical. TypeScript/build checks passed. This does not silently bypass validation or delete malformed live metadata. No new test files were added. Per the user's latest instruction, further coordination messages to the portfolio thread were stopped.
