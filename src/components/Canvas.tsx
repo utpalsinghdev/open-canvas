@@ -144,7 +144,8 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     return node;
   });
   const preview = gesture?.mode === 'draw' ? drawnNode(gesture) : null;
-  const visible = nodes.filter((node) => !isHidden(node, nodes));
+  // The textarea replaces the edited artwork and its selection decorations locally.
+  const visible = nodes.filter((node) => !isHidden(node, nodes) && node.id !== editingId);
   const selected = visible.filter((node) => selectedIds.includes(node.id));
 
   return <div ref={bindViewport} className={`canvas-viewport ${space || tool === 'hand' ? 'is-panning' : tool !== 'select' ? 'is-drawing' : ''}`}>
@@ -173,8 +174,8 @@ export function Canvas({ controls }: { controls: CameraControls }) {
         {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}
       </g>
     </svg>
-    {editingNode && <textarea ref={textInput} key={editingNode.id} className="canvas-text-editor" aria-label="Edit text on canvas" defaultValue={editingNode.text}
-      style={{ left: camera.x + editingNode.x * camera.zoom, top: camera.y + editingNode.y * camera.zoom, width: Math.max(120, editingNode.width * camera.zoom), height: Math.max(60, editingNode.height * camera.zoom), fontSize: editingNode.fontSize * camera.zoom, fontFamily: editingNode.fontFamily, fontWeight: editingNode.fontWeight, color: editingNode.fill, textAlign: editingNode.align, transform: `rotate(${editingNode.rotation}deg)` }}
+    {editingNode && <textarea ref={textInput} key={editingNode.id} className="canvas-text-editor" aria-label="Edit text on canvas" wrap="off" defaultValue={editingNode.text}
+      style={{ left: camera.x + editingNode.x * camera.zoom, top: camera.y + editingNode.y * camera.zoom, width: editingNode.width * camera.zoom, height: editingNode.height * camera.zoom, fontSize: editingNode.fontSize * camera.zoom, fontFamily: editingNode.fontFamily, fontWeight: editingNode.fontWeight, color: editingNode.fill, textAlign: editingNode.align, transform: `rotate(${editingNode.rotation}deg)` }}
       onBlur={(event) => { if (event.currentTarget.value !== editingNode.text) patch(editingNode.id, { text: event.currentTarget.value }); setEditingId(null); }}
       onKeyDown={(event) => { if (event.key === 'Escape') { setEditingId(null); } if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') event.currentTarget.blur(); }} />}
     {!nodes.length && <div className="canvas-empty"><h2>Your space to make.</h2><p>Choose artboard, then click or drag on the canvas.</p><button className="text-button" onClick={() => setTool('artboard')}>Create an artboard</button></div>}
