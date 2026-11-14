@@ -38,8 +38,19 @@ IDs use `crypto.getRandomValues`, which works on plain HTTP tailnet origins wher
 
 ## Persistence and boundaries
 
-Local storage key: `open-cavas.document.v1`. No account, API, analytics, or document upload service is used. Raster images embed as data URLs. The first load creates starter artwork when no valid saved document exists. Corrupt stored data produces a warning and is not overwritten unless the user edits.
+Local storage key: `open-cavas.document.v1`. No account, analytics, or cloud document upload service is used. Optional MCP control uses a private local broker and an explicitly paired browser. Raster images embed as data URLs. The first load creates starter artwork when no valid saved document exists. Corrupt stored data produces a warning and is not overwritten unless the user edits.
 
 JSON downloads are the portable document format. SVG is a visual export with XML-escaped text, safe raster data URLs, and generated clip IDs. The renderer and serializer intentionally support the same small set of primitives. Imported HTML, scripts, external image URLs, and SVG image payloads are not allowed.
 
 Local storage quota failure leaves the in-memory document usable and displays a backup instruction. It does not mean the document is durable. File downloads and browser backup remain necessary.
+
+
+## MCP control
+
+`server/index.ts` registers official-SDK stdio tools. `server/broker.ts` owns an authenticated loopback WebSocket listener, up to eight paired browser sessions, per-request correlation, 30-second deadlines, cancellation, and socket-bound responses. The Vite proxy forwards the private broker's WebSocket route. Its filesystem deny rules block `.cavas/**` and preserve Vite's existing secret-file protections. Codes and allowed Origin are checked before upgrade; codes live only in an ignored mode-0600 pairing file and browser memory.
+
+`src/mcp/tools.ts` owns shared input schemas, tool descriptions, message schemas, and honest capability limits. `src/mcp/browser.ts` targets one browser instance and validates requests before dispatching `reads.ts` or `mutations.ts`. Mutations commit through the existing validated Zustand history, not a shadow document. Selection/document changes advance a session revision; exact expected revisions prevent stale writes. Active manual edits block agent mutations. Responses distinguish current state from browser persistence status.
+
+`src/mcp/html.ts` parses a restricted inert HTML subset into native primitives without mounting elements, executing code, or fetching assets. `src/editor/svg.ts` is the shared pure artwork serializer used by UI downloads and MCP exports. PNG capture rasterizes its SVG in the paired browser. Tokens persist as a backward-compatible optional dictionary in version-1 documents.
+
+Read-back is the same state the user edits. The server does not retain documents, run the Mac helper, or claim a mutation timeout means failure. Disconnect/cancellation after dispatch reports unknown outcome and never retries a mutation automatically. Pairing codes are rotated on process startup, never stored in document JSON, and removed on normal shutdown.

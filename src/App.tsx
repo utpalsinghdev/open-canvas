@@ -4,6 +4,7 @@ import { Canvas } from './components/Canvas';
 import { Layers } from './components/Layers';
 import { Inspector } from './components/Inspector';
 import { Toolbar } from './components/Toolbar';
+import { AgentConnection } from './components/AgentConnection';
 import { Help } from './components/Help';
 import { IconButton } from './components/Button';
 import { useEditor } from './editor/store';
@@ -71,13 +72,13 @@ export default function App() {
       <div className="brand"><span className="brand-mark"><Frame size={18} strokeWidth={1.6} /></span><span>Open Cavas</span></div>
       <div className="document-controls"><span className="header-slash">/</span><input ref={nameInput} className="document-name" aria-label="Document name" value={name} maxLength={160} onChange={(event) => setName(event.target.value)} onBlur={() => { const next = name.trim() || 'Untitled'; setName(next); if (next !== document.name) edit((doc) => ({ ...doc, name: next })); }} onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} />
         <details className="file-menu"><summary aria-label="File menu"><ChevronDown size={14} /></summary><div className="file-menu-items">
-          <button onClick={(event) => { replace({ version: 1, name: 'Untitled', nodes: [] }); closeMenu(event.currentTarget); }}><Plus size={15} />New document</button>
+          <button onClick={(event) => { replace({ version: 1, name: 'Untitled', nodes: [], tokens: {} }); closeMenu(event.currentTarget); }}><Plus size={15} />New document</button>
           <button onClick={(event) => { documentInput.current?.click(); closeMenu(event.currentTarget); }}><FolderOpen size={15} />Open JSON</button>
           <button onClick={(event) => { save(); closeMenu(event.currentTarget); }}><Save size={15} />Download JSON</button>
           <button onClick={(event) => { nameInput.current?.focus(); closeMenu(event.currentTarget); }}>Rename document</button>
         </div></details>
       </div>
-      <div className="header-actions"><span className={`save-status ${saveState === 'failed' ? 'save-failed' : ''}`}><Check size={12} />{saveState === 'saved' ? 'Saved locally' : saveState === 'pending' ? 'Saving' : 'Not saved'}</span><button className="export-button" aria-label="Export SVG" onClick={exportFile}><ArrowDownToLine size={14} /><span>Export SVG</span></button></div>
+      <div className="header-actions"><AgentConnection /><span className={`save-status ${saveState === 'failed' ? 'save-failed' : ''}`}><Check size={12} />{saveState === 'saved' ? 'Saved locally' : saveState === 'pending' ? 'Saving' : 'Not saved'}</span><button className="export-button" aria-label="Export SVG" onClick={exportFile}><ArrowDownToLine size={14} /><span>Export SVG</span></button></div>
     </header>
     <div className="workspace-bar"><div className="workspace-label"><span>Workspace</span><span className="muted">/</span><span>Page 1</span></div><Toolbar onImage={() => imageInput.current?.click()} /><div className="workspace-end"><IconButton label="Keyboard shortcuts and help" onClick={() => setHelp(true)}><HelpCircle size={17} /></IconButton></div></div>
     <div className="mobile-panel-controls"><button aria-pressed={panel === 'layers'} onClick={() => setPanel(panel === 'layers' ? null : 'layers')}><Layers2 size={15} />Layers</button><button aria-pressed={panel === 'properties'} onClick={() => setPanel(panel === 'properties' ? null : 'properties')}><PanelRight size={15} />Properties</button>{panel && <IconButton label="Close panel" onClick={() => setPanel(null)}><X size={15} /></IconButton>}</div>

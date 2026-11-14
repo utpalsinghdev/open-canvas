@@ -223,3 +223,15 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
+
+.agent-menu { position: relative; }
+.agent-menu summary { display: flex; align-items: center; gap: 8px; color: var(--muted); list-style: none; padding: 8px; border-radius: 4px; }
+.agent-menu summary::-webkit-details-marker { display: none; }
+.agent-menu-content { position: absolute; right: 0; top: 40px; z-index: 40; width: 300px; padding: 16px; border: 1px solid var(--line); background: var(--panel); border-radius: 4px; }
+.agent-menu-content h2 { margin: 0 0 12px; font-size: 14px; font-weight: 500; }
+.agent-menu-content p { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 0 0 12px; }
+.agent-menu-content label { display: block; margin: 0 0 8px; font-size: 11px; }
+.agent-menu-content input { display: block; width: 100%; background: var(--control); color: var(--foreground); border: 1px solid var(--line); padding: 8px; border-radius: 4px; }
+.agent-pair-button { display: flex; align-items: center; gap: 8px; width: 100%; margin: 12px 0; padding: 8px; background: var(--active); border: 1px solid var(--line); border-radius: 4px; }
+.agent-menu-content .agent-error { color: var(--warning); margin: 0; }
+@media (max-width: 900px) { .agent-menu summary span { display: none; } .agent-menu-content { position: fixed; top: 54px; right: 12px; width: min(300px, calc(100% - 24px)); } }

@@ -8,7 +8,7 @@ export function starterDocument(): DesignDocument {
     text: content, width, height: fontSize * 2.6, fontSize, fontFamily: 'Arial', fontWeight: '500', align: 'left', parentId, fill,
   });
   return {
-    version: 1, name: 'A little space',
+    version: 1, name: 'A little space', tokens: {},
     nodes: [
       poster, note,
       text('Studio label', 'Open Cavas / Starter study', 136, 132, 500, 14, 'poster'),

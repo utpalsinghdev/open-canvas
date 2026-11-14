@@ -36,3 +36,10 @@
 - Check port availability first. Development server binds 0.0.0.0 unless sensitive data requires a loopback or tailnet-only listener.
 - Report the browser URL as http://localmachine:<port>, not a wildcard or loopback address.
 - Verify through localmachine before claiming reachability. Keep private helpers and browser debugging listeners on loopback.
+
+
+## MCP boundaries
+- Read docs/mcp.md and docs/mcp-capabilities.md before changing agent control.
+- Keep the broker loopback-only with exact-Origin and pairing-code checks. Keep `.cavas` ignored by Git and denied by Vite, including filesystem aliases. Never expose pairing codes through public files or VITE-prefixed environment values.
+- Require explicit canvas IDs and expected revisions for mutations. Do not retry uncertain writes automatically. Read-back and persistence status are separate evidence.
+- Do not expose shell execution, arbitrary filesystem access, remote asset fetching, or executable HTML through design tools. Do not claim complete Paper parity for unsupported editor features.

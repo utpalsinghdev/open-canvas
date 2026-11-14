@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "open-cavas": {
+      "command": "node",
+      "args": [
+        "/absolute/open-cavas/node_modules/tsx/dist/cli.mjs",
+        "/absolute/open-cavas/server/index.ts"
+      ],
+      "cwd": "/absolute/open-cavas"
+    }
+  }
+}

@@ -38,3 +38,48 @@ The app was opened through `http://localmachine:5178`, not loopback. A dedicated
 No independent review, full automated suite, touch-device run, or Safari/Firefox run. Rotated resizing uses local-axis geometry but only an unrotated pointer resize was exercised manually. Storage-quota failure is handled in code but was not forced during this session. No deployment, authentication, Paper file compatibility, multiplayer, or cloud sync is claimed.
 
 The Paper analysis ledger and its incomplete first attempt are documented separately in [paper-research.md](paper-research.md). Raw proprietary artifacts and analysis results remain outside the repository.
+
+## MCP branch verification
+
+Implementation branch: `feat/mcp-server`, in its own T3 worktree, based on `de8046e`. The original main checkout was checked and remained clean. No Mac helper, Paper document, global MCP configuration, SSH configuration, or existing main application service was changed.
+
+### Build and source checks
+
+- Installed official `@modelcontextprotocol/sdk`, `ws`, and `tsx`, plus Node/WebSocket types. npm reported zero audit vulnerabilities. Local policy blocked esbuild install scripts; subsequent TypeScript checks and production builds succeeded without changing that policy.
+- `npm run check`: passed after resolving schema-inference and literal-return typing errors during implementation.
+- `npm run build`: passed repeatedly, including the final source/configuration state. Existing Zod annotation warnings remain dependency comments, not build failures.
+- `git diff --check`: passed.
+- Active LSP scan covered 26 source/config files and returned no findings, but all 26 were inconclusive because the server could not confirm silent clean rechecks. This is not an LSP clean result. Successful `tsc --noEmit` is the type-verification evidence.
+- UI detector on the pairing component and stylesheet returned no findings. Desktop at 1440 by 1000 and mobile at 390 by 844 were captured and inspected. Mobile document width was 390; the 300 px pairing disclosure stayed inside the viewport.
+- No automated test files or disguised regression suites were added. Verification used manual SDK client calls, real browser actions, artifact parsing, and temporary loopback tooling that was removed from service afterward.
+
+### Real MCP protocol and editor flow
+
+An official SDK client launched the actual stdio server and drove tools/call through an authenticated paired browser. Tool listing returned 27 tools. This was not direct invocation of an internal mutation function.
+
+- Initial browser hello exposed an invalid duplicate discriminator in the message schema. Corrected it to a validated union before continuing; the restarted server paired successfully.
+- Created `MCP Integration` artboard and text/rectangle children, then read their stable IDs and tree back.
+- Initial HTML import hit browser CSS-shorthand expansion. Corrected raw-declaration validation and normalized RGB color handling. Reloaded and re-paired to avoid an old hot-reloaded WebSocket callback, then created editable HTML background/text layers and read them back.
+- Changed text and geometry, rotated a rectangle, moved an artboard with its children, duplicated/deleted a layer, and exercised undo/redo. Child geometry moved by the same artboard delta.
+- Read selection and styles, changed selection/order/name, created/read/applied design tokens, and created an embedded PNG image through MCP.
+- Exported SVG, HTML, SVG JSX, and complete JSON. Python's XML parser accepted the SVG. TypeScript's JSX transpiler returned zero syntax diagnostics for exported JSX. JSON was reopened through MCP after creating a blank document, restoring the prior document.
+- Received a 640 by 480 PNG as actual MCP image content, saved it temporarily, and inspected it. Artboard text clipping reflected the explicit non-wrapping text model, not missing capture content.
+- Edited text manually in the real browser and read the new content through MCP with an advanced revision.
+- A stale-revision delete returned a revision conflict without deleting its target. Script-bearing HTML returned an error. A focused manual inspector edit blocked an agent mutation.
+- Production bundle was then served on the configured app port. Re-pairing, document/token read-back, rename, and a 640 by 480 artwork screenshot all succeeded against that built bundle. The document name visible in the browser matched the MCP mutation.
+- Both development and production app entry points were reached through `localmachine`, and HTTP access from the Mac over SSH was verified. No Paper UI action was used.
+
+### Security and lifecycle checks
+
+- Wrong code, wrong Origin, and missing Origin each returned HTTP 403 before WebSocket connection.
+- Pairing directory mode was 0700; code-file mode was 0600. The code was never printed into the verification record or committed.
+- Vite's default filesystem deny list does not cover application-specific private directories. Added an explicit `.cavas/**` deny while preserving its default secret-file rules. A non-secret private probe returned HTTP 403 through ordinary, `/@fs`, `?raw`, and `?url` requests. Probe content was not served. The probe file and temporary dev server were removed.
+- Closed a temporary paired socket during an outstanding SDK request. The call returned an explicit disconnected/unknown-outcome error, not a success receipt or automatic retry.
+- Used the real Disconnect agent control and confirmed `list_canvases` became empty. Closed the verification browser and manual SDK client. The private broker/helper ports closed, and normal shutdown removed `.cavas/pairing.json`.
+- `npm run --silent mcp:config` produced parseable JSON with this checkout's absolute paths. `npm run --silent mcp:pair` produced the expected pairing instructions while a server was running, with the private code redacted from captured output.
+
+### Remaining limits
+
+Timeout and cancellation error paths exist but were not deliberately forced end-to-end. Eight-session saturation, all malformed-message combinations, storage-quota failure, and cross-browser rendering were not exhaustively exercised. No independent security review or full Paper parity is claimed. Multi-page management, arbitrary HTML/CSS layout, dynamic token bindings, semantic web-code reconstruction, headless documents, and hosted HTTP MCP remain unsupported. See `mcp-capabilities.md`.
+
+The production app remains available on the worktree's port 5182. The temporary MCP driver is stopped; a real agent must launch the configured stdio process, then the user pairs its browser through the documented flow.
