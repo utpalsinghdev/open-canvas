@@ -184,3 +184,19 @@ Implemented on feat/automatic-release-updates in a separate feature worktree. Ma
 - No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
 
 The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
+
+## Issue #5: direct file/page links
+
+- `npm run check` and `npm run build` passed. No CI workflows are configured.
+- Real browser: bare URL gained complete IDs; adding a page and creating a file
+  changed the URL. Back/Forward restored both page and file destinations.
+- Opening a copied page URL selected that page instead of the last saved file;
+  reloading preserved it.
+- Deleted an active page with the existing confirmation, then navigated Back to its
+  old entry. The unavailable screen appeared; Forward returned to the surviving page.
+- Missing IDs and an incomplete URL displayed persistent errors. Explicit recovery
+  restored a complete local destination URL and editor access.
+- Screenshots captured for the page destination and unavailable destinations.
+  GitHub image upload is not available through the CLI; captures remain local artifacts.
+- No new test files, main release rebuild/restart, global agent settings, or main MCP
+  metadata changes. Links remain browser-origin-local, not remote sharing.
