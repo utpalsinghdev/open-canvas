@@ -10,6 +10,8 @@ import type { Location } from '../src/workspace/model';
 import { browserAuthentication } from './browser-auth';
 import { browserMessageSchema } from '../src/mcp/tools';
 import { z } from 'zod';
+import { createWorkspaceService } from './workspaces';
+import { WORKSPACE_BYTES } from './workspace-storage';
 import {
   brokerMetadataSchema,
   publishBrokerMetadata,
@@ -20,6 +22,7 @@ import {
 const MAX_BYTES = 12_000_000;
 const TIMEOUT_MS = 30_000;
 type Canvas = {
+  workspaceId: string;
   socket: WebSocket;
   name: string;
   revision: number;
@@ -55,9 +58,39 @@ export async function createBroker() {
   const canvases = new Map<string, Canvas>();
   const pending = new Map<string, Pending>();
   const browserAuth = browserAuthentication(origin);
+  let workspaces: Awaited<ReturnType<typeof createWorkspaceService>> | undefined;
+  const workspace = (value: unknown, source: 'agent' | 'browser' = 'agent') => {
+    if (!workspaces) return Promise.reject(new Error('Workspace service starting or unavailable.'));
+    return workspaces.request(value, source);
+  };
   const http = createServer((request, response) => {
     if (request.url === '/__cavas/session') {
       browserAuth.bootstrap(request, response);
+      return;
+    }
+    if (request.url === '/__cavas/workspace') {
+      if (request.method !== 'POST' || request.headers['x-cavas-connection'] !== 'browser' ||
+          !browserAuth.accept(request, [`auth.${request.headers['x-cavas-ticket'] ?? ''}`])) {
+        response.writeHead(403); response.end(); return;
+      }
+      const chunks: Buffer[] = [];
+      let size = 0;
+      request.on('data', (chunk: Buffer) => {
+        size += chunk.length;
+        if (size > WORKSPACE_BYTES) request.destroy(); else chunks.push(chunk);
+      });
+      request.on('end', () => {
+        void Promise.resolve().then(() => workspace(JSON.parse(Buffer.concat(chunks).toString()), 'browser')).then(
+          (result) => {
+            response.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            response.end(JSON.stringify({ result }));
+          },
+          (error: unknown) => {
+            response.writeHead(400, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            response.end(JSON.stringify({ error: error instanceof Error ? error.message : 'Workspace request failed.' }));
+          }
+        );
+      });
       return;
     }
     if (!request.url?.startsWith('/__cavas_internal/')) {
@@ -107,7 +140,9 @@ export async function createBroker() {
             if (!response.writableEnded) controller.abort();
           });
           const result =
-            route === '/__cavas_internal/list'
+            route === '/__cavas_internal/workspace'
+              ? await workspace(input)
+              : route === '/__cavas_internal/list'
               ? [...canvases].map(([canvasId, canvas]) => ({
                   canvasId,
                   name: canvas.name,
@@ -203,6 +238,7 @@ export async function createBroker() {
         clearTimeout(helloTimeout);
         canvasId = message.canvasId;
         canvases.set(canvasId, {
+          workspaceId: message.workspaceId,
           socket,
           name: message.name,
           revision: message.revision,
@@ -215,7 +251,10 @@ export async function createBroker() {
         return;
       }
       if (message.type === 'state') {
+        const current = canvases.get(canvasId);
+        if (!current) return;
         canvases.set(canvasId, {
+          workspaceId: current.workspaceId,
           socket,
           name: message.name,
           revision: message.revision,
@@ -254,13 +293,18 @@ export async function createBroker() {
       revision: canvas.revision,
       context: canvas.context,
     }));
-  const callLocal = (
+  const callLocal = async (
     canvasId: string,
     method: string,
     args: unknown,
     signal: AbortSignal
-  ) =>
-    new Promise<unknown>((resolve, reject) => {
+  ) => {
+    const target = canvases.get(canvasId);
+    if (!target) throw new Error('Canvas not connected. Use list_workspaces for browser-independent access.');
+    const record = await workspace({ method: 'read', id: target.workspaceId });
+    const access = z.object({ agentEnabled: z.boolean() }).parse(record);
+    if (!access.agentEnabled) throw new Error('Agent access paused for this workspace.');
+    return new Promise<unknown>((resolve, reject) => {
       const canvas = canvases.get(canvasId);
       if (!canvas || canvas.socket.readyState !== WebSocket.OPEN) {
         reject(
@@ -324,6 +368,7 @@ export async function createBroker() {
           );
       });
     });
+  };
   try {
     await new Promise<void>((resolve, reject) => {
       http.once('error', reject);
@@ -331,6 +376,12 @@ export async function createBroker() {
         http.off('error', reject);
         resolve();
       });
+    });
+    workspaces = await createWorkspaceService(`${stateDirectory}/workspaces`, (id, enabled) => {
+      if (enabled) return;
+      for (const canvas of canvases.values()) {
+        if (canvas.workspaceId === id) canvas.socket.close(1008, 'Workspace agent access paused');
+      }
     });
     await publishBrokerMetadata(metadataPath, {
       token: secret, port, origin, pid: process.pid, instanceId,
@@ -350,7 +401,9 @@ export async function createBroker() {
   return {
     list: listLocal,
     call: callLocal,
+    workspace,
     close: async () => {
+      await workspaces?.close();
       for (const socket of sockets.clients) socket.terminate();
       sockets.close();
       http.close();

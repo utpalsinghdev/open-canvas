@@ -4,6 +4,8 @@ import { z } from 'zod';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { createBroker } from './broker';
 import { runtimeSettings } from '../scripts/runtime-settings.mjs';
+import { newId } from '../src/editor/model';
+import { firstLocation, initialWorkspace, itemName } from '../src/workspace/model';
 import { locationSchema } from '../src/workspace/model';
 import { fonts } from '../src/editor/model';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
@@ -13,7 +15,7 @@ const server = new McpServer(
   { name: 'open-cavas', version: '0.4.0' },
   {
     instructions:
-      'Controls an automatically connected Open Cavas browser. Start with get_capabilities and list_canvases. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. A successful edit is in-memory, not proof of durable storage. Never retry a timed-out mutation without reading state. Keep the actual browser workspace open. Browser connections are automatic; no pairing code is needed.',
+      'Controls local Open Cavas workspaces. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. Browser rendering still needs an open tab. Connections are automatic; no pairing code is needed.',
   }
 );
 function text(result: unknown): CallToolResult {
@@ -36,7 +38,7 @@ server.registerTool(
         release: process.env.CAVAS_RELEASE_COMMIT ?? 'development',
       },
       transport:
-        'stdio with authenticated private WebSocket browser registration',
+        'stdio with authenticated private local workspace service; optional WebSocket browser rendering',
       limits: {
         layersPerPage: 1000,
         layersPerFile: 10_000,
@@ -66,6 +68,18 @@ server.registerTool(
   },
   async () => text({ canvases: await broker.list() })
 );
+server.registerTool('list_workspaces', {
+  description: 'List durable local workspaces, access status, revisions and agent context. Works with no browser. Select an explicit workspaceId.',
+  inputSchema: {}, annotations: { readOnlyHint: true },
+}, async () => text({ workspaces: await broker.workspace({ method: 'list' }) }));
+server.registerTool('create_workspace', {
+  description: 'Create an independent empty local workspace. No browser or migration required. Read list_workspaces before retrying an uncertain create.',
+  inputSchema: { name: itemName }, annotations: { destructiveHint: false, idempotentHint: false },
+}, async ({ name }) => {
+  const workspace = initialWorkspace({ version: 1, name: 'Untitled', nodes: [], tokens: {} });
+  const record = await broker.workspace({ method: 'create', id: newId(), name, workspace, context: firstLocation(workspace) });
+  return text(record);
+});
 for (const [name, definition] of Object.entries(tools)) {
   server.registerTool(
     name,
@@ -85,12 +99,14 @@ for (const [name, definition] of Object.entries(tools)) {
     ): Promise<CallToolResult> => {
       try {
         const target = targetSchema.parse(args);
-        const result = await broker.call(
-          target.canvasId,
-          name,
-          args,
-          extra.signal
-        );
+        if (Boolean(target.workspaceId) === Boolean(target.canvasId))
+          throw new Error('Choose exactly one workspaceId or canvasId.');
+        if (extra.signal.aborted) throw new Error('Request cancelled before dispatch.');
+        const result = target.workspaceId
+          ? await broker.workspace({ method: 'call', id: target.workspaceId, tool: name, args })
+          : target.canvasId
+            ? await broker.call(target.canvasId, name, args, extra.signal)
+            : undefined;
         if (name === 'get_screenshot') {
           const image = z
             .object({

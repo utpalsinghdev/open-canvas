@@ -25,6 +25,7 @@ import { Layers } from './components/Layers';
 import { Inspector } from './components/Inspector';
 import { Toolbar } from './components/Toolbar';
 import { AgentConnection } from './components/AgentConnection';
+import { WorkspaceAccess } from './components/WorkspaceAccess';
 import { Help } from './components/Help';
 import { IconButton } from './components/Button';
 import { useEditor } from './editor/store';
@@ -42,6 +43,10 @@ import { createNode, newId } from './editor/model';
 import { useDestination } from './workspace/useDestination';
 
 export default function App() {
+  return <WorkspaceAccess><WorkspaceEditor /></WorkspaceAccess>;
+}
+
+function WorkspaceEditor() {
   const destination = useDestination();
   if (destination.error === undefined) return <main>Opening destination</main>;
   if (destination.error) {

@@ -1,7 +1,9 @@
 import { useEditor } from '../editor/store';
+import type { EditorStore } from '../editor/state';
 import { workspaceTools } from './workspace-tools';
 import { withoutImageBytes } from './reads';
 
+export function createWorkspaceHandlers(useEditor: Pick<EditorStore, 'getState'>) {
 function fileAt(projectId: string, fileId: string) {
   const file = useEditor
     .getState()
@@ -10,7 +12,7 @@ function fileAt(projectId: string, fileId: string) {
   if (!file) throw new Error('Project or file does not exist.');
   return file;
 }
-export const workspaceHandlers: Record<string, (value: unknown) => unknown> = {
+const workspaceHandlers: Record<string, (value: unknown) => unknown> = {
   list_projects(value) {
     workspaceTools.list_projects.schema.parse(value);
     const state = useEditor.getState();
@@ -150,3 +152,7 @@ export const workspaceHandlers: Record<string, (value: unknown) => unknown> = {
     return { content: JSON.stringify(useEditor.getState().workspace, null, 2) };
   },
 };
+
+return workspaceHandlers;
+}
+export const workspaceHandlers = createWorkspaceHandlers(useEditor);

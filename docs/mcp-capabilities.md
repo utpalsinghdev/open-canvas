@@ -4,7 +4,7 @@ Open Cavas owns its document model and MCP implementation.
 
 ## Implemented and live-verified through MCP
 
-- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 48 tools exposed.
+- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 50 tools exposed.
 - Live document/tree/node/style/selection reads with stable layer identity.
 - Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection.
 - Undo/redo through the same document history as manual edits.
@@ -26,11 +26,11 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 - HTML/JSX output represents SVG artwork, not semantic application UI or JSX from an original source tree.
 - Screenshots capture supported artwork, not the editor window or a native Mac window.
 - Tokens support color, number, and font metadata with literal assignment. No dynamic binding, theme inheritance, breakpoint/container token system, or UI token panel.
-- Projects/files/pages persist in this browser origin through IndexedDB, not a remote service or filesystem library.
+- Explicitly selected projects/files/pages persist in a private local service. Browser IndexedDB is retained as an explicit migration/recovery source. See local-workspaces.md.
 
 ## Not implemented
 
-third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, shared server-side documents, multiplayer conflict merging, headless editing, hosted HTTP MCP are unsupported. Rich-text runs, arbitrary custom/document font registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
+third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless rendering, hosted HTTP MCP are unsupported. Rich-text runs, arbitrary custom/document font registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
 
 No placeholder tools claim those capabilities. `get_tree` reports the active-page layer tree and the actual file page index. Adding a transport does not create editor features that the document model cannot represent.
 
@@ -42,4 +42,8 @@ Projects contain multiple files, files contain multiple pages. Live SDK calls cr
 
 ## Automatic browser registration
 
-Manual pairing commands and UI were removed at the user's request. Opening the real application tab is sufficient for registration when its local MCP broker is running. Late broker startup, page reload, and broker restart reconnect automatically; Pause/Resume is available as a per-tab opt-out. The internal shared-broker credential remains private and is not replaced by public unauthenticated tool access. No headless document storage or access to a closed browser's IndexedDB is claimed.
+Manual pairing commands and UI were removed at the user's request. Opening the real application tab is sufficient for registration when its local MCP broker is running. Late broker startup, page reload, and broker restart reconnect automatically; Pause/Resume persists as a workspace-wide opt-out. The internal shared-broker credential remains private and is not replaced by public unauthenticated tool access. MCP data operations now use explicit local service workspace IDs without a browser. No direct access to a closed browser profile's IndexedDB is claimed; transfer is explicit while that profile is open.
+
+## Browser-independent local data operations
+
+`list_workspaces` and `create_workspace` expose durable local workspace identities. Existing data tools accept `workspaceId`, explicit page context and durable revision checks. Browser-target calls remain available for rendering. Screenshots, HTML import and visual exports are not implemented headlessly. Text metrics are unmeasured without a browser. See [local workspaces](local-workspaces.md) for migration, access and recovery contracts.

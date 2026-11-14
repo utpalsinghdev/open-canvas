@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useWorkspaceService } from './persistence';
 import { useEditor } from '../editor/store';
 import { destinationUrl, readDestination } from './destination';
 
@@ -12,12 +13,12 @@ export function useDestination() {
     let followingHistory = false;
     function followUrl() {
       const url = new URL(window.location.href);
-      const destination = readDestination(url, useEditor.getState().workspace);
+      const destination = readDestination(url, useEditor.getState().workspace, useWorkspaceService.getState().record?.id);
       if (destination.kind === 'empty') {
         history.replaceState(
           null,
           '',
-          destinationUrl(url, useEditor.getState().location)
+          destinationUrl(url, useEditor.getState().location, useWorkspaceService.getState().record?.id)
         );
         setError(null);
         return;
@@ -41,7 +42,7 @@ export function useDestination() {
           state.location.fileId !== fileId ||
           state.location.pageId !== pageId
         ) state.openFile(projectId, fileId, pageId);
-        history.replaceState(null, '', destinationUrl(url, destination.location));
+        history.replaceState(null, '', destinationUrl(url, destination.location, useWorkspaceService.getState().record?.id));
         setError(null);
       } catch {
         setError(unavailableMessage);
@@ -61,7 +62,7 @@ export function useDestination() {
       history.pushState(
         null,
         '',
-        destinationUrl(new URL(window.location.href), state.location)
+        destinationUrl(new URL(window.location.href), state.location, useWorkspaceService.getState().record?.id)
       );
       setError(null);
     });
@@ -75,7 +76,7 @@ export function useDestination() {
     history.pushState(
       null,
       '',
-      destinationUrl(new URL(window.location.href), useEditor.getState().location)
+      destinationUrl(new URL(window.location.href), useEditor.getState().location, useWorkspaceService.getState().record?.id)
     );
     setError(null);
   }
