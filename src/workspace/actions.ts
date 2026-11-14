@@ -1,4 +1,5 @@
 import { newId, nodeSchema } from '../editor/model';
+import { copyThreads } from '../review/model';
 import {
   currentFile,
   fileRecordSchema,
@@ -213,7 +214,7 @@ export function createWorkspaceActions(
   }
   function createPage(projectId: string, fileId: string, name: string) {
     const file = fileAt(projectId, fileId);
-    const page = { id: newId(), name: itemName.parse(name), nodes: [] };
+    const page = { id: newId(), name: itemName.parse(name), nodes: [], threads: [] };
     commitFile(
       projectId,
       {
@@ -267,6 +268,7 @@ export function createWorkspaceActions(
       ...page,
       id: newId(),
       name: `${page.name.slice(0, 155)} copy`,
+      threads: copyThreads(page.threads, ids),
       nodes: page.nodes.map((node) =>
         nodeSchema.parse({
           ...node,
