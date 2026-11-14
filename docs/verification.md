@@ -282,6 +282,14 @@ The canvas SVG now accepts programmatic focus and takes focus before starting a 
 
 Screenshots captured the selected Circle and its X property after undo and redo. Main runtime, broker metadata, and other feature worktrees were not changed. No MCP behavior changed or was exercised in this pass.
 
+## Issue #7: text frames versus content bounds
+
+- Reproduced in local Brave: starter text selection and editing used stored frames much wider than visible text. Zoom scaled those frames correctly; it was not the cause.
+- Selection now distinguishes the dashed stored frame from the solid measured content area. The inline textarea grows with draft content, while frame dimensions remain unchanged. Whitespace measurement follows SVG collapsing for artwork and preserved whitespace/eight-space tab stops for editing.
+- `npm run build` (including `npm run check`), `npm run changeset:status`, and `git diff --check` passed. Build emitted dependency annotation warnings from Zod, without failure. No CI workflow or existing test script was present.
+- Real local Brave interactions checked short and long text, multiline/trailing newline, empty text, left/center/right alignment, 25-degree rotation, Escape cancellation, Meta+Enter/blur commit, undo/redo, and save/reload. Checks used 47%, 100%, and 207% zoom. Stored 500 by 36.4 frames survived all edits; long content remained unwrapped beyond its frame.
+- Security/edge review identified the whitespace distinction above; corrected in measurement. No network, broker, Origin/Host, or runtime-profile changes. Main services were not restarted.
+- Limitations: local Brave only, not macOS, Firefox, or Safari. Native textarea and SVG baselines can differ slightly. Whitespace/tab sizing correction was source-reviewed and built; no dedicated browser whitespace/tab case was recorded.
 ## Issue #2: independent desktop sidebar collapse
 
 Reproduced the missing desktop controls in isolated local headless Brave 151.1.93.136. The existing mobile controls opened mutually exclusive overlays, not desktop sidebars.
@@ -322,3 +330,7 @@ The first browser verification attempt was blocked by a stopped development list
 - Limitations: no headed browser, Mac, Safari, Firefox, or distinct-origin storage
   test. No live MCP mutation test was performed. Main release and services were
   not rebuilt or restarted. Screenshots remain local verification artifacts.
+
+## Issue #7: typography integration after main merge
+
+The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.

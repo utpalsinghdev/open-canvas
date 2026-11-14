@@ -197,3 +197,12 @@ export function textNodeBounds(node: Extract<DesignNode, { kind: 'text' }>) {
   const layout = textLayout(node);
   return { x: node.x, y: node.y, width: layout.width, height: layout.height };
 }
+
+/** Content extent uses the same resolved font and line layout as the artwork. */
+export function textContentBounds(node: Extract<DesignNode, { kind: 'text' }>) {
+  const layout = textLayout(node);
+  const width = Math.max(1, layout.contentWidth);
+  const offset = node.align === 'center' ? (layout.width - width) / 2
+    : node.align === 'right' ? layout.width - width : 0;
+  return { x: node.x + offset, y: node.y, width, height: layout.contentHeight };
+}
