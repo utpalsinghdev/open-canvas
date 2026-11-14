@@ -3,6 +3,7 @@ import { useEditor } from '../editor/store';
 import { renderSvg } from '../editor/svg';
 import { tools } from './tools';
 import type { DesignNode } from '../editor/model';
+import { fontAvailability, fontFamilies, fontRegistry, fontStatus, textLayout } from '../editor/typography';
 
 export function withoutImageBytes(node: DesignNode) {
   if (node.kind !== 'image') return node;
@@ -113,7 +114,25 @@ export const reads: Record<
       .getState()
       .document.nodes.find((item) => item.id === args.nodeId);
     if (!node) throw new Error('Layer not found.');
-    return { node: withoutImageBytes(node) };
+    if (node.kind !== 'text') return { node: withoutImageBytes(node) };
+    return {
+      node: withoutImageBytes(node),
+      font: fontStatus(node.fontFamily),
+      layout: textLayout(node),
+    };
+  },
+  get_fonts(value) {
+    tools.get_fonts.schema.parse(value);
+    const availability = fontAvailability();
+    return {
+      fonts: fontFamilies.map((family) => ({
+        family,
+        source: fontRegistry[family].source === 'system' ? 'system' : 'bundled',
+        weight: fontRegistry[family].weight,
+        availability: availability[family],
+      })),
+      fallback: 'Arial',
+    };
   },
   get_styles(value) {
     const args = tools.get_styles.schema.parse(value);
