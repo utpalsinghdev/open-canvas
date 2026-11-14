@@ -46,9 +46,9 @@ Pages live above Layers with compact add/rename/duplicate/delete controls. Curre
 
 ## Canvas cursors
 
-Canvas-only tool and resize cursors use static 32×32 SVGs with 1.5 px dark ink,
+Select, Hand, Text, and resize cursors use static 32×32 SVGs with 1.5 px dark ink,
 rounded joins, and a 1 px white contrast rim. Artboard, Rectangle, and Ellipse
-share a plain crosshair at (8, 8), with no tool badges. Select points at (5, 3); both hand
+use the native crosshair, with no custom assets or tool badges. Select points at (5, 3); both hand
 states share a palm hotspot at (16, 18). Text and resize cursors center at (16, 16).
 Hand silhouettes use white fills. Text placement uses the same outlined I-beam
 language, while the inline textarea retains its native text cursor.

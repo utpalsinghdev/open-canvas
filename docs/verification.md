@@ -401,3 +401,10 @@ geometry, inline textarea cursors, and panel/control styling are unchanged.
 Network configuration, Tailscale, broker authentication, Origin/Host checks,
 main release, and main services were unchanged. CDP stayed loopback-only;
 verification used only task-owned temporary browser profiles.
+
+### Creation cursor simplification
+
+After the browser pass above, Artboard, Rectangle, and Ellipse were simplified
+first to plain crosshairs, then to the native CSS `crosshair` cursor. Their three
+SVG assets were removed. The prior 11-asset browser result describes the earlier
+revision; eight custom SVGs remain. No browser pass is claimed for this follow-up.

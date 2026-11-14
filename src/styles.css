@@ -123,14 +123,14 @@ button svg, summary svg { flex: none; }
 .design-canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; }
 .grid-dot { fill: var(--grid); }
 /* Static 32 px cursors share 1.5 px ink and a 1 px white contrast rim.
-   Hotspots match the arrow tip, palm, I-beam center, and placement crosshair. */
+   Hotspots match the arrow tip, palm, I-beam center, and resize center. */
 .design-canvas[data-cursor="select"] { cursor: url('./assets/cursors/select.svg') 5 3, default; }
 .design-canvas[data-cursor="grab"] { cursor: url('./assets/cursors/hand-open.svg') 16 18, grab; }
 .design-canvas[data-cursor="grabbing"] { cursor: url('./assets/cursors/hand-closed.svg') 16 18, grabbing; }
 .design-canvas[data-cursor="text"] { cursor: url('./assets/cursors/text.svg') 16 16, text; }
-.design-canvas[data-cursor="artboard"] { cursor: url('./assets/cursors/artboard.svg') 8 8, crosshair; }
-.design-canvas[data-cursor="rectangle"] { cursor: url('./assets/cursors/rectangle.svg') 8 8, crosshair; }
-.design-canvas[data-cursor="ellipse"] { cursor: url('./assets/cursors/ellipse.svg') 8 8, crosshair; }
+.design-canvas[data-cursor="artboard"] { cursor: crosshair; }
+.design-canvas[data-cursor="rectangle"] { cursor: crosshair; }
+.design-canvas[data-cursor="ellipse"] { cursor: crosshair; }
 .artboard-label { fill: var(--muted); }
 .selection-outline { stroke: var(--selection); fill: none; }
 .resize-handle { fill: var(--foreground); stroke: var(--selection); }
