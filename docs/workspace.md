@@ -49,13 +49,25 @@ The current MCP server has 44 tools. See [mcp.md](mcp.md) for exact lifecycle to
 
 ## Direct links
 
-The address bar uses `?project=<projectId>&file=<fileId>&page=<pageId>`.
-Copy the complete URL to bookmark a file/page. These IDs come from the workspace
-model, not display names, so renaming does not change the destination. Opening a
-link waits for local storage to load, then selects that exact page. A bare app URL
-uses the last saved location and replaces its history entry with a complete link.
-File/page changes add history entries; Back and Forward select existing destinations
-without adding another entry. Refresh preserves the referenced destination.
+The address bar uses `/file/<fileId>/<pageId>`. File IDs are unique across the
+workspace, so the app resolves the owning project locally. IDs are unchanged,
+not truncated or derived from names. With generated 32-character IDs, the path is
+71 characters instead of the old 118-character root-and-query URL.
+
+Copy the complete URL to bookmark a file/page. Renaming a project, file, or page
+does not change the destination. Opening a link waits for local storage to load,
+then selects that exact page. A bare app URL uses the last saved location and
+replaces its history entry with a complete link. File/page changes add history
+entries; Back and Forward select existing destinations without adding another
+entry. Refresh preserves the referenced destination. A trailing slash is accepted
+and removed from valid destination paths.
+
+Existing `/?project=<projectId>&file=<fileId>&page=<pageId>` bookmarks still open
+the exact destination, including validation of the project ID. Successful opens
+replace the current history entry with the shorter path. Invalid or unavailable
+links remain unchanged until explicit recovery. Paths with incomplete or extra
+segments, unknown routes, and links mixing path and query destination IDs are
+invalid. Unrelated query parameters and fragments are preserved.
 
 Invalid, incomplete, duplicate, missing, or deleted destination IDs show a persistent
 unavailable screen rather than displaying a different file. **Open last workspace**
@@ -68,8 +80,10 @@ hostname, or port may not have that workspace. Import regenerates project/file I
 so old links do not automatically refer to imported copies. Pending edits still need
 to finish saving before refresh.
 
-For agent references, URL `project`, `file`, and `page` map directly to MCP context
-`projectId`, `fileId`, and `pageId`. They do not encode `canvasId`: that ID identifies
+For agent references, path `<fileId>` and `<pageId>` map directly to MCP context
+`fileId` and `pageId`; the owning project supplies `projectId`. Legacy query
+`project`, `file`, and `page` still map to those three context IDs. Links do not
+encode `canvasId`: that ID identifies
 a live browser session and changes after a reload. Discover the live canvas with
 `list_canvases`, match its context, and use its explicit `canvasId`, context, and
 current expected revision for applicable mutations. A URL grants no authorization

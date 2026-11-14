@@ -280,3 +280,31 @@ The canvas SVG now accepts programmatic focus and takes focus before starting a 
 - `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. Active LSP probe of Canvas.tsx returned zero diagnostics. Browser reported no page errors. Existing Zod annotation warnings remain non-blocking. No CI workflow or test files were present or added.
 
 Screenshots captured the selected Circle and its X property after undo and redo. Main runtime, broker metadata, and other feature worktrees were not changed. No MCP behavior changed or was exercised in this pass.
+
+## Issue #21: shorter file/page links
+
+- Reproduced the long query-parameter URL on base `d85b975` in an isolated local
+  Brave profile. The new `/file/<fileId>/<pageId>` path keeps full IDs and resolves
+  the owning project from the validated workspace.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and
+  `git diff --check` passed. Active LSP checks of both changed TypeScript modules
+  returned no diagnostics. No CI workflows or automated test suite are configured.
+- Real local Brave 151.1.93.136, headless: created multiple projects, files, and
+  pages through the UI. Copied links opened exact destinations, including when
+  another page was last saved. Refresh and project/file/page renames preserved
+  the target. Back/Forward restored page/file destinations without extra entries.
+- Valid legacy query links opened and canonicalized to the shorter path while
+  preserving unrelated query parameters and fragments. A trailing slash opened
+  the destination and normalized away, as documented.
+- Wrong projects, missing pages, incomplete/duplicate query parameters, mixed
+  path/query references, unknown IDs/routes, and a deleted page produced the
+  persistent unavailable screen. Explicit recovery restored editor access.
+  A separate empty browser profile also showed unavailable instead of opening
+  another destination. Unavailable screens had no editor canvas or MCP session
+  request. No browser errors were observed.
+- Source security/edge review found no functional or security defects. Corrected
+  one documentation length count. Transport, exact-Origin/Host checks, tickets,
+  revision checks, and Tailscale configuration are unchanged.
+- Limitations: no headed browser, Mac, Safari, Firefox, or distinct-origin storage
+  test. No live MCP mutation test was performed. Main release and services were
+  not rebuilt or restarted. Screenshots remain local verification artifacts.
