@@ -13,6 +13,7 @@ import {
   type Workspace,
 } from './model';
 import { historyFor, viewPatch, type WorkspaceState } from './state';
+import { shareFile } from './sharing';
 
 const HISTORY_LIMIT = 80;
 export function createWorkspaceActions(
@@ -24,8 +25,27 @@ export function createWorkspaceActions(
     location: Location,
     histories = get().histories
   ) {
+    const state = get();
     const valid = workspaceSchema.parse(workspace);
-    set(viewPatch(get(), valid, location, histories));
+    const previousFiles = new Map(
+      state.workspace.projects.flatMap((project) =>
+        project.files.map((file) => [file.id, file] as const)
+      )
+    );
+    const shared = {
+      ...valid,
+      projects: valid.projects.map((project, projectIndex) => ({
+        ...project,
+        files: project.files.map((file, fileIndex) =>
+          shareFile(
+            previousFiles.get(file.id),
+            workspace.projects[projectIndex].files[fileIndex],
+            file
+          )
+        ),
+      })),
+    };
+    set(viewPatch(state, shared, location, histories));
   }
   function fileAt(projectId: string, fileId: string) {
     return currentFile(get().workspace, { projectId, fileId });
@@ -52,7 +72,7 @@ export function createWorkspaceActions(
   function commitFile(projectId: string, next: FileRecord, focus = false) {
     const state = get();
     const previous = fileAt(projectId, next.id);
-    const file = fileRecordSchema.parse(next);
+    const file = shareFile(previous, next, fileRecordSchema.parse(next));
     const history = historyFor(state.histories, file.id);
     const histories = {
       ...state.histories,
@@ -187,7 +207,9 @@ export function createWorkspaceActions(
       ...file,
       pageId: targetPage,
     });
-    apply(workspace, { projectId, fileId, pageId: targetPage });
+    // Navigation changes only an existing file's active page. Its artwork is
+    // already validated; reparsing it scans every embedded image again.
+    set(viewPatch(state, workspace, { projectId, fileId, pageId: targetPage }));
   }
   function createPage(projectId: string, fileId: string, name: string) {
     const file = fileAt(projectId, fileId);
