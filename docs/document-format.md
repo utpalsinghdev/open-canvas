@@ -37,4 +37,6 @@ The node array controls paint order among siblings. Artboard children are groupe
 
 Import rejects malformed JSON, unsupported versions, invalid geometry, duplicate IDs, and missing or non-artboard parents. It never executes imported content. Unknown object properties are dropped during parsing. JSON import is limited to 12 MB. The file picker additionally limits each newly added raster image to 2 MB and verifies that the browser can decode it.
 
-Undo history, current selection, viewport, and panel state are not serialized. SVG exports do not reopen as editable Open Cavas documents.
+The optional `tokens` field defaults to `{}` when loading earlier version-1 documents. It is a dictionary of up to 200 token names. Names begin with an ASCII letter and contain at most 80 letters, digits, underscores, or hyphens. Each value is `{ "type": "color", "value": "#d9f171" }`, `{ "type": "number", "value": 16 }`, or `{ "type": "font", "value": "Arial" }`. Numbers are finite and bounded by -100,000 and 100,000; fonts use the same family enum as text. Tokens are metadata with explicit literal application, not dynamic node references.
+
+Undo history, current selection, viewport, agent pairing, state revision, and panel state are not serialized. SVG exports do not reopen as editable Open Cavas documents.

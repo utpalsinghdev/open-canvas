@@ -7,3 +7,5 @@ dist/
 .impeccable/review/
 .hallmark/
 .DS_Store
+
+.cavas/

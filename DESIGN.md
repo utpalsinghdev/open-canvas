@@ -32,3 +32,8 @@ A dotted world grid provides position context without repainting animation. Artb
 ## Review
 
 Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browser. Mobile has no document-width overflow and exposes both panels. Design detector returned no findings. Static Hallmark checks have no floor failures; pure black and white are explicitly waived because they are user requirements. Hallmark's render tier was unavailable, so browser captures and interactions provide visual evidence instead. This was a single-agent review, not an independent review.
+
+
+## Agent pairing control
+
+The header has a compact Connect agent disclosure using the existing control/border tokens. It explains read/write access, accepts a masked private code, and shows an explicit Disconnect action when paired. Below 900 px the label becomes an accessible icon and the disclosure remains inside the viewport. Pairing adds no continuous animation. Agent edit receipts use the existing status message; the user retains normal history and document controls.

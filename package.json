@@ -7,20 +7,29 @@
     "dev": "vite --host 0.0.0.0 --port 5178 --strictPort",
     "check": "tsc --noEmit",
     "build": "npm run check && vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 5178 --strictPort"
+    "preview": "vite preview --host 0.0.0.0 --port 5178 --strictPort",
+    "dev:agent": "vite --host 0.0.0.0 --port 5182 --strictPort",
+    "mcp": "tsx server/index.ts",
+    "mcp:pair": "node scripts/pair.mjs",
+    "mcp:config": "node scripts/config.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@tailwindcss/vite": "^4.1.0",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.1.0",
+    "tsx": "^4.23.15",
+    "ws": "^8.23.0",
     "zod": "^4.0.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/ws": "^8.18.2",
     "@vitejs/plugin-react": "^4.4.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.0"

@@ -35,10 +35,17 @@ export const nodeSchema = z.discriminatedUnion('kind', [
     src: z.string().max(2_800_000).regex(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+=*$/),
   }),
 ]);
+export const tokenSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('color'), value: color }),
+  z.object({ type: z.literal('number'), value: z.number().finite().min(-100_000).max(100_000) }),
+  z.object({ type: z.literal('font'), value: z.enum(fonts) }),
+]);
+export const tokensSchema = z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,79}$/), tokenSchema).refine((tokens) => Object.keys(tokens).length <= 200, 'At most 200 design tokens.');
 export const documentSchema = z.object({
   version: z.literal(1),
   name: z.string().min(1).max(160),
   nodes: z.array(nodeSchema).max(1000),
+  tokens: tokensSchema.default({}),
 }).superRefine((doc, ctx) => {
   const ids = new Set<string>();
   const artboards = new Set(doc.nodes.filter((node) => node.kind === 'artboard').map((node) => node.id));

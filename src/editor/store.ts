@@ -17,6 +17,7 @@ function loadDocument(): { document: DesignDocument; message: string } {
 }
 const loaded = loadDocument();
 type EditorState = {
+  interactionActive: boolean;
   document: DesignDocument;
   selectedIds: string[];
   tool: Tool;
@@ -37,14 +38,14 @@ type EditorState = {
   notify: (message: string) => void;
 };
 export const useEditor = create<EditorState>((set, get) => ({
-  document: loaded.document, message: loaded.message, selectedIds: [], tool: 'select', past: [], future: [], saveState: 'saved',
+  interactionActive: false, document: loaded.document, message: loaded.message, selectedIds: [], tool: 'select', past: [], future: [], saveState: 'saved',
   edit: (update) => {
     const state = get();
     const next = update(state.document);
     if (next === state.document) return false;
     const valid = documentSchema.safeParse(next);
     if (!valid.success) { get().notify('Change exceeds document limits. Check geometry and layer count.'); return false; }
-    set({ document: next, past: [...state.past, state.document].slice(-HISTORY_LIMIT), future: [], saveState: 'pending' });
+    set({ document: valid.data, past: [...state.past, state.document].slice(-HISTORY_LIMIT), future: [], saveState: 'pending' });
     return true;
   },
   select: (ids) => set({ selectedIds: ids }),

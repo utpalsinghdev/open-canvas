@@ -37,6 +37,10 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     window.addEventListener('blur', blur);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); };
   }, []);
+  useEffect(() => {
+    useEditor.setState({ interactionActive: gesture !== null || editingId !== null });
+    return () => { useEditor.setState({ interactionActive: false }); };
+  }, [gesture, editingId]);
   useEffect(() => { if (editingId) { textInput.current?.focus(); textInput.current?.select(); } }, [editingId]);
 
   function world(event: PointerEvent): Point {
@@ -48,6 +52,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
     if (editingId) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
+    useEditor.setState({ interactionActive: true });
     const point = world(event);
     if (tool === 'hand' || space || event.button === 1) {
       setGesture({ mode: 'pan', start: { x: event.clientX, y: event.clientY }, origin: { x: camera.x, y: camera.y } });
@@ -126,6 +131,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
       const ids = document.nodes.filter((node) => node.kind !== 'artboard' && !isHidden(node, document.nodes) && !isLocked(node, document.nodes) && intersects(box, node)).map((node) => node.id);
       if (box.width > 3 || box.height > 3) select([...new Set([...(gesture.additive ? selectedIds : []), ...ids])]);
     }
+    useEditor.setState({ interactionActive: false });
     setGesture(null);
   }
   const nodes = document.nodes.map((node) => {
@@ -146,7 +152,7 @@ export function Canvas({ controls }: { controls: CameraControls }) {
       // Pointer capture retargets dblclick to the SVG; hit-test the artwork instead.
       const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node-id]');
       const node = nodes.find((item) => item.id === target?.getAttribute('data-node-id'));
-      if (node?.kind === 'text' && !isLocked(node, nodes)) { select([node.id]); setEditingId(node.id); }
+      if (node?.kind === 'text' && !isLocked(node, nodes)) { useEditor.setState({ interactionActive: true }); select([node.id]); setEditingId(node.id); }
     }}>
       <defs><pattern id="canvas-dots" width={24 * camera.zoom} height={24 * camera.zoom} patternUnits="userSpaceOnUse" x={camera.x} y={camera.y}><circle cx="1" cy="1" r="0.7" className="grid-dot" /></pattern></defs>
       <rect width="100%" height="100%" fill="url(#canvas-dots)" />

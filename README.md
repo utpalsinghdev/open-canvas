@@ -1,6 +1,6 @@
 # Open Cavas
 
-A local-first web design editor. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account or backend required.
+A local-first web design editor. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account required. Manual editing is browser-only; optional MCP control runs a local bridge.
 
 ## Run
 
@@ -18,6 +18,14 @@ npm run check   # TypeScript
 npm run build   # TypeScript and production bundle
 npm run preview # Serve dist on port 5178, after stopping this project's dev server
 ```
+
+## Agent control through MCP
+
+This branch includes a stdio MCP server with 27 tools for live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots.
+
+Start `npm run dev:agent` and open **http://localmachine:5182**. Generate its configuration with `npm run --silent mcp:config` or use [mcp.example.json](mcp.example.json), launch its MCP connection, then run `npm run mcp:pair` and enter the private code through **Connect agent** in the app. No global agent configuration is modified automatically.
+
+Read [MCP setup and security](docs/mcp.md) and [capability coverage](docs/mcp-capabilities.md). A paired browser must remain open.
 
 ## Editor
 
@@ -44,7 +52,7 @@ JSON import validates the version, layer types, geometry, IDs, parent references
 - Only artboards are containers. Children use absolute world coordinates and clip to their artboard.
 - Text uses explicit line breaks, not automatic wrapping. Font availability follows the browser's system fonts.
 - SVG export preserves supported artwork, clipping, rotation, opacity, and embedded images. It does not include editor chrome. It is a visual export, not a JSON round trip.
-- No third-party editable design document compatibility, arbitrary HTML import, HTML/CSS code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, snapping, or PNG/PDF export.
+- No third-party editable design document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, snapping, or PDF export. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
 - Desktop mouse/keyboard is the primary workflow. Mobile has responsive controls and panel access; multi-touch/pinch gestures are not implemented.
 
 ## Project docs
@@ -55,5 +63,6 @@ JSON import validates the version, layer types, geometry, IDs, parent references
 - [Document format](docs/document-format.md)
 - [Verification record](docs/verification.md)
 - [Design system](DESIGN.md)
+- [MCP setup](docs/mcp.md) and [coverage](docs/mcp-capabilities.md)
 
 The starter composition is original editable demonstration content.
