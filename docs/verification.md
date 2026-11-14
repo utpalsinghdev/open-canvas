@@ -473,6 +473,23 @@ Recorded the real development app in isolated local Brave using live MCP screens
 - `npm run build`, `npm run changeset:status`, `git diff --check`, and active TypeScript diagnostics passed. No repository CI workflow or test suite is configured. A reusable state profiler was added, not a new test suite.
 - Dedicated local/Mac browsers and Mac tunnels were closed. Main runtime and network/authentication configuration were not changed. No claim of a confirmed unbounded leak or complete resolution of issue #38 is made.
 
+## Issue #37 broker-loss diagnostics
+
+Controlled reproduction on the unchanged `70868bf` base intentionally sent SIGTERM to an isolated development broker owner while a second official SDK stdio client stayed attached. The broker listener disappeared, attached listing returned `fetch failed`, and the frontend stayed available. Restarting the owner restored browser registration, but old attached clients retained stale credentials. This establishes the diagnostic gaps after controlled owner exit, not the cause of the original reported shutdown.
+
+After the diagnostic change, local Brave Headless 151 used a dedicated synthetic profile at `http://localmachine:5208`, with private broker port 4808. Supported launchers used `CAVAS_APP_PORT=5208 CAVAS_MCP_PORT=4808 npm run dev` and the corresponding development MCP launcher. Official SDK probes exercised the actual stdio tools.
+
+- A synthetic file, artboard, and text reached `persistence: saved` and survived browser reload.
+- After controlled owner SIGTERM, attached `get_capabilities` still returned local information. `list_canvases` reported transport unavailability with coordinated recovery instructions. A document read included the unknown-outcome warning.
+- After restoring the isolated owner, old attached list/read calls reported rejected credentials rather than JSON parsing errors. Fresh clients discovered the automatically reconnected browser and read its saved document.
+- Invalid canvas and stale-revision errors remained specific. No mutation was retried.
+- Missing browser bootstrap header, wrong Origin, and unauthenticated internal access each returned HTTP 403.
+- Sol security/edge-case review found no blocking security defects. Its cancellation-guidance finding was corrected: pre-aborted calls fail before dispatch, and caller cancellation does not prescribe owner recovery. The SDK pre-abort probe rejected locally, so the server-side cancellation branches were not dynamically verified.
+- `npm run build` passed, including `tsc --noEmit`. Existing Zod annotation warnings remained. `git diff --check` passed. No CI workflow or new test file was added.
+
+No automatic retry, ownership takeover, metadata recovery, or browser-storage change was introduced. Verification did not establish an in-flight mutation's outcome, force the response deadline/body-interruption paths, or reproduce every crash scenario. Mac Brave was not needed for this server-side diagnostic change. No editor UI changed.
+
+Final verification stopped only its identified development app, broker, and dedicated Brave session; ports 5208, 4808, and 9228 were free afterward.
 ## Issue #32: persistent save recovery and diagnostics
 
 The original concurrent-editing storage failure remains unconfirmed. This change addresses independently reproduced notification and diagnostic gaps, not that unknown cause.
