@@ -8,6 +8,23 @@ type Destination =
   | { kind: 'unavailable' }
   | { kind: 'destination'; location: Location };
 
+// Encode generated 128-bit IDs without changing stored IDs or introducing aliases.
+function compactId(id: string) {
+  if (!/^[0-9a-f]{32}$/.test(id)) return id;
+  const bytes = id.match(/../g);
+  if (!bytes) return id;
+  return '~' + btoa(String.fromCharCode(...bytes.map((byte) => parseInt(byte, 16))))
+    .replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+}
+
+function expandId(token: string) {
+  if (!token.startsWith('~')) return token;
+  if (!/^~[A-Za-z0-9_-]{22}$/.test(token)) return '';
+  const id = Array.from(atob(token.slice(1).replaceAll('-', '+').replaceAll('_', '/') + '=='),
+    (byte) => byte.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  return compactId(id) === token ? id : '';
+}
+
 /** File IDs are workspace-wide unique; page IDs are scoped to their file. */
 export function readDestination(url: URL, workspace: Workspace): Destination {
   const hasQueryDestination = destinationKeys.some((key) =>
@@ -29,9 +46,12 @@ export function readDestination(url: URL, workspace: Workspace): Destination {
 
   // Never silently choose between path and query destinations.
   if (hasQueryDestination) return { kind: 'invalid' };
-  const match = /^\/file\/([^/]+)\/([^/]+)\/?$/.exec(url.pathname);
+  const match = /^\/(file|f)\/([^/]+)\/([^/]+)\/?$/.exec(url.pathname);
   if (!match) return { kind: 'invalid' };
-  const parsed = filePageSchema.safeParse({ fileId: match[1], pageId: match[2] });
+  const parsed = filePageSchema.safeParse({
+    fileId: match[1] === 'f' ? expandId(match[2]) : match[2],
+    pageId: match[1] === 'f' ? expandId(match[3]) : match[3],
+  });
   if (!parsed.success) return { kind: 'invalid' };
   const project = workspace.projects.find((project) =>
     project.files.some((file) => file.id === parsed.data.fileId)
@@ -45,7 +65,7 @@ export function readDestination(url: URL, workspace: Workspace): Destination {
 
 export function destinationUrl(url: URL, location: Location) {
   const next = new URL(url);
-  next.pathname = `/file/${location.fileId}/${location.pageId}`;
+  next.pathname = `/f/${compactId(location.fileId)}/${compactId(location.pageId)}`;
   for (const key of destinationKeys) next.searchParams.delete(key);
   return next;
 }

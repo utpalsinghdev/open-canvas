@@ -53,10 +53,15 @@ Pages contain posted review threads in addition to layers. File/project/workspac
 
 ## Direct links
 
-The address bar uses `/file/<fileId>/<pageId>`. File IDs are unique across the
-workspace, so the app resolves the owning project locally. IDs are unchanged,
-not truncated or derived from names. With generated 32-character IDs, the path is
-71 characters instead of the old 118-character root-and-query URL.
+The address bar uses `/f/<fileToken>/<pageToken>`. Generated 32-character
+hexadecimal IDs use lossless base64url tokens, each prefixed with `~` (23
+characters). The path is 50 characters instead of 71. Stored IDs never change;
+there is no prefix matching, collision-prone truncation, alias database, or
+network lookup. Other valid workspace IDs remain literal tokens. Renames do not
+affect tokens. File IDs remain unique across the workspace.
+
+Existing `/file/<fileId>/<pageId>` links remain supported and canonicalize to
+this compact format. Noncanonical or malformed encoded tokens are rejected.
 
 Copy the complete URL to bookmark a file/page. Renaming a project, file, or page
 does not change the destination. Opening a link waits for local storage to load,
@@ -84,7 +89,7 @@ hostname, or port may not have that workspace. Import regenerates project/file I
 so old links do not automatically refer to imported copies. Pending edits still need
 to finish saving before refresh.
 
-For agent references, path `<fileId>` and `<pageId>` map directly to MCP context
+For agent references, decoded file and page tokens map to MCP context
 `fileId` and `pageId`; the owning project supplies `projectId`. Legacy query
 `project`, `file`, and `page` still map to those three context IDs. Links do not
 encode `canvasId`: that ID identifies
