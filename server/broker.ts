@@ -285,6 +285,9 @@ export async function createBroker() {
         if (!call) return;
         pending.delete(id);
         call.cleanup();
+        // End presence only. A dispatched write can still have an unknown outcome.
+        if (canvas.socket.readyState === WebSocket.OPEN)
+          canvas.socket.send(JSON.stringify({ type: 'activity-end', id }), () => {});
         reject(error);
       };
       const timer = setTimeout(
