@@ -118,7 +118,17 @@ export function Canvas({ controls }: { controls: CameraControls }) {
       const resizedNode = resized(gesture.node, gesture.delta.x, gesture.delta.y, gesture.corner);
       const dx = resizedNode.x - gesture.node.x;
       const dy = resizedNode.y - gesture.node.y;
-      edit((doc) => ({ ...doc, nodes: doc.nodes.map((node) => node.id === resizedNode.id ? resizedNode : gesture.node.kind === 'artboard' && node.parentId === gesture.node.id ? translated(node, dx, dy) : node) }));
+      edit((doc) => ({ ...doc, nodes: doc.nodes.map((node) => {
+        if (node.id === resizedNode.id) {
+          if (node.kind === 'text' && resizedNode.kind === 'text') return {
+            ...resizedNode,
+            width: node.sizing === 'auto-width' ? node.width : resizedNode.width,
+            height: node.sizing === 'auto-height' ? node.height : resizedNode.height,
+          };
+          return resizedNode;
+        }
+        return gesture.node.kind === 'artboard' && node.parentId === gesture.node.id ? translated(node, dx, dy) : node;
+      }) }));
     }
     if (gesture.mode === 'draw') {
       const node = drawnNode(gesture);

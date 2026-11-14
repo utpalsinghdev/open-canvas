@@ -329,3 +329,7 @@ The first browser verification attempt was blocked by a stopped development list
 - Limitations: no headed browser, Mac, Safari, Firefox, or distinct-origin storage
   test. No live MCP mutation test was performed. Main release and services were
   not rebuilt or restarted. Screenshots remain local verification artifacts.
+
+## Issue #7: typography integration after main merge
+
+The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.
