@@ -139,6 +139,10 @@ button svg, summary svg { flex: none; }
 .design-canvas[data-cursor="select"] :is(.resize-handle.e, .resize-handle.w) { cursor: ew-resize; }
 .marquee { fill: var(--selection-wash); stroke: var(--selection); pointer-events: none; }
 .canvas-text-editor { position: absolute; z-index: 2; margin: -2px; padding: 1px; line-height: 1.2; border: 1px solid var(--selection); background: var(--text-edit-background); resize: none; outline: none; overflow: auto; }
+.agent-activity-region { position: absolute; z-index: 2; top: 12px; left: 12px; right: 12px; display: flex; justify-content: center; pointer-events: none; }
+.agent-activity { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--background); color: var(--foreground); font-size: 11px; animation: agent-activity-enter 160ms ease-out; }
+@keyframes agent-activity-enter { from { opacity: 0.5; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .agent-activity { animation: none; } }
 .canvas-caption { position: absolute; left: 18px; bottom: 20px; font-size: 10px; color: var(--muted); pointer-events: none; }
 .zoom-controls { position: absolute; right: 18px; bottom: 13px; display: flex; align-items: center; padding: 4px; background: var(--background); border: 1px solid var(--line); border-radius: 5px; gap: 4px; }
 .zoom-controls button { height: 27px; min-width: 27px; display: grid; place-items: center; border-radius: 3px; color: var(--muted); }

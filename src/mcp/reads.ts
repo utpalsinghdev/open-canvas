@@ -2,7 +2,7 @@ import { currentFile } from '../workspace/model';
 import { useEditor } from '../editor/store';
 import { renderSvg } from '../editor/svg';
 import { tools } from './tools';
-import type { DesignNode } from '../editor/model';
+import type { DesignDocument, DesignNode } from '../editor/model';
 import { fontAvailability, fontFamilies, fontRegistry, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
 
 export function withoutImageBytes(node: DesignNode) {
@@ -10,20 +10,20 @@ export function withoutImageBytes(node: DesignNode) {
   const { src, ...rest } = node;
   return { ...rest, imageBytesOmitted: true, encodedLength: src.length };
 }
-function exportArtwork(artboardId?: string) {
-  const state = useEditor.getState();
+function exportArtwork(document: DesignDocument, artboardId?: string) {
   if (
     artboardId &&
-    !state.document.nodes.some(
+    !document.nodes.some(
       (node) => node.id === artboardId && node.kind === 'artboard'
     )
   )
     throw new Error('Artboard not found.');
-  return renderSvg(state.document, artboardId ? [artboardId] : []);
+  return renderSvg(document, artboardId ? [artboardId] : []);
 }
 async function screenshot(artboardId: string | undefined, scale: number) {
+  const documentSnapshot = useEditor.getState().document;
   await loadDocumentFonts();
-  const artwork = exportArtwork(artboardId);
+  const artwork = exportArtwork(documentSnapshot, artboardId);
   const width = Math.ceil(artwork.width * scale);
   const height = Math.ceil(artwork.height * scale);
   if (width > 4096 || height > 4096 || width * height > 8_000_000)
@@ -180,8 +180,9 @@ export const reads: Record<
         ),
       };
     }
+    const documentSnapshot = useEditor.getState().document;
     await loadDocumentFonts();
-    const artwork = exportArtwork(args.artboardId);
+    const artwork = exportArtwork(documentSnapshot, args.artboardId);
     if (args.format === 'svg') return { format: 'svg', content: artwork.svg };
     if (args.format === 'html')
       return {
