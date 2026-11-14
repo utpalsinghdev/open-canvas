@@ -61,3 +61,8 @@ Read-back is the same state the user edits. The server does not retain documents
 
 
 See [workspace.md](workspace.md) for the hierarchy, migration policy, deletion semantics, and backup format.
+
+
+## Runtime release boundary
+
+`scripts/runtime-settings.mjs` defines fixed main/development port pairs and independent private state directories. Vite and the MCP broker consume the same settings. `scripts/runtime.mjs` launches source/HMR only from feature worktrees; main resolves an immutable committed snapshot once. `scripts/release.mjs` builds Git HEAD with its own locked dependencies in `.cavas/releases/<commit>` and updates the main pointer after successful checks. A running main frontend or broker does not read development dist or node_modules. MCP capabilities and frontend metadata identify the active release. See runtime.md for the explicit restart and legacy migration steps.

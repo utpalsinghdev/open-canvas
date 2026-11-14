@@ -4,66 +4,25 @@ Open Cavas exposes 44 tools over the official MCP SDK's stdio transport. It cont
 
 ## Start and pair
 
-Use this checkout, not the main checkout. Install dependencies, then start the agent-enabled editor:
+Use the fixed runtime profiles described in [runtime.md](runtime.md).
 
-```sh
-npm install
-npm run dev:agent
-```
-
-Open **http://localmachine:5182**. The application binds `0.0.0.0`. It is a development server, not an authenticated production deployment. Keep it on a trusted network and do not expose it to the public internet.
-
-Generate the exact stdio configuration for this checkout:
+**Main:** frontend http://localmachine:5182, private broker 127.0.0.1:4781. Prepare a committed snapshot with `npm run release:main`, serve it with `npm start`, and generate the main agent configuration:
 
 ```sh
 npm run --silent mcp:config
 ```
 
-Copy its `open-cavas` entry into your MCP client's configuration. The command prints JSON only and does not modify any agent settings.
+Copy its `open-cavas` entry into the agent configuration, start/reconnect that client, then run `npm run mcp:pair`. Paste the private code through **Connect agent**. Generated config points at the stable main launcher and its selected release, not a development worktree. No global settings are edited automatically.
 
-Alternatively, use the example below. Replace all `/absolute/open-cavas` paths with this checkout's absolute path. Use the same Node installation as the one that ran npm install. An example configuration is in `mcp.example.json`.
+**Development:** from a feature branch in a separate worktree, run `npm run dev`. Frontend is http://localmachine:5188 and broker is 127.0.0.1:4785. Generate its distinct agent entry with `npm run --silent mcp:config:dev`, and read its code with `npm run mcp:pair:dev`. Development refuses reserved main ports. Additional worktrees require explicit unused dev port pairs.
 
-```json
-{
-  "mcpServers": {
-    "open-cavas": {
-      "command": "node",
-      "args": [
-        "/absolute/open-cavas/node_modules/tsx/dist/cli.mjs",
-        "/absolute/open-cavas/server/index.ts"
-      ],
-      "cwd": "/absolute/open-cavas"
-    }
-  }
-}
-```
+Codes grant document read/write access. Never place them in URLs, public files, VITE-prefixed variables, chat, screenshots, or committed config. Main metadata is `.cavas/runtime/main/5182-4781/pairing.json`; dev is `.cavas/runtime/dev/5188-4785/pairing.json` in its own checkout. Files are mode 0600 inside private directories. Main code snapshots share only their main runtime directory so clients on the same release can attach to the owner.
 
-Start or reconnect the MCP client so it launches the server. Then, in this checkout:
+Broker upgrades require the code, exact Origin, and explicit browser protocol. Vite denies `.cavas/**`, including filesystem aliases, and proxies the authenticated broker route. App listeners bind 0.0.0.0 on a trusted network; brokers stay loopback-only. No unauthenticated HTTP MCP API is exposed.
 
-```sh
-npm run mcp:pair
-```
+One process owns each profile's broker. Later clients authenticate and attach; they do not rotate its code or stop the owner. Keep the owner alive. Browser reload or owner restart disconnects pairing, requiring re-pairing and fresh IDs/state reads. See [multiple sessions](mcp-multi-session.md).
 
-This prints a **private pairing code**. In the app, choose **Connect agent**, paste the code, and choose **Pair agent**. The code grants read/write access to this tab's document. Only pair trusted agents. Do not put the code in a committed config, URL, chat message, or screenshot.
-
-The server writes the code to `.cavas/pairing.json`, mode 0600, inside a mode-0700 directory ignored by Git. A new server process rotates the code. Normal server shutdown removes it. After a crash, the old file may remain, but cannot connect to a new process. Reloading the browser disconnects it and creates a new canvas ID; pair again and call `list_canvases`.
-
-To remove access, use **Disconnect agent** or stop the MCP client. Document edits remain in browser storage and ordinary undo history.
-
-### Ports and origins
-
-The private broker listens only on `127.0.0.1:4781`. Vite explicitly denies `.cavas/**` through its filesystem guard, including `/@fs` requests, while preserving Vite's default secret-file deny rules. Private pairing files must never be served by the development server. Vite proxies `/__cavas` WebSocket upgrades; it does not make the broker's raw listener public. Every upgrade requires the private code and the exact configured browser Origin. Codes travel in a WebSocket subprotocol, not a query string, and are never reflected as the selected subprotocol.
-
-Defaults:
-
-- Browser app: `http://localmachine:5182`.
-- Broker: `127.0.0.1:4781`.
-- `CAVAS_MCP_PORT` overrides the broker port. Set it identically for the MCP process and Vite process.
-- `CAVAS_APP_ORIGIN` overrides the exact allowed origin for the MCP process. Use it when changing the browser hostname, scheme, or port. No trailing slash or path.
-
-One owner process holds each broker port. Additional stdio clients using the same checkout/port/origin authenticate to that owner and share paired browser access. Keep the owner running; legacy owners require a deliberate restart before sharing. See [multiple sessions](mcp-multi-session.md). Up to eight browser tabs can pair with one process. This is not a multi-agent synchronization or hosted Streamable HTTP service.
-
-For a production preview, first run `npm run build`, then start Vite preview on the configured app port. The WebSocket proxy is also configured for preview. A static-file-only host without the authenticated broker/proxy does not provide agent control.
+Main release publication builds a snapshot without changing running processes. After merge, a deliberate frontend/broker restart makes the new release active. Reconnect agents together and compare `get_capabilities.runtime.release` with the frontend `cavas-release` meta tag. Legacy direct-source clients must be reconfigured/restarted once; they are not silently migrated or killed.
 
 ## Agent workflow
 

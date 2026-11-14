@@ -1,9 +1,11 @@
 import { readFile } from 'node:fs/promises';
-const path = new URL('../.cavas/pairing.json', import.meta.url);
+import { runtimeSettings } from './runtime-settings.mjs';
 try {
-  const { token, origin } = JSON.parse(await readFile(path, 'utf8'));
-  process.stdout.write(`Open ${origin}, choose Connect agent, then paste this private pairing code:\n${token}\nDo not share this code. It grants document read/write access while paired.\n`);
-} catch {
-  process.stderr.write('No MCP pairing file. Start the MCP server through your agent first.\n');
+  const settings = runtimeSettings(process.argv[2] ?? 'main');
+  const { token, origin, port } = JSON.parse(await readFile(settings.pairingPath, 'utf8'));
+  if (origin !== settings.origin || port !== settings.brokerPort || !/^[a-f0-9]{64}$/.test(token)) throw new Error('Pairing metadata does not match selected runtime.');
+  process.stdout.write(`Open ${origin} (${settings.profile}), choose Connect agent, then paste this private pairing code:\n${token}\nDo not share this code. It grants document read/write access while paired.\n`);
+} catch (error) {
+  process.stderr.write(`No usable pairing metadata for this runtime. Start its MCP client first. ${error instanceof Error ? error.message : ''}\n`);
   process.exitCode = 1;
 }

@@ -2,30 +2,37 @@
 
 A local-first web design editor inspired by Paper. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account or Paper installation required. Manual editing is browser-only; optional MCP control runs a local bridge.
 
-## Run
+## Run stable main
 
-Use Node.js 22+ and npm.
-
-```sh
-npm install
-npm run dev
-```
-
-Open **http://localmachine:5178** on the home-server tailnet. The development server binds `0.0.0.0`, uses port 5178, and refuses to silently switch ports. On another host, use that host's address. This is a development server without authentication, not a production deployment. Do not forward it to the public internet.
+Use Node.js 22+ and npm, in the primary main checkout.
 
 ```sh
-npm run check   # TypeScript
-npm run build   # TypeScript and production bundle
-npm run preview # Serve dist on port 5178, after stopping this project's dev server
+npm ci
+npm run release:main  # Requires clean committed main; builds a frozen snapshot
+npm start            # Main app at http://localmachine:5182
 ```
+
+Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, reconnect your agent, then run `npm run mcp:pair` and enter the private code through **Connect agent**. A running main release is unaffected by feature builds.
+
+## Feature development
+
+Use a feature branch in a separate worktree:
+
+```sh
+npm ci
+npm run dev                        # http://localmachine:5188
+npm run --silent mcp:config:dev     # Separate development agent entry
+npm run mcp:pair:dev                # Development broker 127.0.0.1:4785
+npm run build                      # TypeScript and source bundle; not a main release
+```
+
+The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev pairing files and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
+
+After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
 
 ## Agent control through MCP
 
-This branch includes a stdio MCP server with 44 tools for live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots.
-
-Start `npm run dev:agent` and open **http://localmachine:5182**. Generate its configuration with `npm run --silent mcp:config` or use [mcp.example.json](mcp.example.json), launch its MCP connection, then run `npm run mcp:pair` and enter the private code through **Connect agent** in the app. No global agent configuration is modified automatically.
-
-Read [MCP setup and security](docs/mcp.md) and [capability coverage](docs/mcp-capabilities.md). A paired browser must remain open. This is not complete Paper MCP parity.
+44 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. A paired browser must remain open. This is not complete Paper MCP parity.
 
 ## Editor
 
@@ -71,6 +78,7 @@ Multiple tabs do not merge work. Each save compares the stored revision inside i
 
 - [Product scope](PRODUCT.md)
 - [Engineering rules](AGENTS.md) and [agent.md alias](agent.md)
+- [Runtime profiles and main releases](docs/runtime.md)
 - [Architecture and state flow](docs/architecture.md)
 - [Projects, files, and persistence](docs/workspace.md)
 - [Document format](docs/document-format.md)
