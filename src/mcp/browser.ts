@@ -166,6 +166,10 @@ function attachBrowser(socket: WebSocket) {
             context: resultContext,
             result,
             persistence: useEditor.getState().saveState,
+            persistenceDetails: {
+              blocked: useEditor.getState().persistenceBlocked,
+              failure: useEditor.getState().persistenceFailure,
+            },
           },
         });
         if (definition.mutation)
