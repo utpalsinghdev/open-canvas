@@ -46,3 +46,31 @@ The complete workspace is currently saved as one record. Large image-heavy works
 An automatically connected browser identifies the active project, file, and page in every response and `list_canvases`. Page/content mutations require this `context` together with the current revision. Library tools accept explicit project/file/page target IDs. Opening a different file invalidates old page context even when copied layer IDs match.
 
 The current MCP server has 44 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
+
+## Direct links
+
+The address bar uses `?project=<projectId>&file=<fileId>&page=<pageId>`.
+Copy the complete URL to bookmark a file/page. These IDs come from the workspace
+model, not display names, so renaming does not change the destination. Opening a
+link waits for local storage to load, then selects that exact page. A bare app URL
+uses the last saved location and replaces its history entry with a complete link.
+File/page changes add history entries; Back and Forward select existing destinations
+without adding another entry. Refresh preserves the referenced destination.
+
+Invalid, incomplete, duplicate, missing, or deleted destination IDs show a persistent
+unavailable screen rather than displaying a different file. **Open last workspace**
+explicitly returns to the current local workspace, where Projects can select another
+file or import a backup. Back/Forward can also leave this screen. The unavailable
+screen does not mount editor keyboard shortcuts or the browser MCP connection.
+
+Links identify local data, not shared contents. Another browser, machine, profile,
+hostname, or port may not have that workspace. Import regenerates project/file IDs,
+so old links do not automatically refer to imported copies. Pending edits still need
+to finish saving before refresh.
+
+For agent references, URL `project`, `file`, and `page` map directly to MCP context
+`projectId`, `fileId`, and `pageId`. They do not encode `canvasId`: that ID identifies
+a live browser session and changes after a reload. Discover the live canvas with
+`list_canvases`, match its context, and use its explicit `canvasId`, context, and
+current expected revision for applicable mutations. A URL grants no authorization
+and does not bypass targeting, revision checks, or local browser availability.
