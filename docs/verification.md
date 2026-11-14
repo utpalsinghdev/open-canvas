@@ -190,3 +190,10 @@ The current pre-updater main bundle cannot retroactively gain polling without lo
 After the automatic-release rollout, a client reported startup refusal because its final broker.json was an empty mode-0600 file and no listener owned4781. The code wrote the final path directly; an interrupted writer could expose an empty credential file. Changed publication to write complete validated metadata into an exclusively created private sibling temporary file, then hard-link it atomically to the final path without overwriting an owner. Temporary cleanup is scoped to that publication.
 
 Direct temporary-directory verification produced complete parseable mode-0600 metadata. A second publication returned EEXIST and left the original owner metadata byte-identical. TypeScript/build checks passed. This does not silently bypass validation or delete malformed live metadata. No new test files were added. Per the user's latest instruction, further coordination messages to the portfolio thread were stopped.
+
+
+## Persistent main frontend runtime
+
+A later live check found the main frontend absent on5182 while the private MCP broker remained on4781. This makes browser registration and release polling fail independently of code freshness. Added a named Linux systemd user service installer rather than another temporary agent-owned shell.
+
+The installer generates a main-only unit, validates the prepared release, preserves unowned/occupied services, and enables restart-on-failure. It does not modify linger policy or own MCP clients. Unit generation initially quoted WorkingDirectory in a way systemd treated as a literal relative path; corrected the directive, and systemd-analyze --user verify then succeeded. A feature-worktree installation was correctly refused. Node syntax, TypeScript, and source build checks passed before commit. No test files were added.

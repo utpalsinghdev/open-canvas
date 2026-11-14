@@ -9,10 +9,11 @@ Use Node.js 22+ and npm, in the primary main checkout.
 ```sh
 npm ci
 npm run release:main  # Requires clean committed main; builds a frozen snapshot
-npm start            # Main app at http://localmachine:5182
+npm run service:install # Persistent main frontend at http://localmachine:5182
+# npm start remains available for manual foreground use
 ```
 
-Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds.
+Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and keep the application open. Browser workspaces connect automatically. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
 
 ## Versions and changelog
 
