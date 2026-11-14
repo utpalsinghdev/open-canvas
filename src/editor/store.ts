@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { documentSchema, isLocked, withChildren, type DesignDocument, type DesignNode, type Tool } from './model';
+import { newId, documentSchema, isLocked, withChildren, type DesignDocument, type DesignNode, type Tool } from './model';
 import { starterDocument } from './seed';
 
 const STORAGE_KEY = 'open-cavas.document.v1';
@@ -24,7 +24,7 @@ type EditorState = {
   future: DesignDocument[];
   message: string;
   saveState: 'saved' | 'pending' | 'failed';
-  edit: (update: (doc: DesignDocument) => DesignDocument) => void;
+  edit: (update: (doc: DesignDocument) => DesignDocument) => boolean;
   select: (ids: string[]) => void;
   setTool: (tool: Tool) => void;
   patch: (id: string, patch: Partial<DesignNode>) => void;
@@ -41,10 +41,11 @@ export const useEditor = create<EditorState>((set, get) => ({
   edit: (update) => {
     const state = get();
     const next = update(state.document);
-    if (next === state.document) return;
+    if (next === state.document) return false;
     const valid = documentSchema.safeParse(next);
-    if (!valid.success) { get().notify('Change exceeds document limits. Check geometry and layer count.'); return; }
+    if (!valid.success) { get().notify('Change exceeds document limits. Check geometry and layer count.'); return false; }
     set({ document: next, past: [...state.past, state.document].slice(-HISTORY_LIMIT), future: [], saveState: 'pending' });
+    return true;
   },
   select: (ids) => set({ selectedIds: ids }),
   setTool: (tool) => set({ tool }),
@@ -67,16 +68,17 @@ export const useEditor = create<EditorState>((set, get) => ({
   duplicate: () => {
     const { document, selectedIds } = get();
     const ids = withChildren(selectedIds, document.nodes);
-    const mapping = new Map([...ids].map((id) => [id, crypto.randomUUID()]));
+    const mapping = new Map([...ids].map((id) => [id, newId()]));
     const copies = document.nodes.filter((node) => ids.has(node.id)).map((node): DesignNode => {
       const common = {
-        id: mapping.get(node.id) ?? node.id, name: `${node.name} copy`, x: node.x + 24, y: node.y + 24,
+        id: mapping.get(node.id) ?? node.id, name: `${node.name.slice(0, 155)} copy`, x: node.x + 24, y: node.y + 24,
       };
       return node.kind === 'artboard' ? { ...node, ...common, parentId: null } : { ...node, ...common, parentId: node.parentId ? mapping.get(node.parentId) ?? node.parentId : null };
     });
     if (!copies.length || document.nodes.length + copies.length > 1000) { get().notify('Select layers to duplicate, within the 1,000-layer limit.'); return; }
-    get().edit((doc) => ({ ...doc, nodes: [...doc.nodes, ...copies] }));
-    set({ selectedIds: selectedIds.map((id) => mapping.get(id) ?? id) });
+    if (get().edit((doc) => ({ ...doc, nodes: [...doc.nodes, ...copies] }))) {
+      set({ selectedIds: selectedIds.map((id) => mapping.get(id) ?? id) });
+    }
   },
   reorder: (direction) => get().edit((doc) => {
     const ids = new Set(get().selectedIds);
@@ -113,4 +115,4 @@ useEditor.subscribe((state, previous) => {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(persist, 350);
 });
-window.addEventListener('pagehide', () => { clearTimeout(saveTimer); persist(); });
+window.addEventListener('pagehide', () => { clearTimeout(saveTimer); if (useEditor.getState().saveState !== 'saved') persist(); });

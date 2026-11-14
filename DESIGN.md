@@ -1,0 +1,34 @@
+# Design system
+
+## Editor contract
+
+Open Cavas is a working editor, not a marketing page. The user's pinned direction is true black application background, white primary text, dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
+
+The first viewport exposes editable starter artboards between Layers and Properties. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
+
+## Tokens
+
+The authoritative tokens are declared in `src/styles.css` under `:root`.
+
+- Background and panel: `--background`, `--panel`, both `#000000`.
+- Primary text: `--foreground`, `#ffffff`.
+- Controls: `--control` `#101010`; hover `--hover` `#1a1a1a`; selected `--active` `#242424`.
+- Borders: `--line`, `#252525`.
+- Secondary text: `--muted`, `#a0a0a0`; inactive detail `--subtle`, `#777777`.
+- Focus: `--accent`, `#a6c7ff`; selection bounds `--selection`, `#8cb7ff`.
+- Save/error warning: `--warning`, `#ffc486`.
+- UI type: platform system sans through `--font-ui`. Artwork font is document data.
+
+Spacing declarations use a 4 px grid. Borders are 1 px. Compact controls have 3 to 5 px corner radii. Drawing handles are 8 screen pixels regardless of zoom.
+
+## Layout and interaction
+
+Desktop uses a 54 px header, 55 px toolbar, 27 px footer, 224 px Layers panel, and 248 px Properties panel. At narrower desktop widths panels shrink to 192 and 224 px. Under 900 px, both panels become explicitly toggled overlays. Under 560 px, the SVG action becomes an icon with an accessible label.
+
+Controls have visible instant keyboard focus. Native disabled states change ink, fill, and cursor, and preserve disabled attributes. Disabled controls are exempt from normal text contrast requirements. Fields commit on blur or Enter; drag operations commit once on release. Local-save failure is visible in the header and a live status message.
+
+A dotted world grid provides position context without repainting animation. Artboard titles stay the same screen size while zoom changes. Selection outlines scale inversely with zoom. Text edits use a focused textarea over the artwork; text content never becomes executable HTML.
+
+## Review
+
+Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browser. Mobile has no document-width overflow and exposes both panels. Design detector returned no findings. Static Hallmark checks have no floor failures; pure black and white are explicitly waived because they are user requirements. Hallmark's render tier was unavailable, so browser captures and interactions provide visual evidence instead. This was a single-agent review, not an independent review.

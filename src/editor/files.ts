@@ -1,4 +1,4 @@
-import { documentSchema, type DesignDocument, type DesignNode } from './model';
+import { getBounds, isHidden, documentSchema, type DesignDocument, type DesignNode } from './model';
 
 export function download(content: string, name: string, type: string) {
   const url = URL.createObjectURL(new Blob([content], { type }));
@@ -50,4 +50,17 @@ export function nodeSvg(node: DesignNode): string {
       return `<text fill="${node.fill}" font-family="${node.fontFamily}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" text-anchor="${anchor}" ${common}>${node.text.split('\n').map((line, index) => `<tspan x="${x}" y="${node.y + node.fontSize + index * node.fontSize * 1.2}">${escape(line)}</tspan>`).join('')}</text>`;
     }
   }
+}
+
+export function exportSvg(doc: DesignDocument, selectedIds: string[]) {
+  const selectedBoard = doc.nodes.find((node) => node.kind === 'artboard' && selectedIds.length === 1 && selectedIds.includes(node.id));
+  const nodes = doc.nodes.filter((node) => !isHidden(node, doc.nodes) && (!selectedBoard || node.id === selectedBoard.id || node.parentId === selectedBoard.id));
+  const bounds = selectedBoard ?? getBounds(nodes.filter((node) => node.parentId === null));
+  if (!bounds || !nodes.length) throw new Error('There are no visible layers to export.');
+  const content = nodes.filter((node) => node.parentId === null).map((node, index) => {
+    if (node.kind !== 'artboard') return nodeSvg(node);
+    const clip = `export-board-${index}`;
+    return `<defs><clipPath id="${clip}"><rect x="${node.x}" y="${node.y}" width="${node.width}" height="${node.height}" rx="${node.radius}"/></clipPath></defs><g clip-path="url(#${clip})" opacity="${node.opacity}">${nodeSvg({ ...node, opacity: 1 })}${nodes.filter((child) => child.parentId === node.id).map(nodeSvg).join('')}</g>`;
+  }).join('');
+  download(`<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}"><title>${escape(selectedBoard?.name ?? doc.name)}</title>${content}</svg>`, `${selectedBoard?.name ?? doc.name}.svg`, 'image/svg+xml');
 }
