@@ -1,5 +1,17 @@
 # open-cavas
 
+## 0.5.0
+
+### Minor Changes
+
+- c108676: Add explicit local service workspaces for browser-independent MCP data operations. Preserve browser data through opt-in, identity-preserving copying, reject stale writes, and keep browser navigation separate from agent page targets. Browser rendering still requires a connected tab.
+
+### Patch Changes
+
+- 21ceb18: Keep workspace save recovery guidance visible until persistence recovers, and report bounded storage failure details in the editor and MCP responses. This does not change conflict handling or fix the unconfirmed cause of concurrent-editing save failures.
+- be065b9: Report actionable shared-broker transport and credential failures without retrying requests or changing ownership. Document coordinated recovery and clarify that local capabilities do not establish broker health.
+- dd1d7ec: Unify canvas tool and resize cursors with outlined SVG artwork, native creation crosshairs, accurate hotspots, and native fallbacks. Preserve native inline text editing and panel cursors.
+
 ## 0.4.0
 
 ### Minor Changes
