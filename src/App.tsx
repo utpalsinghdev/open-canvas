@@ -13,6 +13,7 @@ import {
   Frame,
   HelpCircle,
   Layers2,
+  PanelLeft,
   PanelRight,
   Plus,
   Save,
@@ -74,6 +75,8 @@ function EditorApp() {
   } = useEditor();
   const controls = useCamera();
   const [panel, setPanel] = useState<'layers' | 'properties' | null>(null);
+  const [layersVisible, setLayersVisible] = useState(true);
+  const [propertiesVisible, setPropertiesVisible] = useState(true);
   const [help, setHelp] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
   const project = workspace.projects.find(
@@ -200,7 +203,7 @@ function EditorApp() {
   }
 
   return (
-    <div className={`app-shell ${panel ? `show-${panel}` : ''}`}>
+    <div className={`app-shell ${panel ? `show-${panel}` : ''} ${layersVisible ? '' : 'hide-layers'} ${propertiesVisible ? '' : 'hide-properties'}`}>
       <header className="app-header">
         <div className="brand">
           <span className="brand-mark">
@@ -303,12 +306,29 @@ function EditorApp() {
       </header>
       <div className="workspace-bar">
         <div className="workspace-label">
+          <IconButton
+            label={layersVisible ? 'Collapse Layers sidebar' : 'Expand Layers sidebar'}
+            aria-expanded={layersVisible}
+            aria-controls="layers-panel"
+            onClick={() => setLayersVisible((visible) => !visible)}
+          >
+            <PanelLeft size={17} />
+          </IconButton>
           <span>Page</span>
           <span className="muted">/</span>
           <span>{activePage?.name}</span>
         </div>
         <Toolbar onImage={() => imageInput.current?.click()} />
         <div className="workspace-end">
+          <IconButton
+            className="icon-button desktop-panel-control"
+            label={propertiesVisible ? 'Collapse Properties sidebar' : 'Expand Properties sidebar'}
+            aria-expanded={propertiesVisible}
+            aria-controls="properties-panel"
+            onClick={() => setPropertiesVisible((visible) => !visible)}
+          >
+            <PanelRight size={17} />
+          </IconButton>
           <IconButton
             label="Keyboard shortcuts and help"
             onClick={() => setHelp(true)}
@@ -320,6 +340,8 @@ function EditorApp() {
       <div className="mobile-panel-controls">
         <button
           aria-pressed={panel === 'layers'}
+          aria-expanded={panel === 'layers'}
+          aria-controls="layers-panel"
           onClick={() => setPanel(panel === 'layers' ? null : 'layers')}
         >
           <Layers2 size={15} />
@@ -327,6 +349,8 @@ function EditorApp() {
         </button>
         <button
           aria-pressed={panel === 'properties'}
+          aria-expanded={panel === 'properties'}
+          aria-controls="properties-panel"
           onClick={() => setPanel(panel === 'properties' ? null : 'properties')}
         >
           <PanelRight size={15} />

@@ -205,6 +205,33 @@ Most importantly, a native list_canvases read before restoration returned an emp
 
 A repeat service:install invocation exceeded its foreground command budget while re-running systemd setup. Follow-up checks confirmed the service remained healthy with the same PID and there were no leftover installer processes. The installer now fast-returns for an identical already-active managed unit instead of unnecessarily reloading systemd.
 
+## Typography fidelity milestone
+
+Implementation branch `t3/mcp-typography-fidelity` in `/home/utpal/.t3/worktrees/open-canvas/t3-13ad3c7d-c61b564d61d5fedc`. Main frontend/MCP services were not changed. Used the isolated dev app at `http://localmachine:5191` and loopback-only private broker at 4791. No CI workflow or automated test files exist in this checkout.
+
+- `npm run check`, `npm run build`, and `git diff --check` passed. Build retains two non-blocking annotation-placement warnings from Zod dependency comments.
+- A legacy version-1 document parsed with missing typography fields and string weight `"500"`; it normalized to Arial, numeric weight 500, line height 1.2, zero tracking, left alignment, no wrapping, and fixed sizing. Bricolage weight 200 was rejected.
+- An actual official MCP SDK stdio client connected to the isolated browser. `get_fonts` reported both bundled variable fonts available at Inter 100–900 and Bricolage 300–800. It created the editable typography and color/component artboards, then `get_node` read Bricolage Grotesque weight 620 and measured layout. A deliberately narrow fixed text layer reported overflow. Full JSON, SVG, and artboard PNG output came through MCP.
+- Reloaded the browser and read back all 46 layers in the persisted version-2 file; persistence reported `saved`. SVG export is 840×620, contains embedded bundled font data, has text overflow attributes, and passes `xmllint --noout`. JSON export parses as a one-page version-2 document.
+- Real browser inspection showed the font availability state, Bricolage weight bounds (300–800), line-height/tracking inputs, auto-height mode, and disabled height control. Reloaded screenshot and artboard captures are in `.audit/typography-editor-reloaded.png`, `.audit/typography-inspector.png`, `.audit/typography-specimen.png`, and `.audit/color-components.png`. Locally generated SVG/JSON export evidence is in `.audit/typography-specimen.svg` and `.audit/typography-file-export.json`.
+- System fonts are intentionally marked `system`: browser APIs cannot prove whether a local system family resolved without substitution. The actual Arial/Georgia/Courier New substitution path, a failed bundled-font fetch, Safari/Firefox, and Paper comparison were not verified. No claim of full Paper typography parity is made.
+
+### Parent review corrections
+
+Review found three first-milestone gaps: HTML text import still discarded explicit height and rejected tracking/line-height, auto-size layers had no usable resize handles, and embedded font CSS was invalid when copied directly into JSX. These are corrected in the follow-up commit, with screenshot metadata carried through the server response instead of stripped.
+
+- Re-ran `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check`: passed. The two existing Zod dependency annotation warnings remain. Active LSP probes for typography, HTML import, MCP reads, and the server returned four clean files with no diagnostics.
+- Official MCP SDK calls against a dedicated synthetic browser on the isolated development profile imported an Inter weight-620 heading with width 680, height 50, line-height 40px, and tracking 0.6px. Read-back retained height 50, line-height multiplier 1.25, tracking 0.6, and `fallback: null` when loaded. A quoted Bricolage Grotesque family at 620 imported successfully, wrapped into four lines, and reported measured auto-height 144. Reload preserved the values and line breaks with persistence `saved`.
+- Dragged the auto-height text's east side handle in the actual editor. Width changed from 350 to 238 and measured height changed from 144 to 216; one MCP undo restored the original layout. Auto-width Inter at 650 reported measured width 147.769px while preserving fixed height 55.
+- A padded 260×80 outer box produced a 240×60 text box at a 10px inset. Following flow text advanced by measured height. Unsupported tracking `2em` returned an explicit error without a document edit. A stale-revision text update returned a conflict and left the original heading unchanged.
+- Temporarily withheld only this worktree's bundled Inter asset, then restored it immediately after the check. The editor opened; real MCP read-back reported requested Inter, resolved Arial, fallback Arial, `unavailable`, and fallback measurement. Screenshot metadata reported Inter unavailable. Reload after restoring the asset returned Inter available without rewriting the saved request.
+- A real MCP screenshot at scale 0.75 returned 570×420 pixels, world bounds 0,0,760,560, and font availability. Inspected its PNG. SVG passed `xmllint --noout`; the JSX export with embedded fonts produced zero TypeScript TSX parse diagnostics. Canvas measurement and SVG rendering now explicitly use normal kerning; font measurement includes native tracking and glyph overhang/descenders.
+- Parent inspected the original synthetic typography and component-board screenshots. They demonstrate editable font rendering and simple hierarchy, not Paper-quality parity or a complete design system. The Paper reference was not opened or compared.
+
+Remaining limits: the font registry is application-defined rather than per-document/custom-uploaded. System font substitution remains browser-defined. Full Unicode line breaking, hyphenation, rich text, text-box clipping, rotated auto-size resize behavior, cross-browser output, and the font network-timeout duration were not verified. Groups/auto-layout, native strokes/focus offsets, live token bindings, diagnostics/contrast, component instances, and parent/child reference batches are later milestones, not completed acceptance checks.
+
+Synced current main (`514d638`) into the feature branch before publication preparation. Resolved startup by awaiting workspace/font initialization before starting the existing main-release watcher and mounting React; retained both verification histories. Post-sync build/Changeset checks passed. Reopened the same synthetic dev profile and verified HTTP 200 through localmachine, actual SDK connection, saved fixed-height and four-line auto-height read-back, and screenshot scale/bounds/font metadata. No main service installation, restart, release, or portfolio write was performed.
+
 ## Canvas wheel handling after navigation (#1)
 
 Reproduced in Chromium 154 on Linux with a dedicated development browser. Initial canvas handled a cancelable Ctrl+wheel event, but creating a page replaced the viewport and the same event was no longer canceled or handled. App owns useCamera across the keyed Canvas remount, so the mount-only effect retained the detached viewport.
@@ -263,3 +290,43 @@ Screenshots captured the selected Circle and its X property after undo and redo.
 - Real local Brave interactions checked short and long text, multiline/trailing newline, empty text, left/center/right alignment, 25-degree rotation, Escape cancellation, Meta+Enter/blur commit, undo/redo, and save/reload. Checks used 47%, 100%, and 207% zoom. Stored 500 by 36.4 frames survived all edits; long content remained unwrapped beyond its frame.
 - Security/edge review identified the whitespace distinction above; corrected in measurement. No network, broker, Origin/Host, or runtime-profile changes. Main services were not restarted.
 - Limitations: local Brave only, not macOS, Firefox, or Safari. Native textarea and SVG baselines can differ slightly. Whitespace/tab sizing correction was source-reviewed and built; no dedicated browser whitespace/tab case was recorded.
+## Issue #2: independent desktop sidebar collapse
+
+Reproduced the missing desktop controls in isolated local headless Brave 151.1.93.136. The existing mobile controls opened mutually exclusive overlays, not desktop sidebars.
+
+- Verified all four desktop visibility combinations at 1440 by 1000. Layers and Properties used 224 and 248 px; collapsing each freed its column for the canvas. At 1000 and 901 px, panel widths were 192 and 224 px. No horizontal overflow was observed.
+- At 390 by 844, Layers and Properties remained mutually exclusive overlays with a working Close panel control. Hidden panel descendants could not receive focus. Desktop visibility preferences survived the mobile round trip.
+- Selected Headline, collapsed its artboard's layer group, and retained a text draft across responsive transitions. Restored the original text after verification. Panels remain mounted while hidden; visibility resets on reload.
+- Source review found a fractional-width breakpoint gap. Changed the desktop condition to `width > 900px`. A 900.5 px iframe in local Brave matched desktop only; both panels collapsed and the rounded canvas width grew from 485 to 901 px.
+- Keyboard verification exposed the existing canvas Space-to-pan handler preventing native button activation. It now leaves focused buttons, summaries, links, and button-role controls alone. Follow-up local Brave interactions confirmed Space collapses and reopens Layers, Space collapses Properties, and Enter reopens Properties, with focus retained and matching `aria-expanded` values.
+- `npm run build` passed, including TypeScript checking. `npm run changeset:status` and `git diff --check` passed. Active diagnostics for the sidebar source/CSS files returned zero findings; the design detector returned no findings before the final keyboard-handler adjustment. Non-blocking Zod annotation warnings remain in the production build. No CI workflow or existing automated test command was present; no new test files were added.
+- One independent source review covered security and responsive edge cases. No network, broker, authentication, Tailscale configuration, main runtime, or persistence behavior changed. Local Brave was headless because no display server was available; actual macOS rendering and screen-reader behavior were not verified.
+
+The first browser verification attempt was blocked by a stopped development listener and captured no behavior. After restoring the task-owned server, the full browser pass above succeeded. Screenshots remain local verification artifacts.
+## Issue #21: shorter file/page links
+
+- Reproduced the long query-parameter URL on base `d85b975` in an isolated local
+  Brave profile. The new `/file/<fileId>/<pageId>` path keeps full IDs and resolves
+  the owning project from the validated workspace.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and
+  `git diff --check` passed. Active LSP checks of both changed TypeScript modules
+  returned no diagnostics. No CI workflows or automated test suite are configured.
+- Real local Brave 151.1.93.136, headless: created multiple projects, files, and
+  pages through the UI. Copied links opened exact destinations, including when
+  another page was last saved. Refresh and project/file/page renames preserved
+  the target. Back/Forward restored page/file destinations without extra entries.
+- Valid legacy query links opened and canonicalized to the shorter path while
+  preserving unrelated query parameters and fragments. A trailing slash opened
+  the destination and normalized away, as documented.
+- Wrong projects, missing pages, incomplete/duplicate query parameters, mixed
+  path/query references, unknown IDs/routes, and a deleted page produced the
+  persistent unavailable screen. Explicit recovery restored editor access.
+  A separate empty browser profile also showed unavailable instead of opening
+  another destination. Unavailable screens had no editor canvas or MCP session
+  request. No browser errors were observed.
+- Source security/edge review found no functional or security defects. Corrected
+  one documentation length count. Transport, exact-Origin/Host checks, tickets,
+  revision checks, and Tailscale configuration are unchanged.
+- Limitations: no headed browser, Mac, Safari, Firefox, or distinct-origin storage
+  test. No live MCP mutation test was performed. Main release and services were
+  not rebuilt or restarted. Screenshots remain local verification artifacts.

@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useEditor } from '../editor/store';
-import { locationSchema, type Location } from './model';
+import { destinationUrl, readDestination } from './destination';
 
-function destinationUrl(location: Location) {
-  const url = new URL(window.location.href);
-  url.searchParams.set('project', location.projectId);
-  url.searchParams.set('file', location.fileId);
-  url.searchParams.set('page', location.pageId);
-  return url;
-}
+const unavailableMessage =
+  'This destination is unavailable in this browser workspace. It may have been deleted or belong to another browser or app origin.';
 
 /** Resolve links only after local workspace hydration; history never contains artwork. */
 export function useDestination() {
@@ -17,44 +12,39 @@ export function useDestination() {
     let followingHistory = false;
     function followUrl() {
       const url = new URL(window.location.href);
-      const keys = ['project', 'file', 'page'];
-      if (!keys.some((key) => url.searchParams.has(key))) {
+      const destination = readDestination(url, useEditor.getState().workspace);
+      if (destination.kind === 'empty') {
         history.replaceState(
           null,
           '',
-          destinationUrl(useEditor.getState().location)
+          destinationUrl(url, useEditor.getState().location)
         );
         setError(null);
         return;
       }
-      const parsed = locationSchema.safeParse({
-        projectId: url.searchParams.get('project'),
-        fileId: url.searchParams.get('file'),
-        pageId: url.searchParams.get('page'),
-      });
-      if (
-        !parsed.success ||
-        keys.some((key) => url.searchParams.getAll(key).length !== 1)
-      ) {
+      if (destination.kind === 'invalid') {
         setError(
           'This link has an invalid or incomplete project, file, or page reference.'
         );
         return;
       }
+      if (destination.kind === 'unavailable') {
+        setError(unavailableMessage);
+        return;
+      }
       followingHistory = true;
       try {
-        const { projectId, fileId, pageId } = parsed.data;
+        const { projectId, fileId, pageId } = destination.location;
         const state = useEditor.getState();
         if (
           state.location.projectId !== projectId ||
           state.location.fileId !== fileId ||
           state.location.pageId !== pageId
         ) state.openFile(projectId, fileId, pageId);
+        history.replaceState(null, '', destinationUrl(url, destination.location));
         setError(null);
       } catch {
-        setError(
-          'This destination is unavailable in this browser workspace. It may have been deleted or belong to another browser or app origin.'
-        );
+        setError(unavailableMessage);
       } finally {
         followingHistory = false;
       }
@@ -68,7 +58,11 @@ export function useDestination() {
           state.location.pageId === previous.location.pageId)
       )
         return;
-      history.pushState(null, '', destinationUrl(state.location));
+      history.pushState(
+        null,
+        '',
+        destinationUrl(new URL(window.location.href), state.location)
+      );
       setError(null);
     });
     window.addEventListener('popstate', followUrl);
@@ -78,7 +72,11 @@ export function useDestination() {
     };
   }, []);
   function recover() {
-    history.pushState(null, '', destinationUrl(useEditor.getState().location));
+    history.pushState(
+      null,
+      '',
+      destinationUrl(new URL(window.location.href), useEditor.getState().location)
+    );
     setError(null);
   }
   return { error, recover };
