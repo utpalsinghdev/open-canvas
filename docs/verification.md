@@ -488,6 +488,8 @@ Verified in the isolated development worktree, app 5206/private broker 4806, wit
 - Security review found and fixed exclusive-creation, persistent-pause, autosave scheduling, shutdown-drain, page-context, and workspace-link issues. Handler page-context checks were also exercised independently in memory.
 - Before/after, migration and conflict screenshots used temporary files, not repository assets. Verification used dedicated local Brave sessions with synthetic data.
 
+Integration with issue 32 recovery guidance was checked in isolated local Brave: a synthetic service revision-conflict response during a rename showed Not saved and persistent conflict-specific backup guidance. This did not exercise an actual concurrent service save. The integrated build and changeset status passed.
+
 Limits: the original baseline connection-timing sequence was inconclusive, not a reproduced connection bug. No performance claim or benchmark was made. No Mac-specific behavior was required or verified. Power-loss recovery, disk-failure injection and an abrupt multi-process shutdown race were not exercised. Headless screenshots/HTML import/visual exports are intentionally unsupported. Existing-owner attachment still requires coordinated restart when that owner exits; there is no automatic ownership transfer. This increment does not claim complete resolution of every operation requested by issue 34.
 ## Issue #37 broker-loss diagnostics
 
