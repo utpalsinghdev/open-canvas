@@ -25,8 +25,9 @@ export function useCamera() {
     });
   }, []);
   useEffect(() => { fit(); }, [fit]);
-  useEffect(() => {
-    const element = viewport.current;
+  // Canvas remounts on page/file changes while this hook stays mounted in App.
+  const bindViewport = useCallback((element: HTMLDivElement | null) => {
+    viewport.current = element;
     if (!element) return;
     function wheel(event: WheelEvent) {
       event.preventDefault();
@@ -41,8 +42,11 @@ export function useCamera() {
       });
     }
     element.addEventListener('wheel', wheel, { passive: false });
-    return () => element.removeEventListener('wheel', wheel);
+    return () => {
+      element.removeEventListener('wheel', wheel);
+      viewport.current = null;
+    };
   }, []);
-  return { viewport, camera, setCamera, zoomTo, fit };
+  return { viewport, bindViewport, camera, setCamera, zoomTo, fit };
 }
 export type CameraControls = ReturnType<typeof useCamera>;
