@@ -376,3 +376,9 @@ The conflict resolution uses the current typography layout for content bounds an
 - A 375 by 700 viewport kept status in bounds. Reduced motion disabled the entrance animation. The overlay had pointer-events none. MCP PNG output contained artwork only. No page or console errors were observed after logs were cleared; original page was restored with persistence saved and no pending label.
 - Sol 6.1 high source review found no actionable security or edge-case defects. Broker/CDP listeners remained loopback-only, Tailscale was online, and existing Origin/Host, ticket, revision, and manual-edit protections were preserved. Main services and network configuration were not changed.
 - Limits: local Brave was headless because no display server was available. No Mac, Firefox, Safari, cross-file activity-isolation, or explicit cancellation runtime check was performed. Before and after images are local verification artifacts, not document artwork.
+
+### Issue #10 visual follow-up
+
+Replaced the text badge with six blue dots following the page artwork's leading corner, with viewport clamping. Each dot has one staggered 600 ms rise/fade entrance, then remains still. Routine save and connection header badges were removed; Pause/Resume moved to the File menu and failed-save warnings remain visible on mobile.
+
+Local Brave with a real pending MCP screenshot verified six dots, finished non-looping animations at full opacity, header badge absence, artwork-relative positioning, and a 375 by 700 layout without document overflow. The File menu toggled Pause to Resume and back. A temporary failed-save state showed “Not saved” at mobile width without overflow and was restored afterward. Pending screenshot capture used a temporary image-decoding delay; no artwork was changed. Desktop and mobile screenshots were captured. Main and network configuration remain unchanged.
