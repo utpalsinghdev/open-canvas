@@ -254,3 +254,17 @@ The canvas SVG now accepts programmatic focus and takes focus before starting a 
 - `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. Active LSP probe of Canvas.tsx returned zero diagnostics. Browser reported no page errors. Existing Zod annotation warnings remain non-blocking. No CI workflow or test files were present or added.
 
 Screenshots captured the selected Circle and its X property after undo and redo. Main runtime, broker metadata, and other feature worktrees were not changed. No MCP behavior changed or was exercised in this pass.
+
+## Issue #2: independent desktop sidebar collapse
+
+Reproduced the missing desktop controls in isolated local headless Brave 151.1.93.136. The existing mobile controls opened mutually exclusive overlays, not desktop sidebars.
+
+- Verified all four desktop visibility combinations at 1440 by 1000. Layers and Properties used 224 and 248 px; collapsing each freed its column for the canvas. At 1000 and 901 px, panel widths were 192 and 224 px. No horizontal overflow was observed.
+- At 390 by 844, Layers and Properties remained mutually exclusive overlays with a working Close panel control. Hidden panel descendants could not receive focus. Desktop visibility preferences survived the mobile round trip.
+- Selected Headline, collapsed its artboard's layer group, and retained a text draft across responsive transitions. Restored the original text after verification. Panels remain mounted while hidden; visibility resets on reload.
+- Source review found a fractional-width breakpoint gap. Changed the desktop condition to `width > 900px`. A 900.5 px iframe in local Brave matched desktop only; both panels collapsed and the rounded canvas width grew from 485 to 901 px.
+- Keyboard verification exposed the existing canvas Space-to-pan handler preventing native button activation. It now leaves focused buttons, summaries, links, and button-role controls alone. Follow-up local Brave interactions confirmed Space collapses and reopens Layers, Space collapses Properties, and Enter reopens Properties, with focus retained and matching `aria-expanded` values.
+- `npm run build` passed, including TypeScript checking. `npm run changeset:status` and `git diff --check` passed. Active diagnostics for the sidebar source/CSS files returned zero findings; the design detector returned no findings before the final keyboard-handler adjustment. Non-blocking Zod annotation warnings remain in the production build. No CI workflow or existing automated test command was present; no new test files were added.
+- One independent source review covered security and responsive edge cases. No network, broker, authentication, Tailscale configuration, main runtime, or persistence behavior changed. Local Brave was headless because no display server was available; actual macOS rendering and screen-reader behavior were not verified.
+
+The first browser verification attempt was blocked by a stopped development listener and captured no behavior. After restoring the task-owned server, the full browser pass above succeeded. Screenshots remain local verification artifacts.

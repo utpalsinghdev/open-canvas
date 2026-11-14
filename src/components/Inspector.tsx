@@ -54,7 +54,7 @@ export function Inspector() {
   const selected = document.nodes.filter((node) => selectedIds.includes(node.id));
   const node = selected[0];
   const locked = node ? isLocked(node, document.nodes) : false;
-  return <aside className="inspector-panel" aria-label="Properties">
+  return <aside id="properties-panel" className="inspector-panel" aria-label="Properties">
     <div className="panel-heading"><span>Design</span><span className="muted">{node && selected.length === 1 ? node.kind : 'Canvas'}</span></div>
     {!node ? <div className="inspector-welcome"><div className="mini-canvas-mark" /><h2>Make space for ideas.</h2><p>Select a layer to edit its properties.</p><div className="welcome-shortcuts"><span>Select</span><kbd>V</kbd><span>Artboard</span><kbd>A</kbd><span>Rectangle</span><kbd>R</kbd><span>Text</span><kbd>T</kbd></div><p className="local-note">Stored in this browser.<br />Download JSON for a backup.</p></div>
       : selected.length > 1 ? <section className="inspector-section"><h3>{selected.length} layers selected</h3><p className="muted">Drag to move together. Shift-click to change selection.</p><div className="alignment-controls"><IconButton label="Duplicate selected layers" onClick={duplicate}><Copy size={16} /></IconButton><IconButton label="Delete selected layers" onClick={remove}><Trash2 size={16} /></IconButton></div></section>
