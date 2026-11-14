@@ -13,6 +13,8 @@
 - `src/components/Artwork.tsx` renders supported artwork independently of editor selection.
 - `src/components/Layers.tsx`, `Inspector.tsx`, `Toolbar.tsx`, and `Help.tsx` provide editor controls.
 - `src/App.tsx` connects file actions, naming, responsive panels, and status feedback.
+- `src/review/model.ts` defines review schemas, anchor resolution using measured text bounds, and copied thread identity. `actions.ts` commits thread/reply/status edits through file history. `drafts.ts` retains session-only drafts by file/page/thread and protects them from MCP writes and automatic reloads.
+- `src/components/Reviews.tsx` renders canvas pins and the file-wide thread panel. Panel wheel events retain native scrolling rather than moving the camera. `src/mcp/review-tools.ts` and `review-commands.ts` implement explicit-context list/read/status operations.
 
 ## Document and rendering
 

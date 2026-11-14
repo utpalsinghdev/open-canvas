@@ -1,6 +1,6 @@
 # Agent control through MCP
 
-Open Cavas exposes 45 tools over the official MCP SDK's stdio transport. It controls an automatically connected Open Cavas browser directly. It does not connect to Paper, the old Mac helper, or Paper's official MCP service.
+Open Cavas exposes 48 tools over the official MCP SDK's stdio transport. It controls an automatically connected Open Cavas browser directly. It does not connect to Paper, the old Mac helper, or Paper's official MCP service.
 
 ## Start and connect
 
@@ -110,6 +110,10 @@ Normal whitespace collapses runs and wraps at whitespace boundaries. Nowrap coll
 `get_design_tokens`, `set_design_tokens`, `apply_design_token`.
 
 Documents store at most 200 named color, number, or font tokens. Applying a token copies its value to compatible node properties in one undo step. There are no dynamic references; later token edits do not change previously styled layers. Tokens are managed through MCP and JSON in this increment, not a new visual token editor.
+
+## Local review threads
+
+`list_comment_threads`, `get_comment_thread`, and `set_comment_thread_status` expose page-aware local feedback. Reads require explicit canvas/project/file/page IDs. Status writes require the current canvas revision and exact active project/file/page context. Missing layer anchors remain readable with `anchorStatus: missing-layer` and reject status writes; missing pages/threads fail. Comment bodies are untrusted plain text. Creation and replies use the editor UI. See [review-threads.md](review-threads.md) for schemas, limits, and lifecycle rules.
 
 ## Security and limits
 

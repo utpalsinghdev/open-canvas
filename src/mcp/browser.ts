@@ -9,8 +9,10 @@ import {
 import { mutations } from './mutations';
 import { reads } from './reads';
 import { workspaceHandlers } from './workspace-commands';
+import { reviewHandlers } from './review-commands';
 import { automaticConnection, type ConnectionStatus } from './connection';
 import { agentActivity } from './activity';
+import { hasReviewDrafts } from '../review/drafts';
 
 const MAX_BYTES = 12_000_000;
 const canvasId = newId();
@@ -108,10 +110,10 @@ function attachBrowser(socket: WebSocket) {
             );
           const focused = document.activeElement;
           if (
-            useEditor.getState().interactionActive ||
+            useEditor.getState().interactionActive || hasReviewDrafts() ||
             (focused instanceof Element &&
               focused.closest(
-                '.properties-fields input,.properties-fields textarea,.selected-heading input,.document-name,.projects-dialog input,.page-name-form input'
+                '.properties-fields input,.properties-fields textarea,.selected-heading input,.document-name,.projects-dialog input,.page-name-form input,.review-panel textarea'
               ))
           )
             throw new Error(
@@ -119,7 +121,7 @@ function attachBrowser(socket: WebSocket) {
             );
         }
         const handler =
-          workspaceHandlers[method] ??
+          reviewHandlers[method] ?? workspaceHandlers[method] ??
           (definition.mutation ? mutations[method] : reads[method]);
         if (!handler) throw new Error('Tool implementation unavailable.');
         const outcome = handler(args);

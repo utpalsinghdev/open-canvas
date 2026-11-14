@@ -38,7 +38,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 
 ## Agent control through MCP
 
-45 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. The actual browser workspace must remain open and connects automatically. This is not complete Paper MCP parity.
+48 tools provide live document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. The actual browser workspace must remain open and connects automatically. This is not complete Paper MCP parity.
 
 ## Editor
 
@@ -60,6 +60,10 @@ Click the project name beside the header wordmark to open Projects. Create or re
 Use Pages above Layers to add, rename, duplicate, delete, or switch pages in a file. Each file keeps at least one page. Page duplication assigns new page/layer IDs. Page deletion can be undone through that file's history. Files share no artwork or undo state; design tokens are shared across pages of the same file.
 
 The first upgrade migrates the old single canvas into a **Personal** project, one file, and **Page 1**. Original local-storage data stays untouched as a fallback backup. Migration runs only when no IndexedDB workspace exists.
+
+## Review feedback
+
+Choose **Comment** beside the drawing tools, click a layer or canvas position, then write feedback. Open **Comments** to browse page-aware threads. Read and reply to threads, navigate to their targets across pages, and resolve or reopen them. Posted feedback stays in local storage and complete JSON backups. MCP can list/read threads and change their status with explicit page context and revision checks. See [review threads](docs/review-threads.md) for controls, draft behavior, limits, and missing-anchor rules.
 
 ## Keep your work
 
