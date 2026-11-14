@@ -331,6 +331,40 @@ The first browser verification attempt was blocked by a stopped development list
   test. No live MCP mutation test was performed. Main release and services were
   not rebuilt or restarted. Screenshots remain local verification artifacts.
 
+## Issue #11: tool-specific canvas cursors
+
+- Reproduced shared creation-tool crosshair and descendant cursor conflicts at
+  base `13ed972`. The SVG now derives its cursor from the selected tool and
+  active pan gesture. Artboard, rectangle, and ellipse use local static 32 px
+  SVG icons with black strokes, white outlines, and crosshair hotspots at 8,8.
+- `npm ci`, `npm run check`, `npm run build`, `npm run changeset:status`, and
+  `git diff --check` passed. Active LSP check of Canvas.tsx returned no
+  diagnostics; the UI detector returned no findings. Existing Zod build
+  annotation warnings remain non-blocking. No CI workflow or automated test
+  suite is configured; no test files were added.
+- Independent local Brave verification covered toolbar and V/H/A/R/O/T changes,
+  distinct creation cursor URLs, directional selection handles, drawing/hand
+  overrides on handles, middle-button drag outside the canvas, inline textarea
+  text cursor, Escape cancellation, and unaffected panels. No page errors.
+- Local Brave ran headless because no display server was available. A separate
+  dedicated headed Mac Brave profile loaded the development app over Tailscale.
+  Rectangle and ellipse cursor styles resolved, and a new empty page retained
+  the selected placement cursor. Space key events with explicit `code: Space`
+  plus real pointer drags produced grab, grabbing, and restored tool states.
+  Local verification also confirmed releasing Space before pointer-up keeps
+  grabbing until the pan finishes. Space events were dispatched through the DOM,
+  not delivered by a physical keyboard.
+- Native cursor pixels are absent from browser screenshots, so OS-rendered
+  hotspot alignment and light/dark cursor legibility remain visually unverified.
+  Firefox and Safari were not tested. Inline editing was checked for its text
+  cursor, not a change to its existing cancel/commit semantics.
+- Independent security/edge review found no introduced security defects or
+  blocking regressions. Existing limitation: pressing Space during an already
+  active non-pan gesture changes cursor feedback but does not convert that
+  gesture to a pan. This behavior is unchanged.
+- Main runtime, broker authentication, exact-Origin/Host checks, tickets,
+  revision checks, and Tailscale configuration were unchanged. Task-owned browser
+  sessions, Mac profile, and loopback CDP tunnel were closed after verification.
 ## Issue #7: typography integration after main merge
 
 The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.
