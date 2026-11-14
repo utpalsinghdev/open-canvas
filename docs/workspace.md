@@ -14,21 +14,13 @@ History is capped at 80 immutable file snapshots per file and lasts only for the
 
 Project/file creation, duplication, and import add library entries, not undo steps. Project/file deletion is permanent, removes their histories, and requires confirmation in the UI. MCP deletion calls are explicit destructive operations without a separate UI confirmation. Download backups first. At least one project, one file per project, and one page per file must remain.
 
-## Persistence and migration
+## Persistence, migration, and concurrent editing
 
-The workspace saves to IndexedDB database `open-cavas`, store `workspace`, key `current`. The record contains the workspace, current project/file/page location, and monotonically increasing disk revision. Debounced saves serialize through one queue and compare disk revision atomically in the write transaction.
+The local workspace service is authoritative for explicitly selected service workspaces. Browser IndexedDB is now a read-only source for explicit migration, not the live save destination. The chooser copies existing data into a new service workspace without changing its project/file/page IDs; original browser data stays untouched. JSON import still appends items with regenerated project/file IDs.
 
-When IndexedDB has no saved record, a valid `open-cavas.document.v1` local-storage document migrates into Personal → one named file → Page 1. Layers, IDs, geometry, images, and tokens survive conversion. The original local-storage value is preserved. Subsequent loads prefer IndexedDB and do not repeat migration.
+Service saves use a single-owner queue, durable revisions, and atomic fsynced snapshots. Stale browser or MCP saves fail rather than overwriting another writer. Idle browsers poll for changes while keeping displayed page independent of agent context. Pending edits and drafts block refresh. Incoming changes clear browser undo history; browser saves clear backend session history. Failed browser saves block further saves and show persistent recovery guidance and bounded error details, independent of routine notifications. Download a workspace backup before reloading.
 
-Corrupt or unavailable saved data does not trigger automatic replacement. The editor exposes fallback work in memory, reports the problem, and blocks saving. Existing source data remains intact. A failed write displays Not saved; backups are required to preserve in-memory work. Unresolved failures also keep a persistent recovery notice with storage error details and a link to Projects for a complete workspace backup. Routine notifications and their dismissal do not clear this notice. It clears only after the current workspace saves successfully, or after a successful reload. No new save retry is triggered by the notice. IndexedDB uses browser quota and is not guaranteed permanent storage.
-
-Different browser profiles and origins, including different ports, have separate workspaces. To move data from an older running editor on another port, download its JSON and import it in the new editor. There is no silent cross-origin migration.
-
-## Concurrent tabs
-
-Tabs do not collaborate. If one saves after another tab loaded, a later stale-tab save aborts instead of overwriting. That tab displays a conflict and blocks further saves. Its unsaved state remains in memory for workspace backup. Download a backup and reload, then import needed work as new items. Manual merges are outside this increment.
-
-Visibility/pagehide flushes request pending saves but cannot guarantee an asynchronous transaction finishes before the browser terminates. Wait for Saved locally and keep downloaded backups.
+See [local workspaces](local-workspaces.md) for exact storage location, workspace targeting, access controls, migration, shutdown, conflict recovery, and limits. It supersedes the former browser-only persistence contract.
 
 ## Backups and limits
 
@@ -45,7 +37,7 @@ The complete workspace is currently saved as one record. Large image-heavy works
 
 An automatically connected browser identifies the active project, file, and page in every response and `list_canvases`. Page/content mutations require this `context` together with the current revision. Library tools accept explicit project/file/page target IDs. Opening a different file invalidates old page context even when copied layer IDs match.
 
-The current MCP server has 48 tools. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
+The current MCP server has 50 tools. Use durable `workspaceId` targets for data operations without a browser; browser `canvasId` remains a separate rendering target. See [mcp.md](mcp.md) for exact lifecycle tools and reconnect instructions. Global registration and cross-session tool visibility still use the agent's normal configuration/reload. Shared-broker lifecycle and its legacy-owner restart requirement are documented separately in mcp-multi-session.md.
 
 ## Review feedback
 
@@ -84,8 +76,7 @@ explicitly returns to the current local workspace, where Projects can select ano
 file or import a backup. Back/Forward can also leave this screen. The unavailable
 screen does not mount editor keyboard shortcuts or the browser MCP connection.
 
-Links identify local data, not shared contents. Another browser, machine, profile,
-hostname, or port may not have that workspace. Import regenerates project/file IDs,
+Links identify data within the explicitly selected local service workspace, not shared contents. Another machine or runtime profile may not have that workspace; another browser must explicitly select it. Import regenerates project/file IDs,
 so old links do not automatically refer to imported copies. Pending edits still need
 to finish saving before refresh.
 

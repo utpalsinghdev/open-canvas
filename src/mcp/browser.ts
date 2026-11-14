@@ -1,3 +1,4 @@
+import { useWorkspaceService } from '../workspace/persistence';
 import { useEditor } from '../editor/store';
 import { newId } from '../editor/model';
 import {
@@ -65,6 +66,7 @@ function attachBrowser(socket: WebSocket) {
     send({
       type: 'hello',
       canvasId,
+      workspaceId: useWorkspaceService.getState().record?.id,
       name: useEditor.getState().document.name,
       revision,
       context: useEditor.getState().location,

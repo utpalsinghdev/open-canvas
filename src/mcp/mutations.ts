@@ -8,10 +8,12 @@ import {
   type DesignDocument,
 } from '../editor/model';
 import { useEditor } from '../editor/store';
+import type { EditorStore } from '../editor/state';
 import { translated } from '../editor/geometry';
 import { tools, propertiesSchema } from './tools';
 import { importHtml } from './html';
 
+export function createMutations(useEditor: Pick<EditorStore, 'getState'>) {
 type Properties = import('zod').infer<typeof propertiesSchema>;
 function targets(ids: string[], mutable = true) {
   const { document } = useEditor.getState();
@@ -93,7 +95,7 @@ function duplicate(ids: string[]) {
   state.select(ids.map((id) => mapping.get(id) ?? id));
   return { mapping: Object.fromEntries(mapping) };
 }
-export const mutations: Record<string, (value: unknown) => unknown> = {
+const mutations: Record<string, (value: unknown) => unknown> = {
   select_nodes(value) {
     const args = tools.select_nodes.schema.parse(value);
     targets(args.nodeIds, false);
@@ -256,3 +258,7 @@ export const mutations: Record<string, (value: unknown) => unknown> = {
     return { appliedIds: args.nodeIds, binding: 'literal value' };
   },
 };
+
+return mutations;
+}
+export const mutations = createMutations(useEditor);

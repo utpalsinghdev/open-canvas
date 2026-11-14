@@ -26,7 +26,10 @@ function expandId(token: string) {
 }
 
 /** File IDs are workspace-wide unique; page IDs are scoped to their file. */
-export function readDestination(url: URL, workspace: Workspace): Destination {
+export function readDestination(url: URL, workspace: Workspace, serviceId?: string): Destination {
+  const serviceIds = url.searchParams.getAll('workspace');
+  if (serviceIds.length > 1) return { kind: 'invalid' };
+  if (serviceIds.length && serviceIds[0] !== serviceId) return { kind: 'unavailable' };
   const hasQueryDestination = destinationKeys.some((key) =>
     url.searchParams.has(key)
   );
@@ -63,9 +66,10 @@ export function readDestination(url: URL, workspace: Workspace): Destination {
   };
 }
 
-export function destinationUrl(url: URL, location: Location) {
+export function destinationUrl(url: URL, location: Location, serviceId?: string) {
   const next = new URL(url);
   next.pathname = `/f/${compactId(location.fileId)}/${compactId(location.pageId)}`;
   for (const key of destinationKeys) next.searchParams.delete(key);
+  if (serviceId) next.searchParams.set('workspace', serviceId);
   return next;
 }

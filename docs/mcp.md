@@ -1,6 +1,6 @@
 # Agent control through MCP
 
-Open Cavas exposes 48 tools over the official MCP SDK's stdio transport. It controls an automatically connected Open Cavas browser directly.
+Open Cavas exposes 50 tools over the official MCP SDK's stdio transport. It controls explicitly selected local service workspaces directly, with optional browser rendering.
 
 ## Start and connect
 
@@ -16,7 +16,7 @@ Copy its `open-cavas` entry into the agent configuration and start/reconnect tha
 
 **Development:** from a feature worktree run `npm run dev` and configure the agent with `npm run --silent mcp:config:dev`. Frontend is http://localmachine:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage.
 
-The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause disconnects this tab; resume registers it automatically. Reload defaults back to enabled. Registration retries use capped backoff, not design-command retries. Keep the actual workspace tab open. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
+The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause persists for the selected service workspace and revokes its browser connections; resume explicitly from that workspace. Reload does not re-enable paused access. Registration retries use capped backoff, not design-command retries. Use `list_workspaces` and an explicit `workspaceId` for data access without an open tab. Browser rendering still needs an explicit `canvasId`. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
 
 ### Automatic registration and trust boundary
 
@@ -77,7 +77,7 @@ Library mutations require `canvasId`, `expectedRevision`, and explicit target ID
 
 `get_document` returns a legacy-shaped active-page projection plus file/page metadata, not a whole-file backup. Use `get_file` or `export_document` JSON for every page. `get_tree` returns the active-page layer tree and a file page index. Node IDs are scoped to a file and remain unique across that file's pages. Imported/duplicated files receive new file IDs; duplicated pages receive new page/node IDs.
 
-Project/file deletion is permanent and not in canvas undo history. Page deletion and file renames use that file's undo history. At least one project, file per project, and page per file must remain. File duplication creates an independent copy and a fresh history. Tokens are shared across a file's pages. The complete workspace is stored in IndexedDB with stale-tab write rejection.
+Project/file deletion is permanent and not in canvas undo history. Page deletion and file renames use that file's undo history. At least one project, file per project, and page per file must remain. File duplication creates an independent copy and a fresh history. Tokens are shared across a file's pages. The selected service workspace is stored locally with durable revision checks; IndexedDB remains an explicit migration source.
 
 This is a tool-schema change for existing agents: reload the MCP client and reload older browser tabs after upgrading. Older callers without context cannot mutate page content. The separate shared-broker increment is documented in mcp-multi-session.md.
 
@@ -124,7 +124,7 @@ Documents store at most 200 named color, number, or font tokens. Applying a toke
 - Browser commands and document mutations validate through shared Zod schemas. Unsupported kinds and properties fail.
 - No shell execution, arbitrary file reads/writes, remote asset fetching, HTML execution, or third-party credentials are exposed.
 - Requests/responses are limited to 12 MB and 30 seconds. The editor limits each page to 1,000 layers, each file to 100 pages/10,000 layers and 80 session-history snapshots, and the workspace to 50 projects/50 files per project/200 files total.
-- The connected browser owns data. Closing it stops document access. There is no headless editor, server document database, or cross-browser file/page synchronization.
+- The local service owns explicitly selected workspace data. Closing the browser does not stop MCP data operations. Screenshots, HTML import and visual exports still require browser rendering. Cross-writer conflicts reject stale saves rather than merging.
 - After editing connector or tool source in development, reload the browser. An existing WebSocket callback can retain the previous hot-reloaded implementation. Restart the MCP client after server/schema changes.
 
 ## Page-specific request activity
@@ -136,3 +136,7 @@ Content mutations use their validated project/file/page context. Explicit page o
 Pending calls are tracked independently. Navigating away hides another page's activity; returning shows it only if the call is still pending. Completion and failure remove the label. Pause, socket disconnection, cancellation, and the 30-second deadline clear presence without retrying or claiming that a dispatched write was rolled back. Reconnect and read actual state after an uncertain outcome. The broker sends a request-specific presence-end message on cancellation or timeout; it grants no new browser or internal API access.
 
 Nine square points form a fixed 37 by 25 px lattice, with wider horizontal spacing. A diagonal light sequence travels across them, then leaves a static blue pending mark. The sequence finishes within 2.04 seconds and never loops; only highlight opacity animates. Reduced-motion preferences render static pending points without the light sequence. Their screen-space size stays fixed, they follow the leading artwork bounds, and they clamp inside the viewport while panning. They do not intercept pointer input. Reload development browser tabs after connector changes, and restart development MCP clients after broker changes.
+
+## Durable workspace targets
+
+The server now exposes 50 tools, including `list_workspaces` and `create_workspace`. Pass exactly one durable `workspaceId` or live browser `canvasId`. Workspace-target mutations use durable revisions and acknowledge storage completion; canvas-target mutations retain in-memory/session semantics. Never mix revisions across targets. Explicit context selects backend pages without redirecting the user. Read [local workspaces](local-workspaces.md) before migration, recovery, or lifecycle changes.
