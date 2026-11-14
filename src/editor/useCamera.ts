@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getBounds, isHidden, type Camera } from './model';
 import { useEditor } from './store';
+import { textNodeBounds } from './typography';
 
 export function useCamera() {
   const viewport = useRef<HTMLDivElement>(null);
@@ -9,7 +10,8 @@ export function useCamera() {
     const element = viewport.current;
     if (!element) return;
     const { document } = useEditor.getState();
-    const bounds = getBounds(document.nodes.filter((node) => node.parentId === null && !isHidden(node, document.nodes)));
+    const bounds = getBounds(document.nodes.filter((node) => node.parentId === null && !isHidden(node, document.nodes))
+      .map((node) => node.kind === 'text' ? { ...node, ...textNodeBounds(node) } : node));
     if (!bounds) { setCamera({ x: element.clientWidth / 2 - 320, y: element.clientHeight / 2 - 240, zoom: 1 }); return; }
     const zoom = Math.min(1, Math.max(0.05, Math.min((element.clientWidth - 100) / bounds.width, (element.clientHeight - 140) / bounds.height)));
     setCamera({ zoom, x: (element.clientWidth - bounds.width * zoom) / 2 - bounds.x * zoom, y: (element.clientHeight - bounds.height * zoom) / 2 - bounds.y * zoom });

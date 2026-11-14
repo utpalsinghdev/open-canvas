@@ -11,8 +11,10 @@ export function resized(node: DesignNode, dx: number, dy: number, corner: string
   const localY = -dx * Math.sin(angle) + dy * Math.cos(angle);
   const west = corner.includes('w');
   const north = corner.includes('n');
-  const width = Math.min(20_000, Math.max(1, node.width + (west ? -localX : localX)));
-  const height = Math.min(20_000, Math.max(1, node.height + (north ? -localY : localY)));
+  const width = corner.includes('w') || corner.includes('e')
+    ? Math.min(20_000, Math.max(1, node.width + (west ? -localX : localX))) : node.width;
+  const height = corner.includes('n') || corner.includes('s')
+    ? Math.min(20_000, Math.max(1, node.height + (north ? -localY : localY))) : node.height;
   const shiftX = (width - node.width) * (west ? -0.5 : 0.5);
   const shiftY = (height - node.height) * (north ? -0.5 : 0.5);
   return { ...node, width, height,

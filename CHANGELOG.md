@@ -1,0 +1,18 @@
+# open-cavas
+
+## 0.2.0
+
+### Minor Changes
+
+- 34069e1: Add bundled variable fonts and measured, editable text layout across the editor, MCP, persistence, and SVG exports.
+- dcf9d0a: Add stable project, file, and page URLs with refresh restoration, browser history navigation, and explicit recovery for unavailable local destinations.
+
+### Patch Changes
+
+- 7cbbd46: Publish private MCP broker credentials atomically so interrupted startup cannot leave an empty final metadata file.
+- 5399708: Keep Ctrl/Cmd+scroll zoom and scroll panning working after switching files or pages.
+- 5cccefa: Restore canvas keyboard undo and redo after editing property inputs by moving focus to the canvas when starting a pointer gesture.
+- 90eda8f: Show a single editable text layer during inline editing, without overlapping canvas text or resize decorations. Preserve text bounds at different zoom levels and disable automatic wrapping to match canvas text.
+- 525aa85: Add Changesets version planning and changelog generation for private app releases.
+- 552b7bb: Keep the main frontend running independently of agent sessions with a restart-on-failure systemd user service.
+- cfdad43: Automatically load new main frontend releases when the workspace is saved and idle, without interrupting active edits or agent requests.
