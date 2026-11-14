@@ -43,3 +43,16 @@ The header uses the existing compact agent disclosure to show Agent connected, W
 A compact project-name action sits before the file name in the header. Its Projects dialog uses a project list and dense file rows, not decorative cards. File rows expose explicit open/rename/duplicate/backup/delete actions. A separate warning and confirmation precedes permanent library deletion. Project/workspace backup and JSON import remain visible above the list.
 
 Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.
+
+## Canvas cursors
+
+Canvas-only tool and resize cursors use static 32×32 SVGs with 1.5 px dark ink,
+rounded joins, and a 1 px white contrast rim. Placement crosshairs stay at (8, 8)
+with smaller tool badges offset below/right. Select points at (5, 3); both hand
+states share a palm hotspot at (16, 18). Text and resize cursors center at (16, 16).
+Hand silhouettes use white fills. Text placement uses the same outlined I-beam
+language, while the inline textarea retains its native text cursor.
+
+Every custom cursor retains its matching native fallback. Cursor styling belongs
+only to the canvas SVG and Select-mode resize handles, never panels or controls.
+Active pan overrides tool and resize cursors without changing pointer geometry.

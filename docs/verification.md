@@ -367,3 +367,37 @@ The first browser verification attempt was blocked by a stopped development list
 ## Issue #7: typography integration after main merge
 
 The conflict resolution uses the current typography layout for content bounds and preserves sizing-mode resize handles. Local Chromium verification checked fixed-frame and content outlines, inline editing and Escape, centered Inter text with wrapping, and a long unbroken word overflowing horizontally rather than wrapping at character boundaries. An auto-width vertical resize followed by switching to fixed retained the stored width (570) while changing height. Production build and Changeset status passed. Firefox, Safari, macOS, and the full typography combination matrix were not checked in this pass.
+
+## Issue #29: cursor refinement
+
+Unified tool and directional resize cursors as static 32×32 SVGs with dark ink,
+white contrast rims, explicit hotspots, and matching native fallbacks. Placement
+badges are smaller and inset from asset edges. Canvas gesture logic, pointer
+geometry, inline textarea cursors, and panel/control styling are unchanged.
+
+- `npm ci`, `npm run build` including TypeScript checking,
+  `npm run changeset:status`, and `git diff --check` passed. Existing Zod
+  dependency annotation warnings remain non-blocking. No CI workflows or
+  automated test script are configured; no new test files were added.
+- UI detector returned no findings. Independent source review found no
+  blockers or actionable security findings in CSS or all 11 static SVG assets.
+- Dedicated headed local Brave on an isolated development origin verified
+  toolbar and V/H/A/R/O/T switching; artboard/rectangle/ellipse/text creation;
+  expected drawing positions and drag dimensions; Hand and middle-button pan;
+  and Space release during an active pan. Space used DOM keyboard events,
+  not physical key delivery.
+- All rectangle corners and text east/north resize handles updated geometry
+  with the correct computed directional cursor. Hand on a handle panned without
+  resizing, and Rectangle retained its creation cursor on a handle.
+- Inline textarea retained native text cursor and Escape cancellation. Toolbar
+  and panel buttons retained pointer cursors. All 11 SVG requests returned 200;
+  light/dark artwork regions resolved the expected styles. No page errors.
+- Browser reported DPR 1. Browser screenshots omit pointer pixels. Window-scoped
+  X11 capture also omitted the cursor, and a desktop capture attempt was black.
+  These captures do not prove OS-rendered cursor appearance, hotspot alignment,
+  light/dark legibility, or 2× scaling. Actual cursor-pixel acceptance remains
+  pending. No macOS, Safari, or Firefox rendering result is claimed.
+
+Network configuration, Tailscale, broker authentication, Origin/Host checks,
+main release, and main services were unchanged. CDP stayed loopback-only;
+verification used only task-owned temporary browser profiles.
