@@ -19,16 +19,20 @@ const base = {
   locked: z.boolean(),
   radius: z.number().min(0).max(10_000),
 };
-export const fonts = ['Arial', 'Georgia', 'Courier New'] as const;
+export const fonts = ['Arial', 'Georgia', 'Courier New', 'Inter', 'Bricolage Grotesque'] as const;
 export const nodeSchema = z.discriminatedUnion('kind', [
   z.object({ ...base, kind: z.literal('artboard'), parentId: z.null(), rotation: z.literal(0) }),
   z.object({ ...base, kind: z.literal('rectangle') }),
   z.object({ ...base, kind: z.literal('ellipse') }),
   z.object({
     ...base, kind: z.literal('text'), text: z.string().max(10_000),
-    fontSize: z.number().min(6).max(500), fontFamily: z.enum(fonts),
-    fontWeight: z.enum(['400', '500', '600', '700']),
-    align: z.enum(['left', 'center', 'right']),
+    fontSize: z.number().min(6).max(500), fontFamily: z.enum(fonts).default('Arial'),
+    fontWeight: z.union([z.number(), z.string().regex(/^\d{3}$/).transform(Number)]).pipe(z.number().int().min(100).max(900)).default(500),
+    lineHeight: z.number().min(0.5).max(4).default(1.2),
+    letterSpacing: z.number().min(-100).max(100).default(0),
+    align: z.enum(['left', 'center', 'right']).default('left'),
+    wrap: z.boolean().default(false),
+    sizing: z.enum(['fixed', 'auto-height', 'auto-width']).default('fixed'),
   }),
   z.object({
     ...base, kind: z.literal('image'),
@@ -49,11 +53,14 @@ export const documentSchema = z.object({
 }).superRefine((doc, ctx) => {
   const ids = new Set<string>();
   const artboards = new Set(doc.nodes.filter((node) => node.kind === 'artboard').map((node) => node.id));
-  for (const node of doc.nodes) {
+  for (const [nodeIndex, node] of doc.nodes.entries()) {
     if (ids.has(node.id)) ctx.addIssue({ code: 'custom', message: 'Layer IDs must be unique.' });
     ids.add(node.id);
     if (node.parentId !== null && !artboards.has(node.parentId)) {
       ctx.addIssue({ code: 'custom', message: 'Layers must belong to an existing artboard.' });
+    }
+    if (node.kind === 'text' && node.fontFamily === 'Bricolage Grotesque' && (node.fontWeight < 300 || node.fontWeight > 800)) {
+      ctx.addIssue({ code: 'custom', path: ['nodes', nodeIndex, 'fontWeight'], message: 'Bricolage Grotesque supports weights 300 through 800.' });
     }
   }
 });
@@ -82,7 +89,7 @@ export function createNode(kind: Exclude<NodeKind, 'image'>, x: number, y: numbe
   };
   switch (kind) {
     case 'artboard': return { ...common, kind, rotation: 0, width: 640, height: 480, fill: '#ffffff' };
-    case 'text': return { ...common, kind, width: 280, height: 70, fill: '#ffffff', text: 'Your text', fontSize: 40, fontFamily: 'Arial', fontWeight: '500', align: 'left' };
+    case 'text': return { ...common, kind, width: 280, height: 70, fill: '#ffffff', text: 'Your text', fontSize: 40, fontFamily: 'Arial', fontWeight: 500, lineHeight: 1.2, letterSpacing: 0, align: 'left', wrap: false, sizing: 'fixed' };
     case 'rectangle': return { ...common, kind };
     case 'ellipse': return { ...common, kind, width: 140, height: 140 };
   }
