@@ -48,6 +48,18 @@ A compact project-name action sits before the file name in the header. Its Proje
 
 Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.
 
+## Canvas cursors
+
+Select, Hand, Text, and resize cursors use static 32×32 SVGs with 1.5 px dark ink,
+rounded joins, and a 1 px white contrast rim. Artboard, Rectangle, and Ellipse
+use the native crosshair, with no custom assets or tool badges. Select points at (5, 3); both hand
+states share a palm hotspot at (16, 18). Text and resize cursors center at (16, 16).
+Hand silhouettes use white fills. Text placement uses the same outlined I-beam
+language, while the inline textarea retains its native text cursor.
+
+Every custom cursor retains its matching native fallback. Cursor styling belongs
+only to the canvas SVG and Select-mode resize handles, never panels or controls.
+Active pan overrides tool and resize cursors without changing pointer geometry.
 ## Page request activity
 
 Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static blue pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.
