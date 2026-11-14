@@ -185,3 +185,14 @@ Implemented on feat/automatic-release-updates in a separate feature worktree. Ma
 - No JavaScript page errors were reported. No test files were added. This fixture deliberately had no MCP broker, so the in-flight MCP guard was reviewed/typechecked but not forced with a delayed live tool call in this pass.
 
 The current pre-updater main bundle cannot retroactively gain polling without loading this new frontend once. Future saved/idle main pages carrying the updater refresh automatically after rollouts. Background browser throttling, storage quota recovery on every browser engine, and full cross-version undo transfer are not claimed. Reload clears session-only history and requires agents to rediscover canvas/context.
+
+## Issue #6: inline text overlap
+
+- Reproduced simultaneous SVG text and textarea rendering in Chromium. Before the fix, entering an edit left one SVG text copy, one selection outline, and four resize handles beneath the textarea.
+- The canvas now omits the edited node from its local artwork/selection rendering only. The document node remains unchanged until commit. Both artboard children and root text share this filter.
+- The textarea uses the node's zoom-scaled bounds without minimum dimensions, preserving its rotation center and center/right alignment width. `wrap="off"` matches the document's explicit-line-break text model.
+- Real browser interactions through the isolated development origin verified editing at fit zoom (60%), 100%, and 83%. During editing there was one textarea, no underlying SVG copy for that node, no selection outline, and no resize handles.
+- Typing multiline text and Ctrl+Enter committed one SVG copy. Escape discarded a changed draft and restored the committed text. Clicking a property field committed on blur. The rendered node count returned to the original ten after commit/cancel, with no stale draft text.
+- `npm run build` passed, including `tsc --noEmit`. Existing Zod dependency annotation warnings were nonfatal. `git diff --check` and `npm run changeset:status` passed. No CI workflow files exist in the checked base. No test files were added.
+- Screenshots captured before editing fix, during editing at fit/100% zoom, and after commit. Screenshot attachments require a separate upload; local artifact paths are reported with the change rather than inventing public image URLs.
+- Limitations: Chromium only. No Safari/Firefox, rotated-text interaction, or pixel-exact cross-font baseline comparison was performed. Native textarea font metrics may differ slightly from SVG. Main runtime and MCP metadata were not used or restarted.
