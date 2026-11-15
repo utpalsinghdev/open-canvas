@@ -3,7 +3,7 @@ import { locationSchema, type Location } from '../workspace/model';
 
 const activePageReads = new Set([
   'get_document', 'get_tree', 'get_node', 'get_styles', 'get_selection',
-  'export_document', 'get_screenshot',
+  'export_document', 'export_combined_pdf', 'get_screenshot',
 ]);
 const fileWideCalls = new Set([
   'rename_document', 'create_document', 'open_document',

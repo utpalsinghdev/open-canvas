@@ -67,3 +67,7 @@ Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed pa
 ## Local workspace selection
 
 First load shows a dense local workspace chooser before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
+
+## PDF export action
+
+The header keeps the existing compact export-button style. Export artboards PDF exports selected artboards as separate pages in one file. With no selected artboards, the explicit label is Export page PDF. Pending export disables that button and shows static progress text; completion and actionable errors use the existing notification area. Accessible names and the title retain the scope and rasterization details when narrow-screen styling hides button text.
