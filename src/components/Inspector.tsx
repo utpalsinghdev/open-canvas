@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AlignCenter, AlignLeft, AlignRight, ArrowDownToLine, ArrowUpToLine, Copy, Lock, Trash2, Unlock } from 'lucide-react';
-import { fonts, isLocked, type DesignNode } from '../editor/model';
+import { isLocked, type DesignNode } from '../editor/model';
 import { useEditor } from '../editor/store';
-import { fontRegistry, fontStatus, textLayout, textNodeBounds, useFontState } from '../editor/typography';
+import { fontDefinition, fontStatus, textLayout, textNodeBounds, useFontState } from '../editor/typography';
+import { FontFamilyField } from './FontFamilyField';
 import { IconButton } from './Button';
 
 type NumericProps = { label: string; value: number; onCommit: (value: number) => void; min?: number; max?: number; disabled?: boolean };
@@ -39,12 +40,13 @@ function TextProperties({ node }: { node: Extract<DesignNode, { kind: 'text' }> 
   const layout = textLayout(node);
   useEffect(() => setText(node.text), [node.text]);
   return <section className="inspector-section"><h3>Typography</h3>
-    <select aria-label="Font family" value={node.fontFamily} onChange={(event) => {
-      const font = fonts.find((value) => value === event.target.value); if (font) patch(node.id, { fontFamily: font });
-    }}>{fonts.map((font) => <option key={font}>{font}</option>)}</select>
-    <p className="font-status" role="status">{status.availability === 'loading' ? `Loading ${status.requested}` : status.availability === 'unavailable' ? `${status.requested} unavailable; showing ${status.resolved}` : status.availability === 'system' ? `${status.requested} system font; availability follows browser` : `${status.requested} available`}</p>
+    <FontFamilyField value={node.fontFamily} onCommit={(fontFamily) => {
+      const [min, max] = fontDefinition(fontFamily).weight;
+      patch(node.id, { fontFamily, fontWeight: Math.max(min, Math.min(max, node.fontWeight)) });
+    }} />
+    <p className="font-status" role="status">{status.availability === 'loading' ? `Loading ${status.requested}` : status.availability === 'unavailable' ? `${status.requested} not detected; showing ${status.resolved}` : status.availability === 'unverified' ? `${status.requested} availability unverified; browser may substitute` : status.method === 'browser-metrics' ? `${status.requested} detected in this browser` : `${status.requested} available`}</p>
     <div className="field-grid"><NumericField label="Font size" value={node.fontSize} min={6} max={500} onCommit={(fontSize) => patch(node.id, { fontSize })} />
-      <NumericField label="Font weight" value={node.fontWeight} min={fontRegistry[node.fontFamily].weight[0]} max={fontRegistry[node.fontFamily].weight[1]} onCommit={(fontWeight) => patch(node.id, { fontWeight })} />
+      <NumericField label="Font weight" value={node.fontWeight} min={fontDefinition(node.fontFamily).weight[0]} max={fontDefinition(node.fontFamily).weight[1]} onCommit={(fontWeight) => patch(node.id, { fontWeight })} />
       <NumericField label="Line height" value={node.lineHeight} min={0.5} max={4} onCommit={(lineHeight) => patch(node.id, { lineHeight })} />
       <NumericField label="Tracking" value={node.letterSpacing} min={-100} max={100} onCommit={(letterSpacing) => patch(node.id, { letterSpacing })} />
     </div>

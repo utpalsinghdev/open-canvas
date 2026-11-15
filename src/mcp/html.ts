@@ -1,4 +1,5 @@
-import { createNode, fonts, nodeSchema, type DesignNode } from '../editor/model';
+import { createNode, nodeSchema, type DesignNode } from '../editor/model';
+import { parseCssFontFamily } from '../editor/font-family';
 import { textLayout } from '../editor/typography';
 
 const tags = new Set([
@@ -177,11 +178,9 @@ export function importHtml(
     const foreground: DesignNode[] = [];
     const beforeChildren = nodes.length;
     if (ownText) {
-      // CSSOM quotes family names containing spaces. Accept one registry family,
+      // CSSOM quotes family names containing spaces. Accept one literal family,
       // not a font stack whose fallback would be silently discarded.
-      const requestedFont = (style.fontFamily || 'Arial').replace(/^(["'])(.*)\1$/, '$2');
-      const fontFamily = fonts.find((family) => family === requestedFont);
-      if (!fontFamily) throw new Error(`Unsupported font family: ${requestedFont}`);
+      const fontFamily = parseCssFontFamily(style.fontFamily || 'Arial');
       const lineHeight = !style.lineHeight || style.lineHeight === 'normal' ? 1.2
         : style.lineHeight.endsWith('px') ? pixels(style.lineHeight, fontSize * 1.2) / fontSize
         : pixels(style.lineHeight, 1.2);

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { bundledFontFamily, fontFamilySchema } from './font-family';
 
 const coordinate = z.number().finite().min(-100_000).max(100_000);
 const size = z.number().finite().min(1).max(20_000);
@@ -26,7 +27,7 @@ export const nodeSchema = z.discriminatedUnion('kind', [
   z.object({ ...base, kind: z.literal('ellipse') }),
   z.object({
     ...base, kind: z.literal('text'), text: z.string().max(10_000),
-    fontSize: z.number().min(6).max(500), fontFamily: z.enum(fonts).default('Arial'),
+    fontSize: z.number().min(6).max(500), fontFamily: fontFamilySchema.default('Arial'),
     fontWeight: z.union([z.number(), z.string().regex(/^\d{3}$/).transform(Number)]).pipe(z.number().int().min(100).max(900)).default(500),
     lineHeight: z.number().min(0.5).max(4).default(1.2),
     letterSpacing: z.number().min(-100).max(100).default(0),
@@ -42,7 +43,7 @@ export const nodeSchema = z.discriminatedUnion('kind', [
 export const tokenSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('color'), value: color }),
   z.object({ type: z.literal('number'), value: z.number().finite().min(-100_000).max(100_000) }),
-  z.object({ type: z.literal('font'), value: z.enum(fonts) }),
+  z.object({ type: z.literal('font'), value: fontFamilySchema }),
 ]);
 export const tokensSchema = z.record(z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,79}$/), tokenSchema).refine((tokens) => Object.keys(tokens).length <= 200, 'At most 200 design tokens.');
 export const documentSchema = z.object({
@@ -59,7 +60,7 @@ export const documentSchema = z.object({
     if (node.parentId !== null && !artboards.has(node.parentId)) {
       ctx.addIssue({ code: 'custom', message: 'Layers must belong to an existing artboard.' });
     }
-    if (node.kind === 'text' && node.fontFamily === 'Bricolage Grotesque' && (node.fontWeight < 300 || node.fontWeight > 800)) {
+    if (node.kind === 'text' && bundledFontFamily(node.fontFamily) === 'Bricolage Grotesque' && (node.fontWeight < 300 || node.fontWeight > 800)) {
       ctx.addIssue({ code: 'custom', path: ['nodes', nodeIndex, 'fontWeight'], message: 'Bricolage Grotesque supports weights 300 through 800.' });
     }
   }

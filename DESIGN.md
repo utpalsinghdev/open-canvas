@@ -67,3 +67,7 @@ Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed pa
 ## Local workspace selection
 
 First load shows a dense local workspace chooser before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
+
+## Installed font families
+
+Typography uses a labeled text field with a native datalist for the five existing suggestions. Enter any literal installed family name and commit on blur or Enter; Escape restores the saved name. Invalid input keeps a visible error without changing artwork. A status line identifies browser detection, unavailable-font fallback, or unverified availability. This replaces the closed family select without adding font enumeration, permission dialogs, or new editor chrome.

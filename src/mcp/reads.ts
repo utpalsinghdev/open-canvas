@@ -4,7 +4,7 @@ import type { EditorStore } from '../editor/state';
 import { renderSvg } from '../editor/svg';
 import { tools } from './tools';
 import type { DesignDocument, DesignNode } from '../editor/model';
-import { fontAvailability, fontFamilies, fontRegistry, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
+import { fontAvailability, fontFamilies, fontDefinition, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
 
 export function withoutImageBytes(node: DesignNode) {
   if (node.kind !== 'image') return node;
@@ -52,7 +52,7 @@ async function screenshot(artboardId: string | undefined, scale: number) {
       height,
       scale,
       bounds: artwork.bounds,
-      fonts: fontAvailability(),
+      fonts: fontAvailability([...fontFamilies, ...documentSnapshot.nodes.flatMap((node) => node.kind === 'text' ? [node.fontFamily] : [])]),
     };
   } finally {
     URL.revokeObjectURL(url);
@@ -128,16 +128,23 @@ const reads: Record<
     };
   },
   get_fonts(value) {
-    tools.get_fonts.schema.parse(value);
-    const availability = fontAvailability();
+    const args = tools.get_fonts.schema.parse(value);
+    const doc = useEditor.getState().document;
+    const families = args.families ?? [
+      ...fontFamilies,
+      ...doc.nodes.flatMap((node) => node.kind === 'text' ? [node.fontFamily] : []),
+      ...Object.values(doc.tokens).flatMap((token) => token.type === 'font' ? [token.value] : []),
+    ];
     return {
-      fonts: fontFamilies.map((family) => ({
+      fonts: [...new Set(families)].map((family) => ({
         family,
-        source: fontRegistry[family].source === 'system' ? 'system' : 'bundled',
-        weight: fontRegistry[family].weight,
-        availability: availability[family],
+        source: fontDefinition(family).source === 'system' ? 'system' : 'bundled',
+        weight: fontDefinition(family).weight,
+        weightAvailability: fontDefinition(family).source === 'system' ? 'unverified' : 'bundled-range',
+        ...fontStatus(family),
       })),
       fallback: 'Arial',
+      note: 'System font detection compares browser text metrics, not installed files or individual weights/styles. System fonts are not embedded in exports.',
     };
   },
   get_styles(value) {
@@ -193,15 +200,15 @@ const reads: Record<
       };
     const jsx = artwork.svg
       .replace(/<style>([\s\S]*?)<\/style>/g, (_match: string, css: string) => `<style>{${JSON.stringify(css)}}</style>`)
-      .replace(/letter-spacing=/g, 'letterSpacing=')
-      .replace(/xml:space=/g, 'xmlSpace=')
-      .replace(/text-rendering=/g, 'textRendering=')
+      .replace(/ letter-spacing="/g, ' letterSpacing="')
+      .replace(/ xml:space="/g, ' xmlSpace="')
+      .replace(/ text-rendering="/g, ' textRendering="')
       .replace(/style="font-kerning:normal"/g, 'style={{fontKerning:"normal"}}')
-      .replace(/clip-path=/g, 'clipPath=')
-      .replace(/font-family=/g, 'fontFamily=')
-      .replace(/font-size=/g, 'fontSize=')
-      .replace(/font-weight=/g, 'fontWeight=')
-      .replace(/text-anchor=/g, 'textAnchor=');
+      .replace(/ clip-path="/g, ' clipPath="')
+      .replace(/ font-family="/g, ' fontFamily="')
+      .replace(/ font-size="/g, ' fontSize="')
+      .replace(/ font-weight="/g, ' fontWeight="')
+      .replace(/ text-anchor="/g, ' textAnchor="');
     return {
       format: 'jsx',
       content: `export default function Artwork() { return (${jsx}); }`,
