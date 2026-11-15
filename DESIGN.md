@@ -66,6 +66,10 @@ Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed pa
 
 ## Local workspace selection
 
+## Installed font families
+
+Typography uses a labeled text field with a native datalist for the five existing suggestions. Enter any literal installed family name and commit on blur or Enter; Escape restores the saved name. Invalid input keeps a visible error without changing artwork. A status line identifies browser detection, unavailable-font fallback, or unverified availability. This replaces the closed family select without adding font enumeration, permission dialogs, or new editor chrome.
+
 Introduction belongs inside the editor canvas, not in a separate welcome page or Help dialog. Start with introductory canvas creates a workspace containing two editable 600 × 760 artboards with 17 native layers. Lime and lavender artwork introduces drawing, navigation, saving, and agent access. Shapes and text are real editable examples, not HTML illustrations. Fresh browser fallback uses the same seed. Existing documents never receive seeded content; empty creation and browser copying remain explicit separate choices. The ordinary canvas fit/pan/zoom controls also apply on narrow screens.
 
 The local workspace chooser appears before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.

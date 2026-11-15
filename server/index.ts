@@ -7,7 +7,7 @@ import { runtimeSettings } from '../scripts/runtime-settings.mjs';
 import { newId } from '../src/editor/model';
 import { firstLocation, initialWorkspace, itemName } from '../src/workspace/model';
 import { locationSchema } from '../src/workspace/model';
-import { fonts } from '../src/editor/model';
+import { fontFamilySchema } from '../src/editor/font-family';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
 const broker = await createBroker();
@@ -119,7 +119,7 @@ for (const [name, definition] of Object.entries(tools)) {
                 height: z.number(),
                 scale: z.number().positive(),
                 bounds: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }),
-                fonts: z.record(z.enum(fonts), z.enum(['loading', 'available', 'unavailable', 'system'])),
+                fonts: z.array(z.object({ family: fontFamilySchema, availability: z.enum(['loading', 'available', 'unavailable', 'unverified']) })).max(1005),
               }),
             })
             .parse(result);

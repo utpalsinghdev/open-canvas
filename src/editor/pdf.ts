@@ -2,6 +2,7 @@ import { isHidden, type DesignDocument } from './model';
 import { renderSvg } from './svg';
 import { validatePdfImage } from './pdf-images';
 import { fontStatus, loadDocumentFonts } from './typography';
+import { bundledFontFamily } from './font-family';
 
 export type PdfTarget = { kind: 'artboards'; artboardIds: string[] } | { kind: 'page' };
 
@@ -40,7 +41,7 @@ async function validateResources(documents: DesignDocument[]) {
   for (const doc of documents) {
     for (const node of doc.nodes) {
       if (isHidden(node, doc.nodes)) continue;
-      if (node.kind === 'text' && fontStatus(node.fontFamily).availability === 'unavailable')
+      if (node.kind === 'text' && bundledFontFamily(node.fontFamily) && fontStatus(node.fontFamily).availability === 'unavailable')
         throw new Error(`PDF font unavailable: ${node.fontFamily}. Reload after restoring the bundled font.`);
       if (node.kind !== 'image') continue;
       imageReferenceBytes += node.src.length;
