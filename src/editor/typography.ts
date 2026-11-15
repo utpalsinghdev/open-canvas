@@ -17,15 +17,33 @@ export type FontAvailability = 'loading' | 'available' | 'unavailable' | 'unveri
 export type FontStatus = {
   requested: string;
   resolved: string;
-  fallback: 'Arial' | null;
+  fallback: string | null;
   availability: FontAvailability;
-  method: 'bundled' | 'browser-metrics' | 'unverified';
+  method: 'bundled' | 'browser-metrics' | 'native' | 'unverified';
 };
 type FontState = ReadonlyMap<string, FontAvailability>;
 const listeners = new Set<() => void>();
 let state: FontState = new Map([['Inter', 'loading'], ['Bricolage Grotesque', 'loading']]);
 let loading: Promise<void> | undefined;
-const bundledFonts = new Map<string, ArrayBuffer>();
+const bundledFonts = new Map<string, Uint8Array>();
+type TextContext = {
+  measureText(text: string): Pick<TextMetrics, 'width' | 'actualBoundingBoxLeft' |
+    'actualBoundingBoxRight' | 'actualBoundingBoxAscent' | 'actualBoundingBoxDescent'>;
+};
+type TextNode = Extract<DesignNode, { kind: 'text' }>;
+let nativeContext: ((node: TextNode) => TextContext) | undefined;
+let nativeStatus: ((family: string) => FontStatus) | undefined;
+
+/** Install the server's native font adapter once, never document-supplied code. */
+export function installTypography(adapter: {
+  context: (node: TextNode) => TextContext;
+  status: (family: string) => FontStatus;
+  fonts: Map<string, Uint8Array>;
+}) {
+  nativeContext = adapter.context;
+  nativeStatus = adapter.status;
+  for (const [family, bytes] of adapter.fonts) bundledFonts.set(family, bytes);
+}
 
 function publish(family: string, availability: FontAvailability) {
   state = new Map(state).set(family, availability);
@@ -53,7 +71,7 @@ async function loadFont(family: string, font: FontDefinition) {
     const bytes = await response.arrayBuffer();
     const face = new FontFace(family, bytes, { weight: `${font.weight[0]} ${font.weight[1]}` });
     await face.load();
-    bundledFonts.set(family, bytes);
+    bundledFonts.set(family, new Uint8Array(bytes));
     document.fonts.add(face);
     publish(family, 'available');
   } catch {
@@ -98,6 +116,7 @@ function detectSystemFont(family: string): FontAvailability {
 }
 
 export function fontStatus(family: string, fonts: FontState = state): FontStatus {
+  if (nativeStatus) return nativeStatus(family);
   const bundled = bundledFontFamily(family);
   const availability = typeof document === 'undefined' ? 'unverified'
     : bundled ? (fonts.get(bundled) ?? 'loading') : detectSystemFont(family);
@@ -119,7 +138,8 @@ export type TextLayout = {
   measured: boolean;
 };
 
-function textContext(node: Extract<DesignNode, { kind: 'text' }>) {
+function textContext(node: TextNode): TextContext | null {
+  if (nativeContext) return nativeContext(node);
   if (typeof document === 'undefined') return null;
   const context = document.createElement('canvas').getContext('2d');
   if (!context) return null;
@@ -130,13 +150,13 @@ function textContext(node: Extract<DesignNode, { kind: 'text' }>) {
   return context;
 }
 function measuredWidth(
-  context: CanvasRenderingContext2D,
+  context: TextContext,
   text: string,
 ) {
   return context.measureText(text).width;
 }
 function wrapLine(
-  context: CanvasRenderingContext2D,
+  context: TextContext,
   text: string,
   maxWidth: number,
 ) {
@@ -170,7 +190,7 @@ export function textLayout(node: Extract<DesignNode, { kind: 'text' }>): TextLay
     ...metrics.map((metric, index) => baselines[index] + metric.actualBoundingBoxDescent));
   const resolvedWidth = node.sizing === 'auto-width' ? Math.min(20_000, width) : node.width;
   const resolvedHeight = node.sizing === 'auto-height' ? Math.min(20_000, height) : node.height;
-  const availability = fontStatus(node.fontFamily).availability;
+  const availability = fontStatus(fontStatus(node.fontFamily).resolved).availability;
   const horizontalOverflow = metrics.some((metric) => {
     const start = node.align === 'center' ? (resolvedWidth - metric.width) / 2
       : node.align === 'right' ? resolvedWidth - metric.width : 0;

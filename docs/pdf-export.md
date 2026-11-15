@@ -27,7 +27,7 @@ Bundled fonts must load successfully before export. System fonts use the same br
 
 `export_combined_pdf` is a read-only browser-rendered operation. Supply an explicit connected `canvasId`, `scope: "artboards"`, and unique nonempty `artboardIds` from the active page. IDs must all identify existing visible artboards. Caller order does not change page order.
 
-For a whole active-page export, explicitly use `scope: "page"` and omit `artboardIds`. There is no implicit use of the user's current selection. A durable `workspaceId` target fails because headless rendering is not implemented.
+For a whole active-page export, explicitly use `scope: "page"` and omit `artboardIds`. There is no implicit use of the user's current selection. A durable `workspaceId` target fails because PDF rendering requires a connected browser.
 
 The ordinary read envelope includes revision, context, and persistence status. Its `result` includes base64 `data`, `encoding: "base64"`, `mimeType: "application/pdf"`, `name`, `pageCount`, ordered `pages` with names, world-space bounds and dimensions in PDF points, `pointsPerPixel: 0.75`, and `rasterScale: 2`. Decode the base64 bytes in the agent's normal artifact workflow. The tool does not write server-side filesystem paths, fetch remote assets, or change artwork/selection. Each export captures an immutable active-page snapshot before asynchronous rendering. Read-back and persistence remain separate evidence.
 

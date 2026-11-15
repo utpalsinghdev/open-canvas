@@ -12,7 +12,8 @@ export function withoutImageBytes(node: DesignNode) {
   const { src, ...rest } = node;
   return { ...rest, imageBytesOmitted: true, encodedLength: src.length };
 }
-export function createReads(useEditor: Pick<EditorStore, 'getState'>) {
+export function createReads(useEditor: Pick<EditorStore, 'getState'>,
+  rasterize?: (svg: string, width: number, height: number) => Promise<string>) {
 function exportArtwork(document: DesignDocument, artboardId?: string) {
   if (
     artboardId &&
@@ -33,6 +34,12 @@ async function screenshot(artboardId: string | undefined, scale: number) {
     throw new Error(
       'Screenshot exceeds size limit. Choose a smaller scale or one artboard.'
     );
+  const families = [...new Set([...fontFamilies, ...documentSnapshot.nodes.flatMap((node) => node.kind === 'text' ? [node.fontFamily] : [])])];
+  const fontResolution = families.map((family) => fontStatus(family));
+  if (rasterize) return {
+    data: await rasterize(artwork.svg, width, height), mimeType: 'image/png',
+    width, height, scale, bounds: artwork.bounds, fonts: fontAvailability(families), fontResolution,
+  };
   const url = URL.createObjectURL(
     new Blob([artwork.svg], { type: 'image/svg+xml' })
   );
@@ -53,7 +60,7 @@ async function screenshot(artboardId: string | undefined, scale: number) {
       height,
       scale,
       bounds: artwork.bounds,
-      fonts: fontAvailability([...fontFamilies, ...documentSnapshot.nodes.flatMap((node) => node.kind === 'text' ? [node.fontFamily] : [])]),
+      fonts: fontAvailability(families), fontResolution,
     };
   } finally {
     URL.revokeObjectURL(url);
@@ -144,8 +151,8 @@ const reads: Record<
         weightAvailability: fontDefinition(family).source === 'system' ? 'unverified' : 'bundled-range',
         ...fontStatus(family),
       })),
-      fallback: 'Arial',
-      note: 'System font detection compares browser text metrics, not installed files or individual weights/styles. System fonts are not embedded in exports.',
+      fallback: fontStatus('Arial').resolved,
+      note: 'System font detection depends on the renderer and does not verify individual weights or glyphs. System fonts are not embedded in exports.',
     };
   },
   get_styles(value) {

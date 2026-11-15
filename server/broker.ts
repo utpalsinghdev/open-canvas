@@ -54,14 +54,13 @@ export async function createBroker() {
       '.cavas must be a private directory, mode 0700, not a symlink.'
     );
   const metadataPath = `${stateDirectory}/broker.json`;
-  await removeStaleMetadata(metadataPath);
   const canvases = new Map<string, Canvas>();
   const pending = new Map<string, Pending>();
   const browserAuth = browserAuthentication(origin);
   let workspaces: Awaited<ReturnType<typeof createWorkspaceService>> | undefined;
-  const workspace = (value: unknown, source: 'agent' | 'browser' = 'agent') => {
+  const workspace = (value: unknown, source: 'agent' | 'browser' = 'agent', signal?: AbortSignal) => {
     if (!workspaces) return Promise.reject(new Error('Workspace service starting or unavailable.'));
-    return workspaces.request(value, source);
+    return workspaces.request(value, source, signal);
   };
   const http = createServer((request, response) => {
     if (request.url === '/__cavas/session') {
@@ -141,7 +140,7 @@ export async function createBroker() {
           });
           const result =
             route === '/__cavas_internal/workspace'
-              ? await workspace(input)
+              ? await workspace(input, 'agent', controller.signal)
               : route === '/__cavas_internal/list'
               ? [...canvases].map(([canvasId, canvas]) => ({
                   canvasId,
@@ -377,6 +376,9 @@ export async function createBroker() {
         resolve();
       });
     });
+    // Reclaim stale credentials only while holding the exclusive listener.
+    // Attaching clients must never race another owner's metadata publication.
+    await removeStaleMetadata(metadataPath);
     workspaces = await createWorkspaceService(`${stateDirectory}/workspaces`, (id, enabled) => {
       if (enabled) return;
       for (const canvas of canvases.values()) {
@@ -398,11 +400,16 @@ export async function createBroker() {
     }
     throw error;
   }
+  let closed = false;
   return {
+    verify: async () => {
+      if (closed) throw new Error('Broker is closed.');
+    },
     list: listLocal,
     call: callLocal,
-    workspace,
+    workspace: (value: unknown, signal?: AbortSignal) => workspace(value, 'agent', signal),
     close: async () => {
+      closed = true;
       await workspaces?.close();
       for (const socket of sockets.clients) socket.terminate();
       sockets.close();

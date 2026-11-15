@@ -16,7 +16,7 @@ Copy its `open-cavas` entry into the agent configuration and start/reconnect tha
 
 **Development:** from a feature worktree run `npm run dev` and configure the agent with `npm run --silent mcp:config:dev`. Frontend is http://localmachine:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage.
 
-The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause persists for the selected service workspace and revokes its browser connections; resume explicitly from that workspace. Reload does not re-enable paused access. Registration retries use capped backoff, not design-command retries. Use `list_workspaces` and an explicit `workspaceId` for data access without an open tab. Browser rendering still needs an explicit `canvasId`. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
+The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause persists for the selected service workspace and revokes its browser connections; resume explicitly from that workspace. Reload does not re-enable paused access. Registration retries use capped backoff, not design-command retries. Use `list_workspaces` and an explicit `workspaceId` for data access without an open tab. All document tools also support backend-native execution with `workspaceId`, including restricted HTML import, visual exports and PNG capture. No hidden browser runs. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
 
 ### Automatic registration and trust boundary
 
@@ -85,7 +85,7 @@ This is a tool-schema change for existing agents: reload the MCP client and relo
 
 SVG preserves supported artwork. HTML export is a standalone document containing that SVG, not semantic HTML/CSS layout. JSX export is a React component containing SVG JSX, not a semantic component reconstruction. JSON exports the complete editable document.
 
-PNG screenshots render supported artwork, not editor chrome. They use the browser's SVG/image/canvas pipeline. Maximum side is 4096 pixels and maximum area is eight megapixels. Use a smaller scale or select one artboard if a document is too large. Text uses the same measured wrapping and font resolution as the editor. Screenshot text metadata includes world-space `bounds`, requested `scale`, pixel dimensions, and font availability. Capture waits for bundled font loading to settle. Overflow remains visible outside a text box and clips only at its parent artboard.
+PNG screenshots render supported artwork, not editor chrome. Canvas targets use the browser's SVG/image/canvas pipeline; workspace targets rasterize generated SVG with native backend graphics. Maximum side is 4096 pixels and maximum area is eight megapixels. Use a smaller scale or select one artboard if a document is too large. Text uses the same measured wrapping and font resolution as the editor. Screenshot text metadata includes world-space `bounds`, requested `scale`, pixel dimensions, renderer identity, font availability and requested/resolved `fontResolution`. Native rendering loads bundled fonts directly and reports Inter substitutions for missing system families; native and browser pixels may differ. Capture waits for bundled font loading to settle. Overflow remains visible outside a text box and clips only at its parent artboard.
 
 ### Static HTML import
 
@@ -101,7 +101,7 @@ Scripts, stylesheets, embeds, SVG/MathML markup, network image URLs, CSS variabl
 
 ### Typography
 
-`get_fonts` returns suggested families plus text/token families in the target page, or queries an optional `families` array of 1 to 50 literal names. Use a connected `canvasId` to detect availability in that browser. A `workspaceId` target does not inspect the server's installed fonts: availability and method are `unverified`. Responses include source, requested/resolved names, fallback, availability, method, weight range, and `weightAvailability`. System weight ranges describe accepted values, not verified installed faces.
+`get_fonts` returns suggested families plus text/token families in the target page, or queries an optional `families` array of 1 to 50 literal names. Use a connected `canvasId` to detect availability in that browser. A `workspaceId` target reports availability from the backend native font registry and resolves missing families to bundled Inter. Responses include source, requested/resolved names, fallback, availability, method, weight range, and `weightAvailability`. System weight ranges describe accepted values, not verified installed faces.
 
 Inter and Bricolage Grotesque are bundled variable fonts, resolved case-insensitively. Other literal families are accepted by text layers, font tokens, JSON, and restricted HTML import. Browser system detection compares text metrics against generic fallbacks and works on HTTP tailnet origins without enumerating local fonts. It cannot prove a specific installed file, alias, glyph coverage, or available weights/styles. Undetected families retain their requested name and render through an explicit Arial fallback. Reload after changing installed fonts. See [document format](document-format.md) for name validation and detection limits.
 
@@ -130,7 +130,7 @@ Documents store at most 200 named color, number, or font tokens. Applying a toke
 - Browser commands and document mutations validate through shared Zod schemas. Unsupported kinds and properties fail.
 - No shell execution, arbitrary file reads/writes, remote asset fetching, HTML execution, or Paper credentials are exposed.
 - Requests/responses are limited to 12 MB and 30 seconds. The editor limits each page to 1,000 layers, each file to 100 pages/10,000 layers and 80 session-history snapshots, and the workspace to 50 projects/50 files per project/200 files total.
-- The local service owns explicitly selected workspace data. Closing the browser does not stop MCP data operations. Screenshots, HTML import and visual exports still require browser rendering. Cross-writer conflicts reject stale saves rather than merging.
+- The local service owns explicitly selected workspace data. Closing the browser does not stop MCP data operations. Screenshots, restricted HTML import and visual exports also work with workspace targets directly in the backend. Cross-writer conflicts reject stale saves rather than merging.
 - After editing connector or tool source in development, reload the browser. An existing WebSocket callback can retain the previous hot-reloaded implementation. Restart the MCP client after server/schema changes.
 
 ## Page-specific request activity

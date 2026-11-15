@@ -1,6 +1,7 @@
 import { createNode, nodeSchema, type DesignNode } from '../editor/model';
 import { parseCssFontFamily } from '../editor/font-family';
 import { textLayout } from '../editor/typography';
+import { parseBrowserHtml, type HtmlNode, type HtmlParser } from './html-parser';
 
 const tags = new Set([
   'div',
@@ -71,20 +72,13 @@ function color(value: string, fallback: string) {
 /** Inert parsing only. Imported elements are never mounted, executed, or fetched. */
 export function importHtml(
   html: string,
-  board: Extract<DesignNode, { kind: 'artboard' }>
+  board: Extract<DesignNode, { kind: 'artboard' }>,
+  parse: HtmlParser = parseBrowserHtml,
 ) {
-  const parsed = new DOMParser().parseFromString(html, 'text/html');
-  if (
-    parsed.querySelector(
-      'script,style,iframe,object,embed,link,meta,base,svg,math'
-    )
-  )
-    throw new Error(
-      'Scripts, stylesheets, embeds, and active HTML are not supported.'
-    );
+  const parsed = parse(html);
   const nodes: DesignNode[] = [];
   function visit(
-    element: Element,
+    element: Extract<HtmlNode, { kind: 'element' }>,
     originX: number,
     originY: number,
     availableWidth: number,
@@ -94,14 +88,14 @@ export function importHtml(
       throw new Error(
         'HTML exceeds 20 levels or 100 generated layers. Split the import.'
       );
-    if (!(element instanceof HTMLElement) || !tags.has(element.localName))
-      throw new Error(`Unsupported HTML element: ${element.localName}`);
-    for (const attribute of element.attributes) {
-      if (!['style', 'data-layer-name', 'src', 'alt'].includes(attribute.name))
-        throw new Error(`Unsupported HTML attribute: ${attribute.name}`);
+    if (!tags.has(element.tag))
+      throw new Error(`Unsupported HTML element: ${element.tag}`);
+    for (const [name] of element.attributes) {
+      if (!['style', 'data-layer-name', 'src', 'alt'].includes(name))
+        throw new Error(`Unsupported HTML attribute: ${name}`);
     }
     const style = element.style;
-    for (const declaration of (element.getAttribute('style') ?? '')
+    for (const declaration of (element.attributes.get('style') ?? '')
       .split(';')
       .filter((part) => part.trim())) {
       const separator = declaration.indexOf(':');
@@ -115,7 +109,7 @@ export function importHtml(
     }
     if (
       /(url\s*\(|var\s*\(|calc\s*\(|!important)/i.test(
-        element.getAttribute('style') ?? ''
+        element.attributes.get('style') ?? ''
       )
     )
       throw new Error(
@@ -139,19 +133,19 @@ export function importHtml(
     const width = pixels(style.width, availableWidth);
     const padding = pixels(style.padding, 0);
     const name =
-      element.dataset.layerName ??
-      element.getAttribute('alt') ??
-      element.localName;
+      element.attributes.get('data-layer-name') ??
+      element.attributes.get('alt') ??
+      element.tag;
     const opacity = style.opacity ? Number(style.opacity) : 1;
     const background = style.backgroundColor || style.background;
-    if (element.localName === 'img') {
+    if (element.tag === 'img') {
       nodes.push(
         nodeSchema.parse({
           ...createNode('rectangle', x, y),
           kind: 'image',
           name,
           parentId: board.id,
-          src: element.getAttribute('src'),
+          src: element.attributes.get('src'),
           width,
           height: pixels(style.height, 120),
           opacity,
@@ -161,18 +155,16 @@ export function importHtml(
     }
     if (style.whiteSpace && !['normal', 'nowrap', 'pre'].includes(style.whiteSpace))
       throw new Error('Supported white-space values are normal, nowrap, and pre.');
-    const rawText = [...element.childNodes]
-      .filter((node) => node.nodeType === Node.TEXT_NODE)
-      .map((node) => node.textContent ?? '')
-      .join('');
+    const children = element.children.filter((node) => node.kind === 'element');
+    const rawText = element.children.map((node) => node.kind === 'text' ? node.text : '').join('');
     const ownText = style.whiteSpace === 'pre' ? rawText : rawText.replace(/\s+/g, ' ').trim();
-    if (ownText && element.children.length)
+    if (ownText && children.length)
       throw new Error(
         'Mixed text and child elements are not supported. Wrap text in its own element.'
       );
     const fontSize = pixels(
       style.fontSize,
-      element.localName === 'h1' ? 48 : element.localName === 'h2' ? 32 : 16
+      element.tag === 'h1' ? 48 : element.tag === 'h2' ? 32 : 16
     );
     let cursor = padding;
     const foreground: DesignNode[] = [];
@@ -205,7 +197,7 @@ export function importHtml(
       foreground.push(text);
       cursor += textLayout(text).height;
     }
-    for (const child of element.children)
+    for (const child of children)
       cursor += visit(
         child,
         x + padding,
@@ -232,13 +224,10 @@ export function importHtml(
     return style.position === 'absolute' ? 0 : height;
   }
   let cursor = 0;
-  for (const child of parsed.body.children)
-    cursor += visit(child, board.x, board.y + cursor, board.width, 0);
-  if (
-    [...parsed.body.childNodes].some(
-      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
-    )
-  )
+  for (const child of parsed) {
+    if (child.kind === 'element') cursor += visit(child, board.x, board.y + cursor, board.width, 0);
+  }
+  if (parsed.some((node) => node.kind === 'text' && node.text.trim()))
     throw new Error('Wrap top-level text in a supported element.');
   if (nodes.length > 100)
     throw new Error('HTML exceeds 100 generated layers. Split the import.');
