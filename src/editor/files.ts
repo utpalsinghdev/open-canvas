@@ -2,8 +2,8 @@ import { type DesignDocument } from './model';
 import { renderSvg } from './svg';
 import { importSchema, type FileDocument } from '../workspace/model';
 
-export function download(content: string, name: string, type: string) {
-  const url = URL.createObjectURL(new Blob([content], { type }));
+export function download(content: string | Blob, name: string, type: string) {
+  const url = URL.createObjectURL(content instanceof Blob ? content : new Blob([content], { type }));
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = name.replace(/[/\\:*?"<>|]/g, '-');

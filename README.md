@@ -1,6 +1,6 @@
 # Open Cavas
 
-A local-first web design editor. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account required. Manual editing is browser-only; optional MCP control runs a local bridge.
+A local-first web design editor. Create artboards, arrange text, shapes, and images, then export SVG/PDF or download an editable JSON document. No account required. Manual editing is browser-only; optional MCP control runs a local bridge.
 
 ## First visit
 
@@ -44,7 +44,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 
 ## Agent control through MCP
 
-50 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent data operations. Screenshots, HTML import, and visual exports still need an explicit connected `canvasId`.
+51 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent data operations. Screenshots, HTML import, and visual exports still need an explicit connected `canvasId`.
 
 ## Editor
 
@@ -55,7 +55,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 - **Navigate:** hold Space and drag to pan, choose Hand, or drag with the middle mouse button. Scroll pans, Ctrl/Cmd+scroll zooms around the pointer. Zoom buttons and Fit canvas are at the bottom right.
 - **Cursors:** Select, Hand, Text, and directional resize handles use a matching 32 px SVG cursor set with dark ink and white contrast rims. Select uses an arrow, Text an I-beam, and Artboard, Rectangle, and Ellipse the native crosshair. Hand and Space show an open hand; an active pan shows a closed hand. Each cursor has a native fallback. Inline text editing keeps its native text cursor; panels and controls retain their normal cursors.
 - **History:** undo and redo belong to each file, including all its pages. Switching files preserves separate histories during this session. A completed drag is one history entry. Camera and page navigation are not undo steps.
-- **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. Export SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page.
+- **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. The header's Export dropdown contains SVG and PDF with explicit scope labels. SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page. PDF · Selected artboards puts selected artboards into one PDF in document order, one artboard per page. With no artboards selected, PDF · Current page explicitly exports the active page as one page. See [PDF export](docs/pdf-export.md) for dimensions and limits.
 
 Click the help button for the complete shortcut list. On desktop, use the sidebar icons at the left and right ends of the toolbar row to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
 
@@ -86,7 +86,8 @@ File/project/workspace JSON backups and append-only imports remain available thr
 - Only artboards are containers. Children use absolute world coordinates and clip to their artboard.
 - Text supports bundled Inter and Bricolage Grotesque variable fonts (including weight 620), Arial/Georgia/Courier New system fonts, line height, tracking, alignment, optional measured wrapping, and fixed/auto-height/auto-width sizing. Requested/resolved font availability and measured overflow are visible in Properties and MCP reads. Older files default safely to prior typography behavior.
 - SVG export preserves supported artwork, clipping, rotation, opacity, embedded images, and loaded bundled typography fonts. It does not include editor chrome. It is a visual export, not a JSON round trip.
-- No third-party editable design document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, snapping, or PDF export. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
+- No third-party editable design document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, or snapping. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
+- PDF export is lossless 2× raster artwork, not selectable text or PDF vectors. It uses 96 px/in dimensions, white page backgrounds, and bounded page/pixel/file sizes. GIF, animated PNG/WebP, corrupt images, and unavailable bundled fonts fail explicitly. See [PDF export](docs/pdf-export.md).
 - Desktop mouse/keyboard is the primary workflow. Mobile has responsive controls and panel access; multi-touch/pinch gestures are not implemented.
 
 ## Project docs

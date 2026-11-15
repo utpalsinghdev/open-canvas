@@ -1,6 +1,6 @@
 # Agent control through MCP
 
-Open Cavas exposes 50 tools over the official MCP SDK's stdio transport. It controls explicitly selected local service workspaces directly, with optional browser rendering.
+Open Cavas exposes 51 tools over the official MCP SDK's stdio transport. It controls explicitly selected local service workspaces directly, with optional browser rendering.
 
 ## Start and connect
 
@@ -65,7 +65,9 @@ Coordinates are absolute world pixels, including when a parent is supplied. Only
 
 ### Documents and output
 
-`rename_document`, `create_document`, `open_document`, `export_document`, `get_screenshot`.
+`rename_document`, `create_document`, `open_document`, `export_document`, `export_combined_pdf`, `get_screenshot`.
+
+`export_combined_pdf` returns a base64 PDF for explicitly named artboards in document order, or an explicitly requested whole active page. It requires a connected `canvasId`. Artwork is lossless 2× raster, not PDF vectors or selectable text, with 96 px/in page dimensions and white backgrounds. See [PDF export](pdf-export.md) for arguments, error cases, and limits.
 
 New/open operations add a new file to the active project and keep existing work. `open_document` accepts either a legacy version-1 document or a complete version-2 multi-page file. Use `open_file` to navigate to an existing file/page. JSON export returns the complete active file; visual exports use only the active page or a selected artboard. Exports do not write server-side filesystem paths.
 
@@ -139,4 +141,4 @@ Nine square points form a fixed 37 by 25 px lattice, with wider horizontal spaci
 
 ## Durable workspace targets
 
-The server now exposes 50 tools, including `list_workspaces` and `create_workspace`. Pass exactly one durable `workspaceId` or live browser `canvasId`. Workspace-target mutations use durable revisions and acknowledge storage completion; canvas-target mutations retain in-memory/session semantics. Never mix revisions across targets. Explicit context selects backend pages without redirecting the user. Read [local workspaces](local-workspaces.md) before migration, recovery, or lifecycle changes.
+The server now exposes 51 tools, including `list_workspaces` and `create_workspace`. Pass exactly one durable `workspaceId` or live browser `canvasId`. Workspace-target mutations use durable revisions and acknowledge storage completion; canvas-target mutations retain in-memory/session semantics. Never mix revisions across targets. Explicit context selects backend pages without redirecting the user. Read [local workspaces](local-workspaces.md) before migration, recovery, or lifecycle changes.
