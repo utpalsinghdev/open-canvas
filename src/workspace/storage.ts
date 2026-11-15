@@ -59,10 +59,10 @@ export async function loadWorkspace(fallback: Workspace) {
       project && file
         ? { projectId: project.id, fileId: file.id, pageId: file.pageId }
         : firstLocation(parsed.workspace);
-    return { ...parsed, location, needsSave: false, migrated: false };
+    return { ...parsed, location, needsSave: false, migrated: false, hasBrowserData: true };
   }
   const legacy = localStorage.getItem('open-cavas.document.v1');
-  const workspace = legacy
+  const workspace = legacy !== null
     ? initialWorkspace(documentSchema.parse(JSON.parse(legacy)))
     : fallback;
   return {
@@ -71,6 +71,7 @@ export async function loadWorkspace(fallback: Workspace) {
     revision: 0,
     needsSave: true,
     migrated: Boolean(legacy),
+    hasBrowserData: legacy !== null,
   };
 }
 /** Read and compare the disk revision inside the same write transaction. */
