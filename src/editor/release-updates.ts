@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { useEditor } from './store';
 import { agentActivity } from '../mcp/activity';
 import { hasReviewDrafts } from '../review/drafts';
+import { exportActivity } from './export-activity';
 
 const manifestSchema = z.object({
   profile: z.literal('main'),
@@ -50,10 +51,10 @@ export function watchMainRelease() {
       state.saveState !== 'saved' ||
       state.persistenceBlocked ||
       state.interactionActive || hasReviewDrafts() ||
-      agentActivity.active ||
+      agentActivity.active || exportActivity.active ||
       editing ||
       document.querySelector('dialog[open]') ||
-      Date.now() - Math.max(lastActivity, agentActivity.lastUsed) < IDLE_MS
+      Date.now() - Math.max(lastActivity, agentActivity.lastUsed, exportActivity.lastUsed) < IDLE_MS
     )
       return;
     if (Date.now() - lastVerified > 3000) {

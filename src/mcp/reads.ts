@@ -2,6 +2,7 @@ import { currentFile } from '../workspace/model';
 import { useEditor } from '../editor/store';
 import type { EditorStore } from '../editor/state';
 import { renderSvg } from '../editor/svg';
+import { renderPdf } from '../editor/pdf';
 import { tools } from './tools';
 import type { DesignDocument, DesignNode } from '../editor/model';
 import { fontAvailability, fontFamilies, fontDefinition, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
@@ -213,6 +214,24 @@ const reads: Record<
       format: 'jsx',
       content: `export default function Artwork() { return (${jsx}); }`,
       representation: 'SVG JSX, not semantic HTML layout',
+    };
+  },
+  async export_combined_pdf(value) {
+    const args = tools.export_combined_pdf.schema.parse(value);
+    if (args.scope === 'page' && args.artboardIds !== undefined)
+      throw new Error('Page PDF export must omit artboardIds.');
+    if (args.scope === 'artboards' && !args.artboardIds?.length)
+      throw new Error('Artboard PDF export requires explicit artboardIds.');
+    const snapshot = useEditor.getState().document;
+    const pdf = await renderPdf(snapshot, args.scope === 'page'
+      ? { kind: 'page' }
+      : { kind: 'artboards', artboardIds: args.artboardIds ?? [] });
+    let binary = '';
+    for (const byte of pdf.bytes) binary += String.fromCharCode(byte);
+    return {
+      data: btoa(binary), mimeType: 'application/pdf', encoding: 'base64',
+      name: `${pdf.name}.pdf`, pageCount: pdf.pages.length, pages: pdf.pages,
+      pointsPerPixel: 0.75, rasterScale: 2, representation: 'raster artwork, not selectable text or vectors',
     };
   },
   get_screenshot(value) {

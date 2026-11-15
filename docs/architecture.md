@@ -8,11 +8,11 @@
 - `src/editor/geometry.ts` handles translation, local-axis resizing, and marquee intersections.
 - `src/editor/useCamera.ts` owns pan/zoom, pointer-anchored wheel zoom, and fit-to-visible-root bounds.
 - `src/editor/useShortcuts.ts` binds keyboard actions without intercepting text/form editing.
-- `src/editor/files.ts` validates file imports, reads safe raster images, serializes SVG, and triggers downloads.
+- `src/editor/files.ts` validates file imports, reads safe raster images, serializes SVG, and triggers downloads. `src/editor/pdf.ts` captures explicit artboard/page targets, validates resources and size budgets, rasterizes the shared SVG at 2×, and lazily loads pdf-lib to package lossless PNG pages with 96 px/in dimensions. `ExportMenu.tsx` provides the shared SVG/PDF header dropdown, explicit scope labels, and PDF pending/error feedback. See [PDF export](pdf-export.md).
 - `src/components/Canvas.tsx` renders SVG artboards, gesture previews, selection, resizing, and on-canvas text editing.
 - `src/components/Artwork.tsx` renders supported artwork independently of editor selection.
 - `src/components/Layers.tsx`, `Inspector.tsx`, `Toolbar.tsx`, and `Help.tsx` provide editor controls.
-- `src/App.tsx` connects file actions, naming, responsive panels, and status feedback.
+- `src/App.tsx` selects the Home/editor destination and owns shared JSON import and status feedback. `src/EditorApp.tsx` connects canvas file actions, naming, and responsive panels. `src/components/Projects.tsx` reuses one library implementation in Home and the editor dialog; `WorkspaceNotice.tsx` preserves save recovery in both destinations.
 - `src/review/model.ts` defines review schemas, anchor resolution using measured text bounds, and copied thread identity. `actions.ts` commits thread/reply/status edits through file history. `drafts.ts` retains session-only drafts by file/page/thread and protects them from MCP writes and automatic reloads.
 - `src/components/Reviews.tsx` renders canvas pins and the file-wide thread panel. Panel wheel events retain native scrolling rather than moving the camera. `src/mcp/review-tools.ts` and `review-commands.ts` implement explicit-context list/read/status operations.
 
