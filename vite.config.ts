@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { runtimeSettings } from './scripts/runtime-settings.mjs';
+import { privateStateGuard } from './scripts/private-state-guard';
 
 const settings = runtimeSettings();
 const agentProxy = {
@@ -10,6 +11,7 @@ const agentProxy = {
 
 export default defineConfig({
   plugins: [
+    privateStateGuard(),
     react(),
     tailwindcss(),
     {

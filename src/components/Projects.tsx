@@ -13,6 +13,7 @@ import {
 import { useEditor } from '../editor/store';
 import { download, saveDocument } from '../editor/files';
 import { IconButton } from './Button';
+import { WorkspaceStorage } from './WorkspaceStorage';
 
 type Edit =
   | { kind: 'project'; id: string | null; name: string }
@@ -321,8 +322,8 @@ export function Projects(props: Props) {
         </section>
       </div>
       <footer>
-        Projects and files are saved on this machine. Import backups as new items
-        without replacing existing work.
+        <WorkspaceStorage />
+        Import backups as new items without replacing existing work.
       </footer>
     </>
   );

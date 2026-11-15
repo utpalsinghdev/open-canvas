@@ -6,7 +6,7 @@ import { firstLocation, initialWorkspace, projectPage, workspaceId, type Locatio
 import { viewPatch } from './state';
 import { loadWorkspace } from './storage';
 import { workspaceRequest } from './remote';
-import { serviceRecordSchema, workspaceListSchema, type ServiceRecord } from './service-schema';
+import { serviceRecordSchema, workspaceListSchema, workspaceStorageSchema, type ServiceRecord } from './service-schema';
 import { hasReviewDrafts } from '../review/drafts';
 import { destinationUrl } from './destination';
 
@@ -16,8 +16,9 @@ export const useWorkspaceService = create<{
   workspaces: ReturnType<typeof workspaceListSchema.parse>;
   busy: boolean;
   error: string;
-  canCopyBrowser: boolean;
-}>()(() => ({ record: null, workspaces: [], busy: false, error: '', canCopyBrowser: true }));
+  browserRecovery: 'loading' | 'available' | 'empty' | 'unavailable';
+  storageDirectory: string;
+}>()(() => ({ record: null, workspaces: [], busy: false, error: '', browserRecovery: 'loading', storageDirectory: '' }));
 let timer: ReturnType<typeof setTimeout> | undefined;
 let applying = false;
 let saving = false;
@@ -57,8 +58,14 @@ function applyRecord(record: ServiceRecord, opening = false) {
   useWorkspaceService.setState({ record, error: '' });
 }
 export async function refreshWorkspaces() {
-  const workspaces = workspaceListSchema.parse(await workspaceRequest({ method: 'list' }));
-  useWorkspaceService.setState({ workspaces });
+  const storageDirectory = useWorkspaceService.getState().storageDirectory;
+  const [list, storage] = await Promise.all([
+    workspaceRequest({ method: 'list' }),
+    storageDirectory ? { directory: storageDirectory } : workspaceRequest({ method: 'storage' }),
+  ]);
+  const workspaces = workspaceListSchema.parse(list);
+  const { directory } = workspaceStorageSchema.parse(storage);
+  useWorkspaceService.setState({ workspaces, storageDirectory: directory });
   return workspaces;
 }
 export async function openServiceWorkspace(id: string) {
@@ -72,14 +79,21 @@ export async function openServiceWorkspace(id: string) {
   } finally { useWorkspaceService.setState({ busy: false }); }
 }
 export async function createServiceWorkspace(name: string, content: 'introduction' | 'empty' | 'browser') {
+  if (content === 'browser' && useWorkspaceService.getState().browserRecovery !== 'available') {
+    useWorkspaceService.setState({ error: 'No readable saved browser workspace is available to copy. Reopen the original browser profile and app address.' });
+    return;
+  }
   useWorkspaceService.setState({ busy: true, error: '' });
   const copyBrowser = content === 'browser';
   const workspace = copyBrowser ? browserWorkspace
     : initialWorkspace(content === 'introduction' ? starterDocument() : { version: 1, name: 'Untitled', nodes: [], tokens: {} });
   const id = newId();
   try {
-    // Remember the explicit destination before dispatch, so an uncertain create can be read on reload.
+    // Explicit creation replaces even a missing link target before dispatch, for uncertain-outcome read-back.
     localStorage.setItem(SELECTED, id);
+    const url = new URL(window.location.href);
+    url.searchParams.set('workspace', id);
+    history.replaceState(null, '', url);
     const record = serviceRecordSchema.parse(await workspaceRequest({
       method: 'create', id, name, workspace,
       context: copyBrowser ? browserLocation : firstLocation(workspace),
@@ -175,9 +189,10 @@ export async function initializeWorkspace() {
     const loaded = await loadWorkspace(initial.workspace);
     browserWorkspace = loaded.workspace;
     browserLocation = loaded.location;
+    useWorkspaceService.setState({ browserRecovery: loaded.hasBrowserData ? 'available' : 'empty' });
     useEditor.setState({ ...viewPatch(initial, loaded.workspace, loaded.location), ready: true });
   } catch {
-    useWorkspaceService.setState({ canCopyBrowser: false, error: 'Browser storage could not be read safely. Original data was not changed. Choose a local service workspace or create an empty one.' });
+    useWorkspaceService.setState({ browserRecovery: 'unavailable' });
     useEditor.setState({ ready: true });
   }
   try {
