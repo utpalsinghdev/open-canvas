@@ -4,7 +4,7 @@
 
 Open Cavas is a working editor, not a marketing page. The user's pinned direction is true black application background, white primary text, dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
 
-The first viewport exposes editable starter artboards between Layers and Properties. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
+The editor viewport exposes artwork between Layers and Properties. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
 
 ## Tokens
 
@@ -66,4 +66,6 @@ Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed pa
 
 ## Local workspace selection
 
-First load shows a dense local workspace chooser before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
+A fresh browser visiting the root URL first sees a skippable introduction with original example artwork, canvas basics, local storage guidance, and automatic agent-access disclosure. Choose a workspace and Skip introduction both continue to the existing dense local workspace chooser. Dismissal is a browser-local preference, separate from artwork; selected workspaces and destination links bypass the introduction. Help offers the same introduction alongside keyboard shortcuts in a native dialog. On small screens the welcome page becomes one scrollable column. No onboarding step writes workspace data.
+
+The local workspace chooser appears before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.

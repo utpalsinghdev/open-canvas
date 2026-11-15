@@ -2,6 +2,12 @@
 
 A local-first web design editor inspired by Paper. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account or Paper installation required. Manual editing is browser-only; optional MCP control runs a local bridge.
 
+## First visit
+
+A skippable welcome page introduces artboards, selection, navigation, local saves, JSON/SVG exports, and automatic local MCP access. Choose a workspace to continue to the existing workspace chooser. It never creates or replaces artwork. Selected workspaces and direct file links open without this page. Reopen it through **Help > Introduction**.
+
+See the [introduction and screenshot](docs/introduction.md).
+
 ## Run stable main
 
 Use Node.js 22+ and npm, in the primary main checkout.

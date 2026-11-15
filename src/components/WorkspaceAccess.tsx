@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { download } from '../editor/files';
+import { Introduction, dismissIntroduction, needsIntroduction } from './Introduction';
 import { useEditor } from '../editor/store';
 import {
   createServiceWorkspace, openServiceWorkspace, refreshWorkspaces, useWorkspaceService,
@@ -9,7 +10,12 @@ import {
 export function WorkspaceAccess({ children }: { children: ReactNode }) {
   const { record, workspaces, busy, error, canCopyBrowser } = useWorkspaceService();
   const [name, setName] = useState('Personal');
+  const [introduction, setIntroduction] = useState(needsIntroduction);
   if (record) return <>{children}{error && <div className="toast" role="alert">Local service unavailable. Keep backups before reloading.</div>}</>;
+  if (introduction) return <Introduction onContinue={() => {
+    dismissIntroduction();
+    setIntroduction(false);
+  }} />;
   return (
     <main className="help-dialog" aria-labelledby="workspace-heading">
       <h1 id="workspace-heading">Local workspaces</h1>
