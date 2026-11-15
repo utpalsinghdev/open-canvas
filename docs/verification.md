@@ -531,3 +531,11 @@ The original concurrent-editing storage failure remains unconfirmed. This change
 - Main services, authentication, Origin/Host checks, browser tickets, mutation revisions, and Tailscale configuration were unchanged. Only the task-owned development runtime was restarted for new server schemas.
 
 Limits: PDF is lossless 2× raster artwork on white, not vector/selectable text or tagged accessible PDF. No Firefox/Safari, physical print, full 32-page/file-size saturation, image-decoder peak-memory measurement, or navigation-during-rendering check was performed. The corrected guard paths received primary verification, not a second independent review. See [PDF export](pdf-export.md) for supported resources and budgets.
+
+### PDF export dropdown follow-up
+
+The header now has one Export disclosure instead of separate SVG and PDF buttons. Both rows name their current scope; JSON backup and the SVG keyboard shortcut keep their existing behavior.
+
+Real local Brave verified current-page and selected-artboard labels, normal Tab/Enter navigation, Escape restoring focus without clearing selection, outside-click dismissal, and a 390 by 844 menu within the viewport. Actual downloads produced SVG, a one-page current-page PDF, and a two-selected-artboard PDF; `pdfinfo` confirmed page counts. Browser errors were empty. Build/TypeScript, Changeset status, diff checks, and the UI detector passed. Active LSP rechecks were inconclusive for two files rather than proof of clean diagnostics. This follow-up did not rerun Mac rendering, MCP, failure-budget, or full-resource-limit checks; the PDF renderer and its concurrency/reload guards are unchanged.
+
+Before/after screenshots contain only synthetic starter artwork and were captured outside the checkout for PR evidence. No screenshot was added to Git.

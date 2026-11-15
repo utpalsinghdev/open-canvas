@@ -69,6 +69,12 @@ button svg, summary svg { flex: none; }
 .save-failed { color: var(--warning); }
 .export-button { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--foreground); color: var(--background); border: 1px solid var(--foreground); border-radius: 4px; font-weight: 500; }
 .export-button:not(:disabled):hover { background: var(--muted); border-color: var(--muted); }
+.export-menu { position: relative; }
+.export-menu > summary { list-style: none; }
+.export-menu > summary::-webkit-details-marker { display: none; }
+.export-menu-items { position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; width: 240px; max-width: calc(100vw - 24px); padding: 4px; border: 1px solid var(--line); border-radius: 5px; background: var(--control); }
+.export-menu-items button { display: block; width: 100%; padding: 10px 8px; text-align: left; border-radius: 3px; }
+.export-menu-items button:not(:disabled):hover { background: var(--active); }
 .file-menu { position: relative; }
 .file-menu summary { list-style: none; display: grid; place-items: center; padding: 8px; border-radius: 3px; }
 .file-menu summary::-webkit-details-marker { display: none; }
