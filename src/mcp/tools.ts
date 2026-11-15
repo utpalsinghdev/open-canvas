@@ -240,6 +240,6 @@ export const coverage = {
     'HTML/CSS subset only; no flex, grid, remote assets, arbitrary DOM or rich-text fidelity.',
     'Tokens support color, number, and font values with explicit application, not dynamic bindings or CSS themes.',
     'No multiplayer merging; stale state revisions reject writes.',
-    'workspaceId supports browser-independent data operations and JSON exports. Screenshots, HTML import and non-JSON visual exports require an explicit connected canvasId. Headless text metrics are unmeasured.',
+    'workspaceId supports all document tools directly in the backend, including restricted HTML import, visual exports and native PNG rendering. Font substitutions are explicit; native and browser pixels may differ.',
   ],
 };

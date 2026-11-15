@@ -46,4 +46,4 @@ Manual pairing commands and UI were removed at the user's request. Opening the r
 
 ## Browser-independent local data operations
 
-`list_workspaces` and `create_workspace` expose durable local workspace identities. Existing data tools accept `workspaceId`, explicit page context and durable revision checks. Browser-target calls remain available for rendering. Screenshots, HTML import and visual exports are not implemented headlessly. Text metrics are unmeasured without a browser. See [local workspaces](local-workspaces.md) for migration, access and recovery contracts.
+`list_workspaces` and `create_workspace` expose durable local workspace identities. Existing data tools accept `workspaceId`, explicit page context and durable revision checks. Browser-target calls remain available. Workspace targets also support restricted HTML import, SVG/HTML/JSX exports, measured text reads and native PNG capture without a frontend or browser. Shared document/layout rules remain authoritative; native font substitutions are reported rather than claiming browser pixel parity. See [local workspaces](local-workspaces.md) for migration, access and recovery contracts.
