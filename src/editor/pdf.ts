@@ -13,6 +13,7 @@ const MAX_SIDE = 4096;
 const MAX_PAGE_PIXELS = 8_000_000;
 const MAX_TOTAL_PIXELS = 32_000_000;
 const MAX_SOURCE_PIXELS = 32_000_000;
+const MAX_IMAGE_REFERENCE_BYTES = 32_000_000;
 const MAX_PDF_BYTES = 8_000_000; // Base64 plus metadata must fit the 12 MB MCP envelope.
 let exporting = false;
 
@@ -35,12 +36,17 @@ function pageDocuments(doc: DesignDocument, target: PdfTarget) {
 async function validateResources(documents: DesignDocument[]) {
   const images = new Map<string, string>();
   let sourcePixels = 0;
+  let imageReferenceBytes = 0;
   for (const doc of documents) {
     for (const node of doc.nodes) {
       if (isHidden(node, doc.nodes)) continue;
       if (node.kind === 'text' && fontStatus(node.fontFamily).availability === 'unavailable')
         throw new Error(`PDF font unavailable: ${node.fontFamily}. Reload after restoring the bundled font.`);
-      if (node.kind !== 'image' || images.has(node.src)) continue;
+      if (node.kind !== 'image') continue;
+      imageReferenceBytes += node.src.length;
+      if (imageReferenceBytes > MAX_IMAGE_REFERENCE_BYTES)
+        throw new Error('PDF image references exceed 32 MB. Export fewer or smaller images.');
+      if (images.has(node.src)) continue;
       try {
         sourcePixels += validatePdfImage(node.src);
       } catch (error) {

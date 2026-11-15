@@ -4,7 +4,7 @@
 
 Open Cavas is a working editor, not a marketing page. The user's pinned direction is true black application background, white primary text, dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
 
-The first viewport exposes editable starter artboards between Layers and Properties. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
+Opening a file exposes editable artwork between Layers and Properties. The selected workspace's root destination shows Home for browsing projects and files. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
 
 ## Tokens
 
@@ -44,7 +44,7 @@ App startup connects automatically, with no connection badge, masked-code field,
 
 ## Project and page navigation
 
-A compact project-name action sits before the file name in the header. Its Projects dialog uses a project list and dense file rows, not decorative cards. File rows expose explicit open/rename/duplicate/backup/delete actions. A separate warning and confirmation precedes permanent library deletion. Project/workspace backup and JSON import remain visible above the list.
+The selected workspace opens at Home, a full-height library with a project list and dense file rows. Import and workspace backup stay in the heading; Switch workspace stays in the app header. Opening or creating a file enters the editor. A labeled Home control remains visible at every editor width; narrow headers hide the wordmark text to make room. The compact project-name action still opens the Projects dialog for quick switching. Home and the dialog share the same library, not decorative cards. File rows expose explicit open/rename/duplicate/backup/delete actions. A separate warning and confirmation precedes permanent library deletion. Project/workspace backup and JSON import remain visible above the list.
 
 Pages live above Layers with compact add/rename/duplicate/delete controls. Current-page state uses the existing active color. On narrow screens, project navigation remains a horizontal scrollable list within the dialog; file content takes the remaining space. Pages remain accessible through the Layers overlay. No continuous animation was added.
 
@@ -66,7 +66,9 @@ Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed pa
 
 ## Local workspace selection
 
-First load shows a dense local workspace chooser before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
+Introduction belongs inside the editor canvas, not in a separate welcome page or Help dialog. Start with introductory canvas creates a workspace containing two editable 600 × 760 artboards with 17 native layers. Lime and lavender artwork introduces drawing, navigation, saving, and agent access. Shapes and text are real editable examples, not HTML illustrations. Fresh browser fallback uses the same seed. Existing documents never receive seeded content; empty creation and browser copying remain explicit separate choices. The ordinary canvas fit/pan/zoom controls also apply on narrow screens.
+
+The local workspace chooser appears before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
 
 ## PDF export action
 

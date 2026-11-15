@@ -19,6 +19,7 @@ Bundled fonts must load successfully before export. System fonts use the same br
 - At most 32 artboards per PDF.
 - At 2× resolution, at most 4096 pixels per side and 8 megapixels per page, with at most 32 megapixels across the PDF. A 2048 px artboard side reaches the side limit.
 - Source raster images must decode and contain at most 16 megapixels each, with at most 32 megapixels across unique image sources. Identical sources are checked once. All headers and the aggregate budget are checked before any source decoding.
+- Embedded image references may total at most 32 MB across exported pages, including repeated references to the same source. This bounds SVG generation before rasterization.
 - The completed PDF must be at most 8 MB, including browser downloads. This leaves room for base64 and metadata within the existing 12 MB MCP transport limit.
 - One PDF export can run at a time in a tab. Pending UI exports delay automatic main-release reloads through download initiation and the normal idle grace period. Large exports can take several seconds. No partial file is downloaded on failure. Export fewer or smaller artboards when limits are exceeded.
 
