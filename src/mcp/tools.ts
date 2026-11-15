@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { fontFamilySchema } from '../editor/font-family';
 import { fileDocumentSchema, locationSchema } from '../workspace/model';
 import { workspaceTools } from './workspace-tools';
 import { reviewTools } from './review-tools';
@@ -7,7 +8,6 @@ export { targetSchema, mutationTargetSchema } from './target';
 import {
   documentSchema,
   nodeSchema,
-  fonts,
   tokensSchema,
 } from '../editor/model';
 
@@ -25,7 +25,7 @@ export const propertiesSchema = z
     ...nodeSchema.options[1].shape,
     text: nodeSchema.options[3].shape.text,
     fontSize: nodeSchema.options[3].shape.fontSize,
-    fontFamily: z.enum(fonts),
+    fontFamily: fontFamilySchema,
     fontWeight: nodeSchema.options[3].shape.fontWeight.removeDefault(),
     lineHeight: nodeSchema.options[3].shape.lineHeight.removeDefault(),
     letterSpacing: nodeSchema.options[3].shape.letterSpacing.removeDefault(),
@@ -67,8 +67,8 @@ const canvasTools = {
     z.object({ ...target, nodeId: id })
   ),
   get_fonts: read(
-    'Read the safe local font registry and current requested-font availability. Only application-bundled and browser system fonts are eligible; document data cannot supply font URLs.',
-    z.object(target)
+    'Read suggested and document font families, or query up to 50 family names. Browser targets detect system fonts by metrics, not installed-file/weight enumeration. Workspace targets report unverified availability. Font URLs are never accepted.',
+    z.object({ ...target, families: z.array(fontFamilySchema).min(1).max(50).optional() })
   ),
   get_selection: read('Read selected layer IDs.', z.object(target)),
   get_styles: read(

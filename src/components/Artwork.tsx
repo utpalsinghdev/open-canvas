@@ -1,5 +1,6 @@
 import type { DesignNode } from '../editor/model';
 import { fontStatus, textLayout } from '../editor/typography';
+import { fontCssFamily } from '../editor/font-family';
 
 export function Artwork({ node }: { node: DesignNode }) {
   const geometry = { x: node.x, y: node.y, width: node.width, height: node.height };
@@ -11,7 +12,7 @@ export function Artwork({ node }: { node: DesignNode }) {
     case 'text': {
       const layout = textLayout(node);
       const x = node.x + (node.align === 'center' ? layout.width / 2 : node.align === 'right' ? layout.width : 0);
-      const fontFamily = fontStatus(node.fontFamily).resolved;
+      const fontFamily = fontCssFamily(fontStatus(node.fontFamily).resolved);
       return <text data-text-overflow={layout.overflow || undefined} fill={node.fill} fontFamily={fontFamily} fontSize={node.fontSize} fontWeight={node.fontWeight} letterSpacing={node.letterSpacing} xmlSpace="preserve" style={{ fontKerning: 'normal' }} textRendering="geometricPrecision" textAnchor={node.align === 'center' ? 'middle' : node.align === 'right' ? 'end' : 'start'}>
         {layout.lines.map((line, index) => <tspan key={index} x={x} y={node.y + node.fontSize + index * node.fontSize * node.lineHeight}>{line}</tspan>)}
       </text>;
