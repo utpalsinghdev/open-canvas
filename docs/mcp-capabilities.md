@@ -4,7 +4,7 @@ Open Cavas owns its document model and MCP implementation.
 
 ## Implemented and live-verified through MCP
 
-- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 50 tools exposed.
+- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 51 tools exposed.
 - Live document/tree/node/style/selection reads with stable layer identity.
 - Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection.
 - Undo/redo through the same document history as manual edits.
@@ -25,6 +25,7 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 - HTML uses a documented static subset and restricted block layout. It is not arbitrary page import, flex/grid, rich text, or computed browser layout.
 - HTML/JSX output represents SVG artwork, not semantic application UI or JSX from an original source tree.
 - Screenshots capture supported artwork, not the editor window or a native Mac window.
+- `export_combined_pdf` exports explicit visible artboards in document order, one page per artboard, or an explicitly requested active page. PDF pages use 96 px/in dimensions and lossless 2× browser rasterization on white. Text is not selectable; shapes are not PDF vectors. GIF/animated PNG/WebP, unavailable bundled fonts, corrupt images, and size-limit violations fail rather than silently dropping content. See [PDF export](pdf-export.md).
 - Tokens support color, number, and font metadata with literal assignment. No dynamic binding, theme inheritance, breakpoint/container token system, or UI token panel.
 - Explicitly selected projects/files/pages persist in a private local service. Browser IndexedDB is retained as an explicit migration/recovery source. See local-workspaces.md.
 
