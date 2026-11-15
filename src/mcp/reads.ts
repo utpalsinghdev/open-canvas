@@ -11,7 +11,8 @@ export function withoutImageBytes(node: DesignNode) {
   const { src, ...rest } = node;
   return { ...rest, imageBytesOmitted: true, encodedLength: src.length };
 }
-export function createReads(useEditor: Pick<EditorStore, 'getState'>) {
+export function createReads(useEditor: Pick<EditorStore, 'getState'>,
+  rasterize?: (svg: string, width: number, height: number) => Promise<string>) {
 function exportArtwork(document: DesignDocument, artboardId?: string) {
   if (
     artboardId &&
@@ -32,6 +33,11 @@ async function screenshot(artboardId: string | undefined, scale: number) {
     throw new Error(
       'Screenshot exceeds size limit. Choose a smaller scale or one artboard.'
     );
+  const fontResolution = Object.fromEntries(fontFamilies.map((family) => [family, fontStatus(family)]));
+  if (rasterize) return {
+    data: await rasterize(artwork.svg, width, height), mimeType: 'image/png',
+    width, height, scale, bounds: artwork.bounds, fonts: fontAvailability(), fontResolution,
+  };
   const url = URL.createObjectURL(
     new Blob([artwork.svg], { type: 'image/svg+xml' })
   );
@@ -52,7 +58,7 @@ async function screenshot(artboardId: string | undefined, scale: number) {
       height,
       scale,
       bounds: artwork.bounds,
-      fonts: fontAvailability(),
+      fonts: fontAvailability(), fontResolution,
     };
   } finally {
     URL.revokeObjectURL(url);
@@ -133,11 +139,12 @@ const reads: Record<
     return {
       fonts: fontFamilies.map((family) => ({
         family,
+        ...fontStatus(family),
         source: fontRegistry[family].source === 'system' ? 'system' : 'bundled',
         weight: fontRegistry[family].weight,
         availability: availability[family],
       })),
-      fallback: 'Arial',
+      fallback: fontStatus('Arial').resolved,
     };
   },
   get_styles(value) {

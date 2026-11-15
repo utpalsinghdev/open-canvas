@@ -38,7 +38,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 
 ## Agent control through MCP
 
-50 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent data operations. Screenshots, HTML import, and visual exports still need an explicit connected `canvasId`. This is not complete Paper MCP parity.
+50 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent data operations. Restricted HTML import, visual exports and PNG artwork capture also execute directly in the backend. No hidden browser runs. An explicit connected `canvasId` remains available for browser-specific rendering. This is not complete Paper MCP parity.
 
 ## Editor
 

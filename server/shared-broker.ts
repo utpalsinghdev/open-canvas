@@ -1,5 +1,6 @@
 import { lstat, readFile, rm, writeFile, link } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import { z } from 'zod';
 
 const TIMEOUT_MS = 30_000;
@@ -76,7 +77,18 @@ export async function connectToExistingBroker(
   port: number,
   origin: string
 ) {
-  const file = await lstat(metadataPath);
+  // The winning process binds before loading workspaces and publishing credentials.
+  // Wait only for absent metadata, never for invalid credentials or an unverified owner.
+  const deadline = Date.now() + 5000;
+  let file;
+  while (!file) {
+    try { file = await lstat(metadataPath); }
+    catch (error) {
+      if (!(error instanceof Error) || !('code' in error) || error.code !== 'ENOENT') throw error;
+      if (Date.now() >= deadline) throw new Error('Broker startup did not publish private metadata within five seconds. No design command was sent.');
+      await delay(50);
+    }
+  }
   if (!file.isFile() || file.isSymbolicLink() || file.mode & 0o077)
     throw new Error('Existing broker metadata is not a private regular file.');
   let metadata: z.infer<typeof brokerMetadataSchema>;
@@ -109,16 +121,26 @@ export async function connectToExistingBroker(
     throw new Error(
       'Existing broker identity does not match its private metadata.'
     );
+  const verify = async () => {
+    const response = await fetch(`${base}/__cavas_internal/identity`, {
+      headers, signal: AbortSignal.timeout(3000), redirect: 'error',
+    });
+    const identity = z.object({ instanceId: z.string().uuid() }).safeParse(
+      response.ok ? await response.json() : null
+    );
+    if (!identity.success || identity.data.instanceId !== metadata.instanceId)
+      throw new Error('Broker identity changed or is unavailable.');
+  };
   const recovery =
     'Keep the existing browser workspace open. Coordinate recovery of the broker owner, then reconnect dependent MCP clients using the same runtime profile. After reconnecting, list canvases and read current state before deciding whether to repeat a mutation.';
-  const request = async (route: 'list' | 'call', body: string, callerSignal?: AbortSignal) => {
+  const request = async (route: 'list' | 'call' | 'workspace', body: string, callerSignal?: AbortSignal) => {
     if (callerSignal?.aborted)
       throw new Error('Request cancelled before dispatch.');
     const signal = AbortSignal.any([
       ...(callerSignal ? [callerSignal] : []),
       AbortSignal.timeout(route === 'list' ? 5000 : TIMEOUT_MS + 3000),
     ]);
-    const uncertain = route === 'call'
+    const uncertain = route !== 'list'
       ? ' A dispatched mutation may have completed; its outcome is unknown.'
       : '';
     let response: Response;
@@ -161,6 +183,7 @@ export async function connectToExistingBroker(
     return result;
   };
   return {
+    verify,
     list: async () => {
       const body = await request('list', '{}');
       return z
@@ -185,13 +208,8 @@ export async function connectToExistingBroker(
       const body = await request('call', JSON.stringify({ canvasId, method, args }), signal);
       return z.object({ result: z.unknown() }).parse(body).result;
     },
-    workspace: async (value: unknown) => {
-      const response = await fetch(`${base}/__cavas_internal/workspace`, {
-        method: 'POST', headers: { ...headers, 'content-type': 'application/json' },
-        body: JSON.stringify(value), signal: AbortSignal.timeout(TIMEOUT_MS + 3000), redirect: 'error',
-      });
-      const body: unknown = await response.json();
-      if (!response.ok) throw new Error(z.object({ error: z.string() }).parse(body).error);
+    workspace: async (value: unknown, signal?: AbortSignal) => {
+      const body = await request('workspace', JSON.stringify(value), signal);
       return z.object({ result: z.unknown() }).parse(body).result;
     },
     close: async () => {},

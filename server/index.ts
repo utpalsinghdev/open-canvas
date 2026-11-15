@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { createBroker } from './broker';
+import { createBrokerSession } from './broker-session';
 import { runtimeSettings } from '../scripts/runtime-settings.mjs';
 import { newId } from '../src/editor/model';
 import { firstLocation, initialWorkspace, itemName } from '../src/workspace/model';
@@ -10,12 +10,12 @@ import { locationSchema } from '../src/workspace/model';
 import { fonts } from '../src/editor/model';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
-const broker = await createBroker();
+const broker = await createBrokerSession();
 const server = new McpServer(
   { name: 'open-cavas', version: '0.4.0' },
   {
     instructions:
-      'Controls local Open Cavas workspaces, not Paper. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. Browser rendering still needs an open tab. Connections are automatic; no pairing code is needed.',
+      'Controls local Open Cavas workspaces, not Paper. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. All workspace tools execute directly in the backend, including native PNG rendering. No hidden browser runs. Connections are automatic; no pairing code is needed.',
   }
 );
 function text(result: unknown): CallToolResult {
@@ -103,7 +103,7 @@ for (const [name, definition] of Object.entries(tools)) {
           throw new Error('Choose exactly one workspaceId or canvasId.');
         if (extra.signal.aborted) throw new Error('Request cancelled before dispatch.');
         const result = target.workspaceId
-          ? await broker.workspace({ method: 'call', id: target.workspaceId, tool: name, args })
+          ? await broker.workspace({ method: 'call', id: target.workspaceId, tool: name, args }, extra.signal)
           : target.canvasId
             ? await broker.call(target.canvasId, name, args, extra.signal)
             : undefined;
@@ -120,6 +120,10 @@ for (const [name, definition] of Object.entries(tools)) {
                 scale: z.number().positive(),
                 bounds: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }),
                 fonts: z.record(z.enum(fonts), z.enum(['loading', 'available', 'unavailable', 'system'])),
+                fontResolution: z.record(z.enum(fonts), z.object({
+                  requested: z.enum(fonts), resolved: z.enum(fonts), fallback: z.enum(fonts).nullable(),
+                  availability: z.enum(['loading', 'available', 'unavailable', 'system']),
+                })),
               }),
             })
             .parse(result);
@@ -129,6 +133,9 @@ for (const [name, definition] of Object.entries(tools)) {
               {
                 type: 'text',
                 text: JSON.stringify({
+                  workspaceId: target.workspaceId,
+                  renderer: target.workspaceId ? 'backend-native' : 'browser',
+                  persistence: target.workspaceId ? 'saved' : undefined,
                   revision: image.revision,
                   context: image.context,
                   width: image.result.width,
@@ -136,6 +143,7 @@ for (const [name, definition] of Object.entries(tools)) {
                   scale: image.result.scale,
                   bounds: image.result.bounds,
                   fonts: image.result.fonts,
+                  fontResolution: image.result.fontResolution,
                 }),
               },
             ],

@@ -17,7 +17,7 @@ export type FontAvailability = 'loading' | 'available' | 'unavailable' | 'system
 export type FontStatus = {
   requested: FontFamily;
   resolved: FontFamily;
-  fallback: 'Arial' | null;
+  fallback: FontFamily | null;
   availability: FontAvailability;
 };
 type FontState = Record<FontFamily, FontAvailability>;
@@ -38,7 +38,27 @@ let state: FontState = {
   'Courier New': 'loading',
 };
 let loading: Promise<void> | undefined;
-const bundledFonts = new Map<FontFamily, ArrayBuffer>();
+const bundledFonts = new Map<FontFamily, Uint8Array>();
+type TextContext = {
+  measureText(text: string): Pick<TextMetrics, 'width' | 'actualBoundingBoxLeft' |
+    'actualBoundingBoxRight' | 'actualBoundingBoxAscent' | 'actualBoundingBoxDescent'>;
+};
+type TextNode = Extract<DesignNode, { kind: 'text' }>;
+let nativeContext: ((node: TextNode) => TextContext) | undefined;
+let nativeResolution: Record<FontFamily, FontFamily> | undefined;
+
+/** Install the server's native font adapter once, never document-supplied code. */
+export function installTypography(adapter: {
+  context: (node: TextNode) => TextContext;
+  resolution: Record<FontFamily, FontFamily>;
+  availability: FontState;
+  fonts: Map<FontFamily, Uint8Array>;
+}) {
+  nativeContext = adapter.context;
+  nativeResolution = adapter.resolution;
+  for (const [family, bytes] of adapter.fonts) bundledFonts.set(family, bytes);
+  publish(adapter.availability);
+}
 
 function publish(next: FontState) {
   state = next;
@@ -81,7 +101,7 @@ async function loadFont(family: FontFamily) {
       weight: `${font.weight[0]} ${font.weight[1]}`,
     });
     await face.load();
-    bundledFonts.set(family, bytes);
+    bundledFonts.set(family, new Uint8Array(bytes));
     document.fonts.add(face);
     publish({ ...state, [family]: 'available' });
   } catch {
@@ -98,8 +118,9 @@ export function loadDocumentFonts(): Promise<void> {
 
 export function fontStatus(family: FontFamily, fonts: FontState = state): FontStatus {
   const availability = fonts[family];
-  const resolved = availability === 'available' || availability === 'system' ? family : 'Arial';
-  return { requested: family, resolved, fallback: resolved === family ? null : 'Arial', availability };
+  const resolved = nativeResolution?.[family] ??
+    (availability === 'available' || availability === 'system' ? family : 'Arial');
+  return { requested: family, resolved, fallback: resolved === family ? null : resolved, availability };
 }
 
 export type TextLayout = {
@@ -112,7 +133,8 @@ export type TextLayout = {
   measured: boolean;
 };
 
-function textContext(node: Extract<DesignNode, { kind: 'text' }>) {
+function textContext(node: TextNode): TextContext | null {
+  if (nativeContext) return nativeContext(node);
   if (typeof document === 'undefined') return null;
   const context = document.createElement('canvas').getContext('2d');
   if (!context) return null;
@@ -123,13 +145,13 @@ function textContext(node: Extract<DesignNode, { kind: 'text' }>) {
   return context;
 }
 function measuredWidth(
-  context: CanvasRenderingContext2D,
+  context: TextContext,
   text: string,
 ) {
   return context.measureText(text).width;
 }
 function wrapLine(
-  context: CanvasRenderingContext2D,
+  context: TextContext,
   text: string,
   maxWidth: number,
 ) {
@@ -163,7 +185,7 @@ export function textLayout(node: Extract<DesignNode, { kind: 'text' }>): TextLay
     ...metrics.map((metric, index) => baselines[index] + metric.actualBoundingBoxDescent));
   const resolvedWidth = node.sizing === 'auto-width' ? Math.min(20_000, width) : node.width;
   const resolvedHeight = node.sizing === 'auto-height' ? Math.min(20_000, height) : node.height;
-  const availability = fontStatus(node.fontFamily).availability;
+  const availability = fontStatus(fontStatus(node.fontFamily).resolved).availability;
   const horizontalOverflow = metrics.some((metric) => {
     const start = node.align === 'center' ? (resolvedWidth - metric.width) / 2
       : node.align === 'right' ? resolvedWidth - metric.width : 0;
