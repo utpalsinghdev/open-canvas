@@ -1,5 +1,17 @@
 # open-cavas
 
+## 0.6.0
+
+### Minor Changes
+
+- 3b69c7e: Run restricted HTML import, SVG-based exports, measured text reads and PNG artwork capture directly in the workspace backend without a browser. Recover broker ownership before dispatch without replaying design requests, and retain the frontend while its workspace child restarts.
+- 595eef5: Add a Home destination for browsing projects and files, with labeled navigation from the editor and shared library actions. Keep committed edits, autosave, file history, and save-recovery feedback across Home navigation.
+- d28f00a: Allow installed font family names in text layers, font tokens, JSON imports, and restricted HTML import. Add inspector family entry, explicit browser detection and fallback status, and optional family queries through get_fonts. Preserve case-insensitive bundled font loading and export embedding.
+
+  MCP font availability now uses available, unavailable, loading, or unverified instead of system. Screenshot font metadata changes from a keyed object to an array of family/availability entries. System fonts are not embedded in exports. Browser font detection uses text metrics; backend availability reflects the native font registry. Reload browser tabs and reconnect MCP clients after upgrading.
+- 3b27868: Add paginated PDF export for selected artboards and explicit active-page export in the editor and MCP. Group SVG and PDF in one Export dropdown with scope labels, keeping JSON backups in the File menu. Preserve browser-rendered artwork at 2× resolution with predictable page dimensions and explicit resource/size errors.
+- b404fa1: Add an editable introductory canvas with two seeded artboards covering drawing, navigation, local saves, exports, and local MCP access. Start with the introduction from the workspace chooser without changing existing artwork or empty-workspace creation.
+
 ## 0.5.0
 
 ### Minor Changes
