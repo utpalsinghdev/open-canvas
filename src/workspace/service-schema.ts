@@ -11,9 +11,11 @@ export const serviceRecordSchema = z.object({
 });
 export const workspaceSummarySchema = serviceRecordSchema.omit({ workspace: true });
 export const workspaceListSchema = z.array(workspaceSummarySchema);
+export const workspaceStorageSchema = z.object({ directory: z.string().min(1).max(4096) });
 export type ServiceRecord = z.infer<typeof serviceRecordSchema>;
 export const serviceRequestSchema = z.discriminatedUnion('method', [
   z.object({ method: z.literal('list') }).strict(),
+  z.object({ method: z.literal('storage') }).strict(),
   z.object({ method: z.literal('read'), id: workspaceId }).strict(),
   z.object({
     method: z.literal('create'), id: workspaceId, name: itemName,
