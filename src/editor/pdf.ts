@@ -19,7 +19,7 @@ let exporting = false;
 function pageDocuments(doc: DesignDocument, target: PdfTarget) {
   if (target.kind === 'page') return [{ document: doc, artboardId: undefined }];
   const ids = new Set(target.artboardIds);
-  if (!ids.size) throw new Error('Select at least one artboard, or choose Export page PDF.');
+  if (!ids.size) throw new Error('Select at least one artboard, or choose PDF · Current page in Export.');
   if (ids.size !== target.artboardIds.length) throw new Error('Artboard IDs must not repeat.');
   const boards = doc.nodes.filter((node) => node.kind === 'artboard' && ids.has(node.id));
   if (boards.length !== ids.size) throw new Error('PDF target must contain existing artboards only.');

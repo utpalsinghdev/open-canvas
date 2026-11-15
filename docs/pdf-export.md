@@ -1,8 +1,10 @@
 # PDF export
 
-Export selected artboards from the header with **Export artboards PDF**. Shift-click artboards on the canvas or in Layers to select more than one. Non-artboard selections are ignored when artboards are selected. Each selected artboard becomes one PDF page, in document layer order, regardless of selection order. Hidden selected artboards fail with an error rather than disappearing from the PDF.
+Open **Export** in the header and choose **PDF · Selected artboards** to export selected artboards. Shift-click artboards on the canvas or in Layers to select more than one. Non-artboard selections are ignored when artboards are selected. Each selected artboard becomes one PDF page, in document layer order, regardless of selection order. Hidden selected artboards fail with an error rather than disappearing from the PDF.
 
-When no artboards are selected, the button explicitly reads **Export page PDF**. This exports the visible active page as one page using its artwork bounds. It does not export every artboard as separate pages or include other document pages. Empty pages fail without downloading a file.
+When no artboards are selected, the PDF menu item explicitly reads **PDF · Current page**. This exports the visible active page as one page using its artwork bounds. It does not export every artboard as separate pages or include other document pages. Empty pages fail without downloading a file.
+
+The same dropdown contains SVG with its current scope. SVG keeps its existing behavior: exactly one selected artboard exports that board; all other selections export the current page. JSON backups remain in the File menu. Escape, clicking outside, or tabbing out dismisses the dropdown. While a PDF is rendering, its menu item is disabled with static progress text; SVG remains available.
 
 ## Dimensions and appearance
 
