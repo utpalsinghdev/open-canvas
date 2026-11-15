@@ -388,3 +388,10 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
   gap: 8px;
   margin: 16px 0;
 }
+.workspace-access { overflow-y: auto; }
+.workspace-choices > button { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.workspace-storage { margin: 12px 0; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
+.workspace-storage summary { cursor: pointer; }
+.workspace-storage code { white-space: normal; overflow-wrap: anywhere; }
+.workspace-storage p, .workspace-access .workspace-storage p { margin: 8px 0; }
+.home-library > footer .workspace-storage, .projects-dialog > footer .workspace-storage { max-height: min(180px, 25dvh); overflow-y: auto; }

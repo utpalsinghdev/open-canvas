@@ -77,3 +77,7 @@ The local workspace chooser appears before mounting the editor. Existing service
 ## PDF export action
 
 One compact Export dropdown replaces separate SVG and PDF header buttons. Its two rows include their scope: SVG · Selected artboard or SVG · Current page, and PDF · Selected artboards or PDF · Current page. PDF puts selected artboards on separate pages in one file. Pending export disables only the PDF row with static progress text; completion and actionable errors use the existing notification area. The menu remains inside narrow viewports, supports normal keyboard focus, and dismisses on Escape, outside click, or focus leaving it. JSON backup remains in the File menu.
+
+## Workspace storage and recovery clarity
+
+The workspace chooser and Home/Projects footer use compact disclosures for the actual app-server save directory. Once selected, the disclosure identifies the workspace name, full ID, and JSON file. Recovery guidance distinguishes empty browser storage from unreadable storage and explains reopening the original profile and exact app address. Browser copy and backup stay disabled without validated saved data; the introductory fallback is not presented as recovered work. Existing black editor styling and native focus behavior remain.

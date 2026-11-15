@@ -52,6 +52,7 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
     if (unavailable) throw new Error('Workspace service stopped after a storage error. Keep browser backups and coordinate recovery. Do not retry writes.');
     const request = serviceRequestSchema.parse(value);
     if (request.method === 'list') return [...records.values()].map(summary);
+    if (request.method === 'storage') return { directory: root };
     if (request.method === 'create') {
       if (records.has(request.id)) throw new Error('Workspace ID already exists. Read it before retrying.');
       if (records.size >= 50) throw new Error('Keep at most 50 local workspaces.');
@@ -59,7 +60,7 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
       return publish({ id: request.id, name: request.name, workspace: request.workspace, context: request.context, revision: 0, agentEnabled: true }, true);
     }
     const record = records.get(request.id);
-    if (!record) throw new Error('Workspace unavailable. Select an explicit ID from list_workspaces; no other workspace was substituted.');
+    if (!record) throw new Error('Workspace unavailable in this local service. Refresh the workspace list or reopen the original app address and browser profile to copy browser-only work. No other workspace was substituted.');
     if (request.method === 'read') return record;
     if (request.method === 'save' || request.method === 'access') {
       if (source !== 'browser') throw new Error('Only the browser workspace controls saves and access.');

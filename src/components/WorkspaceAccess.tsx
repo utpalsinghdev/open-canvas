@@ -1,21 +1,24 @@
 import { useState, type ReactNode } from 'react';
 import { download } from '../editor/files';
 import { useEditor } from '../editor/store';
+import { WorkspaceStorage } from './WorkspaceStorage';
 import {
   createServiceWorkspace, openServiceWorkspace, refreshWorkspaces, useWorkspaceService,
 } from '../workspace/persistence';
 
 /** Selecting a service workspace never merges or replaces browser-profile data. */
 export function WorkspaceAccess({ children }: { children: ReactNode }) {
-  const { record, workspaces, busy, error, canCopyBrowser } = useWorkspaceService();
+  const { record, workspaces, busy, error, browserRecovery, storageDirectory } = useWorkspaceService();
+  const canCopyBrowser = browserRecovery === 'available';
   const [name, setName] = useState('Personal');
   if (record) return <>{children}{error && <div className="toast" role="alert">Local service unavailable. Keep backups before reloading.</div>}</>;
   return (
-    <main className="help-dialog" aria-labelledby="workspace-heading">
+    <main className="help-dialog workspace-access" aria-labelledby="workspace-heading">
       <h1 id="workspace-heading">Local workspaces</h1>
-      <p>Documents live on this machine. MCP can work here with the browser closed.</p>
-      <p>Start with an editable introductory canvas, open a workspace, or copy this browser’s workspace. Browser storage stays untouched. No workspaces are merged.</p>
+      <p>Open a workspace saved on the app server, start a new one, or copy saved browser data.</p>
+      <WorkspaceStorage />
       {error && <p role="alert">{error}</p>}
+      {!error && storageDirectory && workspaces.length === 0 && <p>No service workspaces found here. This does not mean browser-only work was deleted.</p>}
       <div className="workspace-choices">
         {workspaces.map((workspace) => (
           <button className="export-button" key={workspace.id} disabled={busy} onClick={() => { void openServiceWorkspace(workspace.id); }}>
@@ -23,6 +26,17 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
           </button>
         ))}
       </div>
+      <details className="workspace-storage">
+        <summary>Recover browser-only work</summary>
+        <p>Reopen the original browser profile at the exact app address used before, including its port. Another profile or address cannot read that browser storage.</p>
+        <p>Download a browser backup, then copy into a new service workspace. Project, file, page, and layer IDs stay unchanged. Browser data stays untouched; workspaces never merge automatically.</p>
+      </details>
+      <p role={browserRecovery === 'unavailable' ? 'alert' : 'status'}>
+        {browserRecovery === 'loading' && 'Checking this browser for saved work.'}
+        {browserRecovery === 'empty' && 'No saved browser workspace found in this profile at this address. Reopen the original profile and address to recover older work.'}
+        {browserRecovery === 'unavailable' && 'Browser storage could not be read safely. Original data was not changed. You can still open a service workspace or create a new one.'}
+        {browserRecovery === 'available' && 'Saved browser workspace found. Download a backup before copying valuable work.'}
+      </p>
       <label>New workspace name <input className="text-input" value={name} maxLength={160} disabled={busy} onChange={(event) => setName(event.target.value)} /></label>
       <div className="workspace-choices">
         <button className="export-button" disabled={busy || !name.trim()} onClick={() => { void createServiceWorkspace(name.trim(), 'introduction'); }}>Start with introductory canvas</button>
