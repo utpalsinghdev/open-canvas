@@ -8,9 +8,13 @@ import { currentFile, firstLocation, projectPage, type Location } from '../src/w
 import { viewPatch } from '../src/workspace/state';
 import { serviceRequestSchema, type ServiceRecord } from '../src/workspace/service-schema';
 import { workspaceStorage, WorkspacePublicationUncertain } from './workspace-storage';
+import { parseServerHtml } from './html-parser';
 
 /** One serialization queue covers CAS, engine execution and durable publication. */
 export async function createWorkspaceService(root: string, accessChanged: (id: string, enabled: boolean) => void = () => {}) {
+  const { initializeGraphics, rasterizeArtwork } = await import('./graphics');
+  const { prepareRenderImages } = await import('./render-images');
+  await initializeGraphics();
   const storage = await workspaceStorage(root);
   const records = await storage.load();
   for (const record of records.values()) projectPage(record.workspace, record.context);
@@ -79,9 +83,8 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
     const target = targetSchema.parse(args);
     if (target.workspaceId !== record.id || target.canvasId)
       throw new Error('Explicit workspace target mismatch. Do not combine canvasId and workspaceId.');
-    if (request.tool === 'get_screenshot' || request.tool === 'export_combined_pdf' || request.tool === 'write_html' ||
-      (request.tool === 'export_document' && 'format' in args && args.format !== 'json'))
-      throw new Error('This operation requires browser rendering. Use an explicitly connected canvasId, or JSON export. Headless rendering is not implemented.');
+    if (request.tool === 'export_combined_pdf')
+      throw new Error('PDF export requires an explicitly connected canvasId.');
     if (definition.mutation && mutationTargetSchema.parse(args).expectedRevision !== record.revision)
       throw new Error(`Revision conflict. Current revision is ${record.revision}. Read state before deciding whether to retry.`);
     const store = engine(record);
@@ -93,11 +96,17 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
       })) };
       store.setState(viewPatch(store.getState(), workspace, context));
     }
+    let images = new Map<string, string>();
+    const rasterize = (svg: string, width: number, height: number) => rasterizeArtwork(svg, width, height, images);
     const handler = createReviewHandlers(store)[request.tool] ??
       createWorkspaceHandlers(store)[request.tool] ??
-      (definition.mutation ? createMutations(store)[request.tool] : createReads(store)[request.tool]);
+      (definition.mutation ? createMutations(store, parseServerHtml)[request.tool] : createReads(store, rasterize)[request.tool]);
     if (!handler) throw new Error('Tool implementation unavailable.');
     try {
+      if (request.tool === 'get_screenshot') {
+        const capture = tools.get_screenshot.schema.parse(args);
+        images = await prepareRenderImages(store.getState().document, capture.artboardId);
+      }
       const result = await handler(request.args);
       const state = store.getState();
       // Check response size before publishing a mutation, not after an uncertain send.
@@ -119,9 +128,12 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
   }
   return {
     async close() { closing = true; await queue; },
-    request(value: unknown, source: 'browser' | 'agent' = 'agent'): Promise<unknown> {
+    request(value: unknown, source: 'browser' | 'agent' = 'agent', signal?: AbortSignal): Promise<unknown> {
       if (closing) return Promise.reject(new Error('Workspace service shutting down. Read saved state after coordinated reconnect.'));
-      const result = queue.then(() => execute(value, source));
+      const result = queue.then(() => {
+        if (signal?.aborted) throw new Error('Workspace request cancelled before execution.');
+        return execute(value, source);
+      });
       queue = result.then(() => {}, () => {});
       return result;
     },

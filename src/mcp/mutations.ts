@@ -12,8 +12,9 @@ import type { EditorStore } from '../editor/state';
 import { translated } from '../editor/geometry';
 import { tools, propertiesSchema } from './tools';
 import { importHtml } from './html';
+import type { HtmlParser } from './html-parser';
 
-export function createMutations(useEditor: Pick<EditorStore, 'getState'>) {
+export function createMutations(useEditor: Pick<EditorStore, 'getState'>, htmlParser?: HtmlParser) {
 type Properties = import('zod').infer<typeof propertiesSchema>;
 function targets(ids: string[], mutable = true) {
   const { document } = useEditor.getState();
@@ -223,7 +224,7 @@ const mutations: Record<string, (value: unknown) => unknown> = {
     const board = targets([args.artboardId])[0];
     if (board.kind !== 'artboard')
       throw new Error('HTML target must be an artboard.');
-    const nodes = importHtml(args.html, board);
+    const nodes = importHtml(args.html, board, htmlParser);
     if (!nodes.length)
       throw new Error('HTML produced no supported visible layers.');
     const state = useEditor.getState();

@@ -21,7 +21,7 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 ## Implemented capabilities and limits
 
 - Layer types are the current Open Cavas primitives, not arbitrary DOM/CSS.
-- Typography supports bundled Inter and Bricolage Grotesque variable fonts, numeric variable weights, line height, tracking, left/center/right alignment, explicit or measured wrapping, fixed/auto-height/auto-width sizing, and measured overflow/status reads. Literal installed family names are accepted across the inspector, text layers, tokens, JSON, and HTML import. Browser availability is a metric-comparison heuristic; headless reads remain unverified. `get_fonts` can query up to 50 names without enumerating local fonts. The bundled fonts are embedded in SVG-derived exports when loaded.
+- Typography supports bundled Inter and Bricolage Grotesque variable fonts, numeric variable weights, line height, tracking, left/center/right alignment, explicit or measured wrapping, fixed/auto-height/auto-width sizing, and measured overflow/status reads. Literal installed family names are accepted across the inspector, text layers, tokens, JSON, and HTML import. Browser availability is a metric-comparison heuristic; native backend availability reflects its local font registry. `get_fonts` can query up to 50 names without enumerating local fonts. The bundled fonts are embedded in SVG-derived exports when loaded.
 - HTML uses a documented static subset and restricted block layout. It is not arbitrary page import, flex/grid, rich text, or computed browser layout.
 - HTML/JSX output represents SVG artwork, not semantic application UI or JSX from an original source tree.
 - Screenshots capture supported artwork, not the editor window or a native Mac window.
@@ -31,7 +31,7 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 
 ## Not implemented
 
-third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless rendering, hosted HTTP MCP are unsupported. Rich-text runs, font uploads/per-document font source registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
+third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless PDF rendering, hosted HTTP MCP are unsupported. Rich-text runs, font uploads/per-document font source registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
 
 No placeholder tools claim those capabilities. `get_tree` reports the active-page layer tree and the actual file page index. Adding a transport does not create editor features that the document model cannot represent.
 
@@ -47,4 +47,4 @@ Manual pairing commands and UI were removed at the user's request. Opening the r
 
 ## Browser-independent local data operations
 
-`list_workspaces` and `create_workspace` expose durable local workspace identities. Existing data tools accept `workspaceId`, explicit page context and durable revision checks. Browser-target calls remain available for rendering. Screenshots, HTML import and visual exports are not implemented headlessly. Text metrics are unmeasured without a browser. See [local workspaces](local-workspaces.md) for migration, access and recovery contracts.
+`list_workspaces` and `create_workspace` expose durable local workspace identities. Existing data tools accept `workspaceId`, explicit page context and durable revision checks. Browser-target calls remain available. Workspace targets also support restricted HTML import, SVG/HTML/JSX exports, measured text reads and native PNG capture without a frontend or browser. Shared document/layout rules remain authoritative; native font substitutions are reported rather than claiming browser pixel parity. See [local workspaces](local-workspaces.md) for migration, access and recovery contracts.
