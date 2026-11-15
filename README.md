@@ -55,7 +55,7 @@ Click the help button for the complete shortcut list. On desktop, use the sideba
 
 ## Projects, files, and pages
 
-Click the project name beside the header wordmark to open Projects. Create or rename projects, search/open/create/rename/duplicate files, and download file/project/workspace backups. Each project always contains at least one file. Project and file deletion require confirmation and are permanent, including their history. Download backups first.
+After choosing a local workspace, Home lists its projects and files. Open an existing file or create a new file to enter the editor. Use **Home** in the editor header to return without reloading or discarding committed edits. Back/Forward and refresh preserve the Home or file destination. The project name still opens the compact Projects dialog for quick switching. Both views reuse project/file management and file/project/workspace backups. Each project always contains at least one file. Project and file deletion require confirmation and are permanent, including their history. Download backups first.
 
 Use Pages above Layers to add, rename, duplicate, delete, or switch pages in a file. Each file keeps at least one page. Page duplication assigns new page/layer IDs. Page deletion can be undone through that file's history. Files share no artwork or undo state; design tokens are shared across pages of the same file.
 
