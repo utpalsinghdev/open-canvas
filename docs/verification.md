@@ -519,3 +519,14 @@ The original concurrent-editing storage failure remains unconfirmed. This change
 - At 390 by 844, document/body widths matched the 390px viewport. Desktop and mobile screenshots use synthetic data. No Firefox, Safari, physical-device, or Mac-specific run was performed.
 - `npm run build` (including TypeScript), `npm run changeset:status`, and `git diff --check` passed. Active diagnostics returned no findings for five changed TypeScript/TSX modules. UI detector returned no findings. Existing Zod dependency annotation warnings remain non-blocking; no CI workflows or new test files were present.
 - Security/edge review found notification suppression of unrelated action errors in the first patch; this was corrected with an independent dismissible row inside the persistent notice, then verified by actual invalid-JSON upload. Transaction, save queue, conflict, broker, Origin/Host, ticket, and mutation retry behavior remain unchanged.
+
+## Introductory canvas
+
+- The initial separate welcome page was replaced with an editable seed after clarification. Its prior screenshot and behavior are not part of the shipped feature.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check`: passed. Build retains existing Zod annotation-placement warnings.
+- Chromium through `localmachine`: Start with introductory canvas created a real Welcome to Open Cavas file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
+- Selected the seeded circle through Layers and moved it with ArrowRight. Edited the seeded text through Properties. Both changes survived reload, with 17 layers retained.
+- Create empty workspace still produced zero layers. An existing workspace opened by its direct URL retained its one artboard and Untitled file name without seeded layers being inserted.
+- Desktop screenshot at 1920 × 1080 shows both artboards inside editor chrome. At 390 × 844, fit/pan/zoom and responsive panels remain available; document width stayed 390 px. Fitting both boards makes text small, so reading requires zooming, as with other canvas artwork.
+- Browser error capture returned no errors in the inspected seed session. Screenshot is committed at `docs/images/introduction.png`; seed and storage behavior are documented in `docs/introduction.md`.
+- No test files or CI workflow were added. No repository CI workflow exists. Verification used a separate feature runtime; stable main was not rebuilt, restarted, or published. Paper's public homepage/docs were read, not its private first-run screen. Visual and code review were single-agent passes.

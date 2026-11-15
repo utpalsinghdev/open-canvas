@@ -2,6 +2,12 @@
 
 A local-first web design editor inspired by Paper. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account or Paper installation required. Manual editing is browser-only; optional MCP control runs a local bridge.
 
+## First visit
+
+Choose **Start with introductory canvas** in the workspace chooser to open an editable **Welcome to Open Cavas** file. Two seeded artboards introduce the tools, navigation, local saves, exports, and local MCP access through native text and shapes you can edit. Existing workspaces stay untouched; empty creation and browser copying remain separate choices.
+
+See the [introduction and screenshot](docs/introduction.md).
+
 ## Run stable main
 
 Use Node.js 22+ and npm, in the primary main checkout.
