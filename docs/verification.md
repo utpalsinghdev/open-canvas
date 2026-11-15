@@ -527,3 +527,18 @@ The original concurrent-editing storage failure remains unconfirmed. This change
 - Security/edge-case review found focused blur-only drafts could be lost on history navigation to Home. Navigation now blurs the focused field before changing its original file/node context. A separate local Brave pass verified focused document name, layer name, numeric width, and on-canvas text across Back/Home/Forward; saved text also survived reload. Home imports now use the browsed project rather than the last editor project. A controlled delayed file read cancelled after navigation without importing or redirecting the new destination.
 - `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check` passed. The UI detector returned no findings. Active diagnostics found no TypeScript errors; auxiliary static rules still flag trusted URL constructors and the repository's extensionless imports. Existing dependency annotation warnings remain. No CI workflow or test script is configured; no new test suite was added.
 - No broker, authentication, runtime, Tailscale, or main-service configuration changed. Home unmounts editor shortcuts and browser registration through existing cleanup. Live MCP canvas disconnect/reconnect was not exercised; canvas IDs can persist across re-registration, so callers must rediscover availability and context. Reload before a pending save completes remains an existing limitation. The final draft/import fixes were browser-checked by the implementer, not a second security review.
+
+## Home and introductory canvas integration
+
+- After merging the introductory canvas, local browser verification confirmed that creating an introductory workspace opens its canvas directly, Home lists the file, and reopening it returns to the editor. Creating an empty workspace opens Home with an Untitled file. `npm run build`, `npm run changeset:status`, and `git diff --check` passed on the combined branches.
+
+## Introductory canvas
+
+- The initial separate welcome page was replaced with an editable seed after clarification. Its prior screenshot and behavior are not part of the shipped feature.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check`: passed. Build retains existing Zod annotation-placement warnings.
+- Chromium through `localmachine`: Start with introductory canvas created a real Welcome to Open Cavas file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
+- Selected the seeded circle through Layers and moved it with ArrowRight. Edited the seeded text through Properties. Both changes survived reload, with 17 layers retained.
+- Create empty workspace still produced zero layers. An existing workspace opened by its direct URL retained its one artboard and Untitled file name without seeded layers being inserted.
+- Desktop screenshot at 1920 × 1080 shows both artboards inside editor chrome. At 390 × 844, fit/pan/zoom and responsive panels remain available; document width stayed 390 px. Fitting both boards makes text small, so reading requires zooming, as with other canvas artwork.
+- Browser error capture returned no errors in the inspected seed session. Screenshot is committed at `docs/images/introduction.png`; seed and storage behavior are documented in `docs/introduction.md`.
+- No test files or CI workflow were added. No repository CI workflow exists. Verification used a separate feature runtime; stable main was not rebuilt, restarted, or published. Visual and code review were single-agent passes.
