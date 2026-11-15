@@ -79,7 +79,7 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
     const target = targetSchema.parse(args);
     if (target.workspaceId !== record.id || target.canvasId)
       throw new Error('Explicit workspace target mismatch. Do not combine canvasId and workspaceId.');
-    if (request.tool === 'get_screenshot' || request.tool === 'write_html' ||
+    if (request.tool === 'get_screenshot' || request.tool === 'export_combined_pdf' || request.tool === 'write_html' ||
       (request.tool === 'export_document' && 'format' in args && args.format !== 'json'))
       throw new Error('This operation requires browser rendering. Use an explicitly connected canvasId, or JSON export. Headless rendering is not implemented.');
     if (definition.mutation && mutationTargetSchema.parse(args).expectedRevision !== record.revision)

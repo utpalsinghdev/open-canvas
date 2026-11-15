@@ -8,7 +8,7 @@
 - `src/editor/geometry.ts` handles translation, local-axis resizing, and marquee intersections.
 - `src/editor/useCamera.ts` owns pan/zoom, pointer-anchored wheel zoom, and fit-to-visible-root bounds.
 - `src/editor/useShortcuts.ts` binds keyboard actions without intercepting text/form editing.
-- `src/editor/files.ts` validates file imports, reads safe raster images, serializes SVG, and triggers downloads.
+- `src/editor/files.ts` validates file imports, reads safe raster images, serializes SVG, and triggers downloads. `src/editor/pdf.ts` captures explicit artboard/page targets, validates resources and size budgets, rasterizes the shared SVG at 2×, and lazily loads pdf-lib to package lossless PNG pages with 96 px/in dimensions. `PdfExport.tsx` provides the explicit header action and pending/error feedback. See [PDF export](pdf-export.md).
 - `src/components/Canvas.tsx` renders SVG artboards, gesture previews, selection, resizing, and on-canvas text editing.
 - `src/components/Artwork.tsx` renders supported artwork independently of editor selection.
 - `src/components/Layers.tsx`, `Inspector.tsx`, `Toolbar.tsx`, and `Help.tsx` provide editor controls.

@@ -27,6 +27,7 @@ import { Toolbar } from './components/Toolbar';
 import { AgentConnection } from './components/AgentConnection';
 import { WorkspaceAccess } from './components/WorkspaceAccess';
 import { Help } from './components/Help';
+import { PdfExport } from './components/PdfExport';
 import { IconButton } from './components/Button';
 import { useEditor } from './editor/store';
 import { useCamera } from './editor/useCamera';
@@ -292,6 +293,7 @@ function EditorApp() {
           </details>
         </div>
         <div className="header-actions">
+          <PdfExport />
           {saveState === 'failed' && <span className="save-status save-failed" role="alert">
             <AlertTriangle size={12} />
             Not saved
