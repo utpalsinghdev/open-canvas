@@ -20,14 +20,15 @@ type Edit =
 type Removal =
   | { kind: 'project'; id: string; name: string }
   | { kind: 'file'; id: string; name: string };
-export function Projects({
-  onClose,
-  onImport,
-}: {
-  onClose: () => void;
-  onImport: () => void;
-}) {
+type Props = {
+  onImport: (projectId: string) => void;
+  onOpen: () => void;
+} & ({ mode: 'home' } | { mode: 'dialog'; onClose: () => void });
+
+/** The same library actions serve the Home destination and editor's quick switcher. */
+export function Projects(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const state = useEditor();
   const [projectId, setProjectId] = useState(state.location.projectId);
   const [edit, setEdit] = useState<Edit | null>(null);
@@ -37,8 +38,12 @@ export function Projects({
     state.workspace.projects.find((project) => project.id === projectId) ??
     state.workspace.projects[0];
   useEffect(() => {
-    dialog.current?.showModal();
-  }, []);
+    if (props.mode === 'dialog') dialog.current?.showModal();
+    else {
+      window.document.title = 'Home / Open Cavas';
+      heading.current?.focus();
+    }
+  }, [props.mode]);
   function run(action: () => void) {
     try {
       action();
@@ -57,17 +62,19 @@ export function Projects({
       } else if (edit.id) state.renameFile(project.id, edit.id, edit.name);
       else {
         state.createFile(project.id, edit.name);
-        dialog.current?.close();
+        props.onOpen();
       }
       setEdit(null);
     });
   }
-  return (
-    <dialog ref={dialog} className="projects-dialog" onClose={onClose}>
+  const content = (
+    <>
       <header className="projects-heading">
-        <h2>Projects</h2>
+        {props.mode === 'home'
+          ? <h1 id="home-heading" ref={heading} tabIndex={-1}>Home</h1>
+          : <h2 id="projects-heading">Projects</h2>}
         <div>
-          <button onClick={onImport}>
+          <button onClick={() => props.onImport(project.id)}>
             <Upload size={14} />
             Import JSON
           </button>
@@ -83,12 +90,12 @@ export function Projects({
             <ArrowDownToLine size={14} />
             Workspace backup
           </button>
-          <IconButton
+          {props.mode === 'dialog' && <IconButton
             label="Close projects"
             onClick={() => dialog.current?.close()}
           >
             <X size={18} />
-          </IconButton>
+          </IconButton>}
         </div>
       </header>
       <div className="projects-layout">
@@ -246,7 +253,7 @@ export function Projects({
                     onClick={() =>
                       run(() => {
                         state.openFile(project.id, file.id);
-                        dialog.current?.close();
+                        props.onOpen();
                       })
                     }
                   >
@@ -256,7 +263,7 @@ export function Projects({
                       <small>
                         {file.document.pages.length}{' '}
                         {file.document.pages.length === 1 ? 'page' : 'pages'}
-                        {file.id === state.location.fileId ? ', open' : ''}
+                        {file.id === state.location.fileId ? ', last opened' : ''}
                       </small>
                     </span>
                   </button>
@@ -314,9 +321,12 @@ export function Projects({
         </section>
       </div>
       <footer>
-        Projects and files stay in this browser. Import backups as new items
+        Projects and files are saved on this machine. Import backups as new items
         without replacing existing work.
       </footer>
-    </dialog>
+    </>
   );
+  return props.mode === 'home'
+    ? <main className="home-library" aria-labelledby="home-heading">{content}</main>
+    : <dialog ref={dialog} className="projects-dialog" aria-labelledby="projects-heading" onClose={props.onClose}>{content}</dialog>;
 }

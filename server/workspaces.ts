@@ -83,6 +83,8 @@ export async function createWorkspaceService(root: string, accessChanged: (id: s
     const target = targetSchema.parse(args);
     if (target.workspaceId !== record.id || target.canvasId)
       throw new Error('Explicit workspace target mismatch. Do not combine canvasId and workspaceId.');
+    if (request.tool === 'export_combined_pdf')
+      throw new Error('PDF export requires an explicitly connected canvasId.');
     if (definition.mutation && mutationTargetSchema.parse(args).expectedRevision !== record.revision)
       throw new Error(`Revision conflict. Current revision is ${record.revision}. Read state before deciding whether to retry.`);
     const store = engine(record);

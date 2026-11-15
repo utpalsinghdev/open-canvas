@@ -4,7 +4,7 @@ Open Cavas owns its document model and MCP implementation.
 
 ## Implemented and live-verified through MCP
 
-- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 50 tools exposed.
+- Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 51 tools exposed.
 - Live document/tree/node/style/selection reads with stable layer identity.
 - Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection.
 - Undo/redo through the same document history as manual edits.
@@ -21,16 +21,17 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 ## Implemented capabilities and limits
 
 - Layer types are the current Open Cavas primitives, not arbitrary DOM/CSS.
-- Typography supports bundled Inter and Bricolage Grotesque variable fonts, numeric variable weights, line height, tracking, left/center/right alignment, explicit or measured wrapping, fixed/auto-height/auto-width sizing, and measured overflow/status reads. Other system fonts depend on browser availability. The bundled fonts are embedded in SVG-derived exports when loaded.
+- Typography supports bundled Inter and Bricolage Grotesque variable fonts, numeric variable weights, line height, tracking, left/center/right alignment, explicit or measured wrapping, fixed/auto-height/auto-width sizing, and measured overflow/status reads. Literal installed family names are accepted across the inspector, text layers, tokens, JSON, and HTML import. Browser availability is a metric-comparison heuristic; native backend availability reflects its local font registry. `get_fonts` can query up to 50 names without enumerating local fonts. The bundled fonts are embedded in SVG-derived exports when loaded.
 - HTML uses a documented static subset and restricted block layout. It is not arbitrary page import, flex/grid, rich text, or computed browser layout.
 - HTML/JSX output represents SVG artwork, not semantic application UI or JSX from an original source tree.
 - Screenshots capture supported artwork, not the editor window or a native Mac window.
+- `export_combined_pdf` exports explicit visible artboards in document order, one page per artboard, or an explicitly requested active page. PDF pages use 96 px/in dimensions and lossless 2× browser rasterization on white. Text is not selectable; shapes are not PDF vectors. GIF/animated PNG/WebP, unavailable bundled fonts, corrupt images, and size-limit violations fail rather than silently dropping content. See [PDF export](pdf-export.md).
 - Tokens support color, number, and font metadata with literal assignment. No dynamic binding, theme inheritance, breakpoint/container token system, or UI token panel.
 - Explicitly selected projects/files/pages persist in a private local service. Browser IndexedDB is retained as an explicit migration/recovery source. See local-workspaces.md.
 
 ## Not implemented
 
-third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless rendering, hosted HTTP MCP are unsupported. Rich-text runs, arbitrary custom/document font registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
+third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless PDF rendering, hosted HTTP MCP are unsupported. Rich-text runs, font uploads/per-document font source registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
 
 No placeholder tools claim those capabilities. `get_tree` reports the active-page layer tree and the actual file page index. Adding a transport does not create editor features that the document model cannot represent.
 

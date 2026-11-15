@@ -1,67 +1,52 @@
 import { useSyncExternalStore } from 'react';
-import type { DesignNode } from './model';
+import { fonts as fontFamilies, type DesignNode } from './model';
+import { bundledFontFamily, fontCssFamily, quoteFontFamily } from './font-family';
+export { fontFamilies };
 
-export const fontRegistry = {
-  Inter: { source: '/fonts/Inter-Variable.ttf', weight: [100, 900] },
-  'Bricolage Grotesque': {
-    source: '/fonts/BricolageGrotesque-Variable.ttf',
-    weight: [300, 800],
-  },
-  Arial: { source: 'system', weight: [100, 900] },
-  Georgia: { source: 'system', weight: [100, 900] },
-  'Courier New': { source: 'system', weight: [100, 900] },
-} as const;
+type FontDefinition = { source: string; weight: readonly [number, number] };
+const systemFont: FontDefinition = { source: 'system', weight: [100, 900] };
+const fontRegistry = new Map<string, FontDefinition>([
+  ['Inter', { source: '/fonts/Inter-Variable.ttf', weight: [100, 900] }],
+  ['Bricolage Grotesque', { source: '/fonts/BricolageGrotesque-Variable.ttf', weight: [300, 800] }],
+]);
+export function fontDefinition(family: string) {
+  return fontRegistry.get(bundledFontFamily(family) ?? family) ?? systemFont;
+}
 
-export type FontFamily = keyof typeof fontRegistry;
-export type FontAvailability = 'loading' | 'available' | 'unavailable' | 'system';
+export type FontAvailability = 'loading' | 'available' | 'unavailable' | 'unverified';
 export type FontStatus = {
-  requested: FontFamily;
-  resolved: FontFamily;
-  fallback: FontFamily | null;
+  requested: string;
+  resolved: string;
+  fallback: string | null;
   availability: FontAvailability;
+  method: 'bundled' | 'browser-metrics' | 'native' | 'unverified';
 };
-type FontState = Record<FontFamily, FontAvailability>;
-
-export const fontFamilies = [
-  'Inter',
-  'Bricolage Grotesque',
-  'Arial',
-  'Georgia',
-  'Courier New',
-] as const satisfies readonly FontFamily[];
+type FontState = ReadonlyMap<string, FontAvailability>;
 const listeners = new Set<() => void>();
-let state: FontState = {
-  Inter: 'loading',
-  'Bricolage Grotesque': 'loading',
-  Arial: 'loading',
-  Georgia: 'loading',
-  'Courier New': 'loading',
-};
+let state: FontState = new Map([['Inter', 'loading'], ['Bricolage Grotesque', 'loading']]);
 let loading: Promise<void> | undefined;
-const bundledFonts = new Map<FontFamily, Uint8Array>();
+const bundledFonts = new Map<string, Uint8Array>();
 type TextContext = {
   measureText(text: string): Pick<TextMetrics, 'width' | 'actualBoundingBoxLeft' |
     'actualBoundingBoxRight' | 'actualBoundingBoxAscent' | 'actualBoundingBoxDescent'>;
 };
 type TextNode = Extract<DesignNode, { kind: 'text' }>;
 let nativeContext: ((node: TextNode) => TextContext) | undefined;
-let nativeResolution: Record<FontFamily, FontFamily> | undefined;
+let nativeStatus: ((family: string) => FontStatus) | undefined;
 
 /** Install the server's native font adapter once, never document-supplied code. */
 export function installTypography(adapter: {
   context: (node: TextNode) => TextContext;
-  resolution: Record<FontFamily, FontFamily>;
-  availability: FontState;
-  fonts: Map<FontFamily, Uint8Array>;
+  status: (family: string) => FontStatus;
+  fonts: Map<string, Uint8Array>;
 }) {
   nativeContext = adapter.context;
-  nativeResolution = adapter.resolution;
+  nativeStatus = adapter.status;
   for (const [family, bytes] of adapter.fonts) bundledFonts.set(family, bytes);
-  publish(adapter.availability);
 }
 
-function publish(next: FontState) {
-  state = next;
+function publish(family: string, availability: FontAvailability) {
+  state = new Map(state).set(family, availability);
   listeners.forEach((listener) => listener());
 }
 function subscribe(listener: () => void) {
@@ -71,56 +56,76 @@ function subscribe(listener: () => void) {
 function snapshot() {
   return state;
 }
-export function fontAvailability() {
-  return snapshot();
+export function fontAvailability(families: readonly string[] = fontFamilies) {
+  return [...new Set(families)].map((family) => ({ family, availability: fontStatus(family).availability }));
 }
 export function useFontState() {
   return useSyncExternalStore(subscribe, snapshot, snapshot);
 }
 
-function fetchFont(family: FontFamily) {
-  const options = { credentials: 'same-origin', signal: AbortSignal.timeout(8_000) } satisfies RequestInit;
-  switch (family) {
-    case 'Inter': return fetch('/fonts/Inter-Variable.ttf', options);
-    case 'Bricolage Grotesque': return fetch('/fonts/BricolageGrotesque-Variable.ttf', options);
-    default: throw new Error('System font has no bundled asset.');
-  }
-}
-async function loadFont(family: FontFamily) {
-  const font = fontRegistry[family];
-  if (font.source === 'system') {
-    publish({ ...state, [family]: 'system' });
-    return;
-  }
+async function loadFont(family: string, font: FontDefinition) {
   try {
-    // A missing or stalled asset must not prevent opening the user's workspace.
-    const response = await fetchFont(family);
-    if (!response.ok) throw new Error(`Bundled font unavailable: ${family}`);
+    // Sources come only from this module's registry, never from document data.
+    const response = await fetch(font.source, { credentials: 'same-origin', signal: AbortSignal.timeout(8_000) });
+    if (!response.ok) throw new Error('Bundled font unavailable.');
     const bytes = await response.arrayBuffer();
-    const face = new FontFace(family, bytes, {
-      weight: `${font.weight[0]} ${font.weight[1]}`,
-    });
+    const face = new FontFace(family, bytes, { weight: `${font.weight[0]} ${font.weight[1]}` });
     await face.load();
     bundledFonts.set(family, new Uint8Array(bytes));
     document.fonts.add(face);
-    publish({ ...state, [family]: 'available' });
+    publish(family, 'available');
   } catch {
-    publish({ ...state, [family]: 'unavailable' });
+    publish(family, 'unavailable');
   }
 }
 
 /** Load only fonts shipped with the application; never resolve a document URL. */
 export function loadDocumentFonts(): Promise<void> {
   if (typeof document === 'undefined') return Promise.resolve();
-  loading ??= Promise.all(fontFamilies.map(loadFont)).then(() => undefined);
+  loading ??= Promise.all([...fontRegistry].map(([family, font]) => loadFont(family, font))).then(() => undefined);
   return loading;
 }
 
-export function fontStatus(family: FontFamily, fonts: FontState = state): FontStatus {
-  const availability = fonts[family];
-  const resolved = nativeResolution?.[family] ??
-    (availability === 'available' || availability === 'system' ? family : 'Arial');
-  return { requested: family, resolved, fallback: resolved === family ? null : resolved, availability };
+const detectedFonts = new Map<string, FontAvailability>();
+/** Metric comparison works on HTTP tailnet origins without enumerating local fonts.
+ * Equal-metric substitutes and missing glyphs cannot be distinguished reliably.
+ * This is browser detection, not proof of a particular installed font file/style.
+ */
+function detectSystemFont(family: string): FontAvailability {
+  if (typeof document === 'undefined') return 'unverified';
+  const cached = detectedFonts.get(family);
+  if (cached) return cached;
+  try {
+    const context = document.createElement('canvas').getContext('2d');
+    if (!context) return 'unverified';
+    const sample = 'mmmmmmmmmmlliWW0123456789';
+    const detected = ['monospace', 'serif', 'sans-serif'].some((fallback) => {
+      context.font = `72px ${fallback}`;
+      const baseline = context.measureText(sample).width;
+      context.font = `72px ${quoteFontFamily(family)}, ${fallback}`;
+      return context.measureText(sample).width !== baseline;
+    });
+    const availability = detected ? 'available' : 'unavailable';
+    // Bound session-only cache across large imports and repeated agent queries.
+    if (detectedFonts.size >= 256) detectedFonts.clear();
+    detectedFonts.set(family, availability);
+    return availability;
+  } catch {
+    return 'unverified';
+  }
+}
+
+export function fontStatus(family: string, fonts: FontState = state): FontStatus {
+  if (nativeStatus) return nativeStatus(family);
+  const bundled = bundledFontFamily(family);
+  const availability = typeof document === 'undefined' ? 'unverified'
+    : bundled ? (fonts.get(bundled) ?? 'loading') : detectSystemFont(family);
+  const useFallback = availability === 'loading' || availability === 'unavailable';
+  const resolved = useFallback ? 'Arial' : bundled ?? family;
+  return {
+    requested: family, resolved, fallback: useFallback ? 'Arial' : null, availability,
+    method: availability === 'unverified' ? 'unverified' : bundled ? 'bundled' : 'browser-metrics',
+  };
 }
 
 export type TextLayout = {
@@ -139,7 +144,7 @@ function textContext(node: TextNode): TextContext | null {
   const context = document.createElement('canvas').getContext('2d');
   if (!context) return null;
   const family = fontStatus(node.fontFamily).resolved;
-  context.font = `${node.fontWeight} ${node.fontSize}px "${family}"`;
+  context.font = `${node.fontWeight} ${node.fontSize}px ${fontCssFamily(family)}`;
   context.fontKerning = 'normal';
   context.letterSpacing = `${node.letterSpacing}px`;
   return context;
@@ -199,16 +204,16 @@ export function textLayout(node: Extract<DesignNode, { kind: 'text' }>): TextLay
     contentWidth: width,
     contentHeight: height,
     overflow: width > resolvedWidth || height > resolvedHeight || horizontalOverflow || topOverflow,
-    measured: availability !== 'loading' && availability !== 'unavailable',
+    measured: availability === 'available',
   };
 }
 
-export function embeddedFontStyle(families: FontFamily[]) {
-  const unique = [...new Set(families)];
+export function embeddedFontStyle(families: string[]) {
+  const unique = [...new Set(families.map((family) => bundledFontFamily(family) ?? family))];
   return unique.flatMap((family) => {
     const bytes = bundledFonts.get(family);
     if (!bytes) return [];
-    const font = fontRegistry[family];
+    const font = fontDefinition(family);
     let binary = '';
     for (const byte of new Uint8Array(bytes)) binary += String.fromCharCode(byte);
     const encoded = btoa(binary);

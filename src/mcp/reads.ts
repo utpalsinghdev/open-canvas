@@ -2,9 +2,10 @@ import { currentFile } from '../workspace/model';
 import { useEditor } from '../editor/store';
 import type { EditorStore } from '../editor/state';
 import { renderSvg } from '../editor/svg';
+import { renderPdf } from '../editor/pdf';
 import { tools } from './tools';
 import type { DesignDocument, DesignNode } from '../editor/model';
-import { fontAvailability, fontFamilies, fontRegistry, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
+import { fontAvailability, fontFamilies, fontDefinition, fontStatus, loadDocumentFonts, textLayout } from '../editor/typography';
 
 export function withoutImageBytes(node: DesignNode) {
   if (node.kind !== 'image') return node;
@@ -33,10 +34,11 @@ async function screenshot(artboardId: string | undefined, scale: number) {
     throw new Error(
       'Screenshot exceeds size limit. Choose a smaller scale or one artboard.'
     );
-  const fontResolution = Object.fromEntries(fontFamilies.map((family) => [family, fontStatus(family)]));
+  const families = [...new Set([...fontFamilies, ...documentSnapshot.nodes.flatMap((node) => node.kind === 'text' ? [node.fontFamily] : [])])];
+  const fontResolution = families.map((family) => fontStatus(family));
   if (rasterize) return {
     data: await rasterize(artwork.svg, width, height), mimeType: 'image/png',
-    width, height, scale, bounds: artwork.bounds, fonts: fontAvailability(), fontResolution,
+    width, height, scale, bounds: artwork.bounds, fonts: fontAvailability(families), fontResolution,
   };
   const url = URL.createObjectURL(
     new Blob([artwork.svg], { type: 'image/svg+xml' })
@@ -58,7 +60,7 @@ async function screenshot(artboardId: string | undefined, scale: number) {
       height,
       scale,
       bounds: artwork.bounds,
-      fonts: fontAvailability(), fontResolution,
+      fonts: fontAvailability(families), fontResolution,
     };
   } finally {
     URL.revokeObjectURL(url);
@@ -134,17 +136,23 @@ const reads: Record<
     };
   },
   get_fonts(value) {
-    tools.get_fonts.schema.parse(value);
-    const availability = fontAvailability();
+    const args = tools.get_fonts.schema.parse(value);
+    const doc = useEditor.getState().document;
+    const families = args.families ?? [
+      ...fontFamilies,
+      ...doc.nodes.flatMap((node) => node.kind === 'text' ? [node.fontFamily] : []),
+      ...Object.values(doc.tokens).flatMap((token) => token.type === 'font' ? [token.value] : []),
+    ];
     return {
-      fonts: fontFamilies.map((family) => ({
+      fonts: [...new Set(families)].map((family) => ({
         family,
+        source: fontDefinition(family).source === 'system' ? 'system' : 'bundled',
+        weight: fontDefinition(family).weight,
+        weightAvailability: fontDefinition(family).source === 'system' ? 'unverified' : 'bundled-range',
         ...fontStatus(family),
-        source: fontRegistry[family].source === 'system' ? 'system' : 'bundled',
-        weight: fontRegistry[family].weight,
-        availability: availability[family],
       })),
       fallback: fontStatus('Arial').resolved,
+      note: 'System font detection depends on the renderer and does not verify individual weights or glyphs. System fonts are not embedded in exports.',
     };
   },
   get_styles(value) {
@@ -200,19 +208,37 @@ const reads: Record<
       };
     const jsx = artwork.svg
       .replace(/<style>([\s\S]*?)<\/style>/g, (_match: string, css: string) => `<style>{${JSON.stringify(css)}}</style>`)
-      .replace(/letter-spacing=/g, 'letterSpacing=')
-      .replace(/xml:space=/g, 'xmlSpace=')
-      .replace(/text-rendering=/g, 'textRendering=')
+      .replace(/ letter-spacing="/g, ' letterSpacing="')
+      .replace(/ xml:space="/g, ' xmlSpace="')
+      .replace(/ text-rendering="/g, ' textRendering="')
       .replace(/style="font-kerning:normal"/g, 'style={{fontKerning:"normal"}}')
-      .replace(/clip-path=/g, 'clipPath=')
-      .replace(/font-family=/g, 'fontFamily=')
-      .replace(/font-size=/g, 'fontSize=')
-      .replace(/font-weight=/g, 'fontWeight=')
-      .replace(/text-anchor=/g, 'textAnchor=');
+      .replace(/ clip-path="/g, ' clipPath="')
+      .replace(/ font-family="/g, ' fontFamily="')
+      .replace(/ font-size="/g, ' fontSize="')
+      .replace(/ font-weight="/g, ' fontWeight="')
+      .replace(/ text-anchor="/g, ' textAnchor="');
     return {
       format: 'jsx',
       content: `export default function Artwork() { return (${jsx}); }`,
       representation: 'SVG JSX, not semantic HTML layout',
+    };
+  },
+  async export_combined_pdf(value) {
+    const args = tools.export_combined_pdf.schema.parse(value);
+    if (args.scope === 'page' && args.artboardIds !== undefined)
+      throw new Error('Page PDF export must omit artboardIds.');
+    if (args.scope === 'artboards' && !args.artboardIds?.length)
+      throw new Error('Artboard PDF export requires explicit artboardIds.');
+    const snapshot = useEditor.getState().document;
+    const pdf = await renderPdf(snapshot, args.scope === 'page'
+      ? { kind: 'page' }
+      : { kind: 'artboards', artboardIds: args.artboardIds ?? [] });
+    let binary = '';
+    for (const byte of pdf.bytes) binary += String.fromCharCode(byte);
+    return {
+      data: btoa(binary), mimeType: 'application/pdf', encoding: 'base64',
+      name: `${pdf.name}.pdf`, pageCount: pdf.pages.length, pages: pdf.pages,
+      pointsPerPixel: 0.75, rasterScale: 2, representation: 'raster artwork, not selectable text or vectors',
     };
   },
   get_screenshot(value) {

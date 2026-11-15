@@ -66,6 +66,15 @@ export function readDestination(url: URL, workspace: Workspace, serviceId?: stri
   };
 }
 
+/** Home retains explicit workspace identity, never a file/page destination. */
+export function homeUrl(url: URL, serviceId?: string) {
+  const next = new URL(url);
+  next.pathname = '/';
+  for (const key of destinationKeys) next.searchParams.delete(key);
+  if (serviceId) next.searchParams.set('workspace', serviceId);
+  return next;
+}
+
 export function destinationUrl(url: URL, location: Location, serviceId?: string) {
   const next = new URL(url);
   next.pathname = `/f/${compactId(location.fileId)}/${compactId(location.pageId)}`;
