@@ -8,6 +8,7 @@ import { loadWorkspace } from './storage';
 import { workspaceRequest } from './remote';
 import { serviceRecordSchema, workspaceListSchema, type ServiceRecord } from './service-schema';
 import { hasReviewDrafts } from '../review/drafts';
+import { destinationUrl } from './destination';
 
 const SELECTED = 'open-cavas.service-workspace.v1';
 export const useWorkspaceService = create<{
@@ -83,6 +84,9 @@ export async function createServiceWorkspace(name: string, content: 'introductio
       method: 'create', id, name, workspace,
       context: copyBrowser ? browserLocation : firstLocation(workspace),
     }));
+    if (content === 'introduction') {
+      history.replaceState(null, '', destinationUrl(new URL(window.location.href), record.context, record.id));
+    }
     applyRecord(record, true);
   } catch (error) {
     useWorkspaceService.setState({ error: error instanceof Error ? error.message : 'Workspace creation failed.' });
