@@ -147,6 +147,14 @@ const canvasTools = {
       artboardId: id.optional(),
     })
   ),
+  export_combined_pdf: read(
+    'Return a base64 application/pdf with one rasterized page per explicitly named visible artboard, in document order. Choose scope page explicitly for one whole-page export. Requires canvasId, not workspaceId. 96 px/in, 2× raster, white background; no selectable text or vectors. Max 32 pages, 4096 px/side and 8 MP/page at 2×, 32 MP total, 8 MB PDF. GIF/animated WebP and unavailable bundled fonts fail. No filesystem writes.',
+    z.object({
+      ...target,
+      scope: z.enum(['artboards', 'page']),
+      artboardIds: ids.optional(),
+    }).strict()
+  ),
   get_screenshot: read(
     'Render visible artwork or one artboard as PNG, not editor chrome. Maximum side 4096 pixels and area 8 megapixels.',
     z.object({
@@ -227,6 +235,7 @@ export const coverage = {
     'undo/redo',
     'restricted static HTML import',
     'JSON/SVG/HTML/SVG-JSX export',
+    'paginated raster PDF export for explicit artboards or page',
     'artwork PNG screenshots',
     'file design tokens',
     'projects, multiple files, page lifecycle and navigation',

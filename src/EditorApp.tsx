@@ -5,7 +5,6 @@ import {
   useState,
 } from 'react';
 import {
-  ArrowDownToLine,
   AlertTriangle,
   ChevronDown,
   FolderOpen,
@@ -26,6 +25,7 @@ import { Inspector } from './components/Inspector';
 import { Toolbar } from './components/Toolbar';
 import { AgentConnection } from './components/AgentConnection';
 import { Help } from './components/Help';
+import { ExportMenu } from './components/ExportMenu';
 import { IconButton } from './components/Button';
 import { useEditor } from './editor/store';
 import { useCamera } from './editor/useCamera';
@@ -257,14 +257,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
             <AlertTriangle size={12} />
             Not saved
           </span>}
-          <button
-            className="export-button"
-            aria-label="Export SVG"
-            onClick={exportFile}
-          >
-            <ArrowDownToLine size={14} />
-            <span>Export SVG</span>
-          </button>
+          <ExportMenu onSvg={exportFile} />
         </div>
       </header>
       <div className="workspace-bar">
