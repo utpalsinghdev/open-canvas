@@ -5,6 +5,7 @@ import {
   type DesignNode,
 } from './model';
 import { embeddedFontStyle, fontStatus, textLayout } from './typography';
+import { fontCssFamily } from './font-family';
 
 const escape = (value: string) =>
   value.replace(/[&<>"'{}]/g, (character) => `&#${character.charCodeAt(0)};`);
@@ -35,7 +36,7 @@ export function nodeSvg(node: DesignNode): string {
           : node.align === 'right'
             ? 'end'
             : 'start';
-      return `<text fill="${node.fill}" font-family="${fontStatus(node.fontFamily).resolved}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" letter-spacing="${node.letterSpacing}" xml:space="preserve" style="font-kerning:normal" text-rendering="geometricPrecision" text-anchor="${anchor}" data-text-overflow="${layout.overflow}" ${common}>${layout.lines
+      return `<text fill="${node.fill}" font-family="${escape(fontCssFamily(fontStatus(node.fontFamily).resolved))}" data-font-family="${escape(node.fontFamily)}" font-size="${node.fontSize}" font-weight="${node.fontWeight}" letter-spacing="${node.letterSpacing}" xml:space="preserve" style="font-kerning:normal" text-rendering="geometricPrecision" text-anchor="${anchor}" data-text-overflow="${layout.overflow}" ${common}>${layout.lines
         .map(
           (line, index) =>
             `<tspan x="${x}" y="${node.y + node.fontSize + index * node.fontSize * node.lineHeight}">${escape(line)}</tspan>`

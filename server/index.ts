@@ -7,7 +7,7 @@ import { runtimeSettings } from '../scripts/runtime-settings.mjs';
 import { newId } from '../src/editor/model';
 import { firstLocation, initialWorkspace, itemName } from '../src/workspace/model';
 import { locationSchema } from '../src/workspace/model';
-import { fonts } from '../src/editor/model';
+import { fontFamilySchema } from '../src/editor/font-family';
 import { coverage, targetSchema, tools } from '../src/mcp/tools';
 
 const broker = await createBrokerSession();
@@ -15,7 +15,7 @@ const server = new McpServer(
   { name: 'open-cavas', version: '0.4.0' },
   {
     instructions:
-      'Controls local Open Cavas workspaces, not Paper. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. All workspace tools execute directly in the backend, including native PNG rendering. No hidden browser runs. Connections are automatic; no pairing code is needed.',
+      'Controls local Open Cavas workspaces, not Paper. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. Workspace operations include native PNG rendering; PDF export requires a connected canvas. No hidden browser runs. Connections are automatic; no pairing code is needed.',
   }
 );
 function text(result: unknown): CallToolResult {
@@ -119,11 +119,12 @@ for (const [name, definition] of Object.entries(tools)) {
                 height: z.number(),
                 scale: z.number().positive(),
                 bounds: z.object({ x: z.number(), y: z.number(), width: z.number(), height: z.number() }),
-                fonts: z.record(z.enum(fonts), z.enum(['loading', 'available', 'unavailable', 'system'])),
-                fontResolution: z.record(z.enum(fonts), z.object({
-                  requested: z.enum(fonts), resolved: z.enum(fonts), fallback: z.enum(fonts).nullable(),
-                  availability: z.enum(['loading', 'available', 'unavailable', 'system']),
-                })),
+                fonts: z.array(z.object({ family: fontFamilySchema, availability: z.enum(['loading', 'available', 'unavailable', 'unverified']) })).max(1005),
+                fontResolution: z.array(z.object({
+                  requested: fontFamilySchema, resolved: fontFamilySchema, fallback: fontFamilySchema.nullable(),
+                  availability: z.enum(['loading', 'available', 'unavailable', 'unverified']),
+                  method: z.enum(['bundled', 'browser-metrics', 'native', 'unverified']),
+                })).max(1005),
               }),
             })
             .parse(result);

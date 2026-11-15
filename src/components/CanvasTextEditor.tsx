@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Camera, DesignNode } from '../editor/model';
+import { fontCssFamily } from '../editor/font-family';
 import { fontStatus, textContentBounds, textNodeBounds } from '../editor/typography';
 
 export function CanvasTextEditor({ node, camera, commit, cancel }: {
@@ -20,7 +21,7 @@ export function CanvasTextEditor({ node, camera, commit, cancel }: {
     style={{ left: camera.x + bounds.x * camera.zoom, top: camera.y + bounds.y * camera.zoom,
       width: bounds.width * camera.zoom + 4, height: bounds.height * camera.zoom + 4,
       fontSize: node.fontSize * camera.zoom, lineHeight: node.lineHeight, letterSpacing: `${node.letterSpacing * camera.zoom}px`,
-      fontFamily: fontStatus(node.fontFamily).resolved, fontWeight: node.fontWeight,
+      fontFamily: fontCssFamily(fontStatus(node.fontFamily).resolved), fontWeight: node.fontWeight,
       color: node.fill, textAlign: node.align, whiteSpace: wraps ? 'pre-wrap' : 'pre', overflowWrap: 'normal', wordBreak: 'normal', tabSize: 8,
       transform: `rotate(${node.rotation}deg)`,
       transformOrigin: `${(frame.x + frame.width / 2 - bounds.x) * camera.zoom + 2}px ${(frame.height / 2) * camera.zoom + 2}px`,

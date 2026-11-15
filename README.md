@@ -1,6 +1,12 @@
 # Open Cavas
 
-A local-first web design editor inspired by Paper. Create artboards, arrange text, shapes, and images, then export SVG or download an editable JSON document. No account or Paper installation required. Manual editing is browser-only; optional MCP control runs a local bridge.
+A local-first web design editor inspired by Paper. Create artboards, arrange text, shapes, and images, then export SVG/PDF or download an editable JSON document. No account or Paper installation required. Manual editing is browser-only; optional MCP control runs a local bridge.
+
+## First visit
+
+Choose **Start with introductory canvas** in the workspace chooser to open an editable **Welcome to Open Cavas** file. Two seeded artboards introduce the tools, navigation, local saves, exports, and local MCP access through native text and shapes you can edit. Existing workspaces stay untouched; empty creation and browser copying remain separate choices.
+
+See the [introduction and screenshot](docs/introduction.md).
 
 ## Run stable main
 
@@ -38,7 +44,7 @@ After feature verification and authorized merge, run `npm run release:main` and 
 
 ## Agent control through MCP
 
-50 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent data operations. Restricted HTML import, visual exports and PNG artwork capture also execute directly in the backend. No hidden browser runs. An explicit connected `canvasId` remains available for browser-specific rendering. This is not complete Paper MCP parity.
+51 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent operations, including restricted HTML import, SVG/HTML/JSX exports and PNG artwork capture. PDF export requires a connected `canvasId`. No hidden browser runs. This is not complete Paper MCP parity.
 
 ## Editor
 
@@ -49,13 +55,13 @@ After feature verification and authorized merge, run `npm run release:main` and 
 - **Navigate:** hold Space and drag to pan, choose Hand, or drag with the middle mouse button. Scroll pans, Ctrl/Cmd+scroll zooms around the pointer. Zoom buttons and Fit canvas are at the bottom right.
 - **Cursors:** Select, Hand, Text, and directional resize handles use a matching 32 px SVG cursor set with dark ink and white contrast rims. Select uses an arrow, Text an I-beam, and Artboard, Rectangle, and Ellipse the native crosshair. Hand and Space show an open hand; an active pan shows a closed hand. Each cursor has a native fallback. Inline text editing keeps its native text cursor; panels and controls retain their normal cursors.
 - **History:** undo and redo belong to each file, including all its pages. Switching files preserves separate histories during this session. A completed drag is one history entry. Camera and page navigation are not undo steps.
-- **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. Export SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page.
+- **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. The header's Export dropdown contains SVG and PDF with explicit scope labels. SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page. PDF · Selected artboards puts selected artboards into one PDF in document order, one artboard per page. With no artboards selected, PDF · Current page explicitly exports the active page as one page. See [PDF export](docs/pdf-export.md) for dimensions and limits.
 
 Click the help button for the complete shortcut list. On desktop, use the sidebar icons at the left and right ends of the toolbar row to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
 
 ## Projects, files, and pages
 
-Click the project name beside the header wordmark to open Projects. Create or rename projects, search/open/create/rename/duplicate files, and download file/project/workspace backups. Each project always contains at least one file. Project and file deletion require confirmation and are permanent, including their history. Download backups first.
+After choosing a local workspace, Home lists its projects and files. Open an existing file or create a new file to enter the editor. Use **Home** in the editor header to return without reloading or discarding committed edits. Back/Forward and refresh preserve the Home or file destination. The project name still opens the compact Projects dialog for quick switching. Both views reuse project/file management and file/project/workspace backups. Each project always contains at least one file. Project and file deletion require confirmation and are permanent, including their history. Download backups first.
 
 Use Pages above Layers to add, rename, duplicate, delete, or switch pages in a file. Each file keeps at least one page. Page duplication assigns new page/layer IDs. Page deletion can be undone through that file's history. Files share no artwork or undo state; design tokens are shared across pages of the same file.
 
@@ -78,9 +84,10 @@ File/project/workspace JSON backups and append-only imports remain available thr
 - Up to 50 projects, 50 files per project, and 200 files total. Up to 100 pages per file, 1,000 layers per page, and 10,000 layers per file. One page is active at a time. Each file keeps at most 80 undo snapshots in memory.
 - UI JSON imports up to 40 MB; MCP messages remain limited to 12 MB; raster images up to 2 MB each. Browser storage may have a smaller total quota.
 - Only artboards are containers. Children use absolute world coordinates and clip to their artboard.
-- Text supports bundled Inter and Bricolage Grotesque variable fonts (including weight 620), Arial/Georgia/Courier New system fonts, line height, tracking, alignment, optional measured wrapping, and fixed/auto-height/auto-width sizing. Requested/resolved font availability and measured overflow are visible in Properties and MCP reads. Older files default safely to prior typography behavior.
+- Text supports bundled Inter and Bricolage Grotesque variable fonts (including weight 620), Arial/Georgia/Courier New system fonts, line height, tracking, alignment, optional measured wrapping, and fixed/auto-height/auto-width sizing. Type any installed family name in Properties alongside the bundled suggestions. Requested/resolved font availability and measured overflow are visible in Properties and MCP reads. System detection is a browser-metric heuristic, not proof of an installed file or weight. System fonts are not embedded in exports. Older files default safely to prior typography behavior.
 - SVG export preserves supported artwork, clipping, rotation, opacity, embedded images, and loaded bundled typography fonts. It does not include editor chrome. It is a visual export, not a JSON round trip.
-- No Paper document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, snapping, or PDF export. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
+- No Paper document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, or snapping. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
+- PDF export is lossless 2× raster artwork, not selectable text or PDF vectors. It uses 96 px/in dimensions, white page backgrounds, and bounded page/pixel/file sizes. GIF, animated PNG/WebP, corrupt images, and unavailable bundled fonts fail explicitly. See [PDF export](docs/pdf-export.md).
 - Desktop mouse/keyboard is the primary workflow. Mobile has responsive controls and panel access; multi-touch/pinch gestures are not implemented.
 
 ## Project docs
