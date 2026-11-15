@@ -2,4 +2,4 @@
 "open-cavas": minor
 ---
 
-Add a skippable first-visit introduction with canvas basics, local-save guidance, and local MCP access information. Reopen the introduction from Help without changing existing documents.
+Add an editable introductory canvas with two seeded artboards covering drawing, navigation, local saves, exports, and local MCP access. Start with the introduction from the workspace chooser without changing existing artwork or empty-workspace creation.
