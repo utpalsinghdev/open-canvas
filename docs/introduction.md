@@ -1,29 +1,26 @@
-# Introduction
+# Introductory canvas
 
-A new browser visiting the app root sees a welcome page before local workspace selection. It introduces the supported editor workflow without requiring an account or creating sample files.
+The introduction is an ordinary editable design file, not a welcome webpage or a Help dialog. In the local workspace chooser, choose **Start with introductory canvas** to create a new workspace containing the **Welcome to Open Cavas** file. The editor opens its first page and fits the artwork into view.
 
-![Open Cavas welcome page](images/introduction.png)
+![Editable introductory canvas inside the editor](images/introduction.png)
 
-## Content and controls
+## Artwork and content
 
-- Create an artboard with A; add text with T or a rectangle with R.
-- Select with V, move or resize layers, change properties, and double-click text to edit.
-- Pan with Space + drag, fit artwork with Shift + 1, and find files and pages through Projects and Pages.
-- Edits save to the local workspace service. JSON backups are editable; SVG exports contain artwork. No cloud sync is promised.
-- Trusted local MCP clients can access new workspaces automatically. File menu offers Pause agent access.
+Two artboards contain 17 native layers:
 
-Choose a workspace and Skip introduction both open the existing chooser. Neither action creates a workspace or changes documents. Creating an empty workspace, copying browser data, and opening existing workspaces remain explicit chooser actions.
+- **Welcome to Open Cavas** introduces artboards, text, shapes, pan/fit shortcuts, Projects, and Pages.
+- **Try it yourself** contains a movable circle, a rectangle with an editable fill, and text to rewrite. It also explains local saves, JSON backups, SVG exports, and automatic local MCP access with File-menu pause controls.
 
-## Returning users
+Every heading, paragraph, shape, and artboard is editable. Select layers from the canvas or Layers panel, move/resize shapes, edit text, change Properties, undo changes, or export the artwork using the normal editor controls. There are no simulated buttons or separate tutorial states. On narrow screens, zoom and pan to read or edit individual artboards.
 
-Dismissal stores `open-cavas.introduction.v1 = seen` in localStorage for this browser origin. Clearing site storage or using a different browser/origin can show the introduction again. If this optional preference cannot be written, navigation still proceeds, but a later root visit can show it again.
+## Creation and persistence
 
-An already selected service workspace opens as before. Workspace queries, file/page queries, and non-root destination paths bypass the welcome page so it does not intercept valid links or hide destination errors. Help > Introduction reopens the same content without changing workspace data. Keyboard shortcuts remains the default Help section. Escape closes Help; editor shortcuts do not run inside it.
+The seed lives in `src/editor/seed.ts`. It replaces the old synthetic poster study used as the fresh-browser fallback. The chooser also offers explicit seeded service-workspace creation, so starting with the introduction does not require copying browser storage. Each creation generates fresh layer, file, page, project, and workspace IDs.
 
-On narrow screens, the welcome content stacks and scrolls. Skip introduction remains at the top; the main action follows the content.
+**Create empty workspace** remains empty. **Copy browser workspace** preserves existing browser content and identity. Opening an existing service workspace or direct file link never inserts introductory artwork. The introduction is not automatically added to new files or to workspaces created through MCP.
 
-## Reference and limits
+After creation, the file uses ordinary local service persistence and JSON backups. Deleting or editing its layers is permanent after saving unless undone within the current file session. Reloading does not recreate the seed or restore deleted introduction layers. There is no dismissal preference, separate onboarding screen, or Help introduction section.
 
-Paper's public [homepage](https://paper.design/) and [docs index](https://paper.design/docs) informed the focus on a canvas and practical workflows. This is original Open Cavas copy and artwork, not a reproduction of Paper's private onboarding. Paper's private first-run content was not inspected. The colored composition is illustrative, not an embedded editor or an editable document. The introduction does not add cloud sharing, HTML layout, multiplayer, or other unsupported capabilities.
+## Reference
 
-Implementation lives in `src/components/Introduction.tsx` and `introduction.css`, with first-run placement in `WorkspaceAccess.tsx` and replay in `Help.tsx`.
+Paper's public [homepage](https://paper.design/) and [docs index](https://paper.design/docs) informed the focus on a canvas and practical workflows. Copy and artwork are original and describe supported Open Cavas behavior. Paper's private first-run document was not inspected or reproduced.

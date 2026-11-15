@@ -520,13 +520,13 @@ The original concurrent-editing storage failure remains unconfirmed. This change
 - `npm run build` (including TypeScript), `npm run changeset:status`, and `git diff --check` passed. Active diagnostics returned no findings for five changed TypeScript/TSX modules. UI detector returned no findings. Existing Zod dependency annotation warnings remain non-blocking; no CI workflows or new test files were present.
 - Security/edge review found notification suppression of unrelated action errors in the first patch; this was corrected with an independent dismissible row inside the persistent notice, then verified by actual invalid-JSON upload. Transaction, save queue, conflict, broker, Origin/Host, ticket, and mutation retry behavior remain unchanged.
 
-## First-visit introduction
+## Introductory canvas
 
-- `npm run check` and `npm run build`: passed. Build retains the two existing Zod annotation-placement warnings.
-- `npm run changeset:status`: passed and reports the introduction's minor version entry.
-- `git diff --check`: passed. Active LSP checks for Introduction, WorkspaceAccess, and Help returned no diagnostics. Impeccable detector returned `[]` for the changed UI targets.
-- Real Chromium interactions through `localmachine` at 1440 × 1000 and 390 × 844 verified first-root welcome, Skip introduction, Choose a workspace, dismissal across reload, explicit empty workspace creation, and Help > Introduction replay. On mobile, scroll to the main action before activating it. No document-width overflow on the welcome page or horizontal overflow in the Help dialog.
-- Keyboard Tab exposed visible focus and Enter continued to the chooser. Escape closed Help. With an artboard selected, Backspace inside Help left the complete workspace unchanged. The artboard remained after reload.
-- A fresh browser opened a complete workspace/file URL directly without showing the introduction or writing its dismissal preference. Selected-workspace reload also bypassed welcome.
-- Browser error capture returned no errors in the inspected sessions. Screenshot is committed at `docs/images/introduction.png`; controls and storage behavior are documented in `docs/introduction.md`.
+- The initial separate welcome page was replaced with an editable seed after clarification. Its prior screenshot and behavior are not part of the shipped feature.
+- `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check`: passed. Build retains existing Zod annotation-placement warnings.
+- Chromium through `localmachine`: Start with introductory canvas created a real Welcome to Open Cavas file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
+- Selected the seeded circle through Layers and moved it with ArrowRight. Edited the seeded text through Properties. Both changes survived reload, with 17 layers retained.
+- Create empty workspace still produced zero layers. An existing workspace opened by its direct URL retained its one artboard and Untitled file name without seeded layers being inserted.
+- Desktop screenshot at 1920 × 1080 shows both artboards inside editor chrome. At 390 × 844, fit/pan/zoom and responsive panels remain available; document width stayed 390 px. Fitting both boards makes text small, so reading requires zooming, as with other canvas artwork.
+- Browser error capture returned no errors in the inspected seed session. Screenshot is committed at `docs/images/introduction.png`; seed and storage behavior are documented in `docs/introduction.md`.
 - No test files or CI workflow were added. No repository CI workflow exists. Verification used a separate feature runtime; stable main was not rebuilt, restarted, or published. Paper's public homepage/docs were read, not its private first-run screen. Visual and code review were single-agent passes.
