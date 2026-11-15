@@ -4,9 +4,11 @@
 
 A workspace contains projects. Each project contains files. Each file contains pages, and each page contains artboards and layers. File-wide design tokens are shared across its pages. Projects and files are independent; copying a file does not create linked artwork or shared history.
 
-Open Projects from the project-name button in the header. It supports project creation/rename/deletion, file search/open/create/rename/duplicate/deletion, and backups. Duplicate names are allowed; IDs distinguish items. New projects begin with one Untitled file and Page 1. New files begin with one empty Page 1.
+After selecting a local workspace, the app root opens Home. Home reuses the Projects library for project creation/rename/deletion, file search/open/create/rename/duplicate/deletion, and backups. Open or create a file to enter the editor; use the labeled Home button to return. The project-name button still opens the compact Projects dialog for quick switching. Duplicate names are allowed; IDs distinguish items. New projects begin with one Untitled file and Page 1. New files begin with one empty Page 1.
 
 Pages above Layers support creation, switching, rename, duplicate, and delete. Switching file/page clears selection, discards transient pointer state, resets drawing to Select, and fits the page. The file remembers its most recently opened page. Camera and selection are not persisted per page.
+
+Home navigation does not reload the page or reset the workspace store. Committed edits continue through the existing autosave queue, and file histories and review drafts stay in memory. Returning to the editor fits the page and resets editor-only panels. Home mounts neither canvas shortcuts nor browser canvas registration; reopening a file re-registers the browser connection, so MCP callers must rediscover availability and current context. The tab's canvas ID can remain the same. Durable workspace access is unchanged. Save failures and backup recovery remain visible on Home. Closing or reloading before a pending save completes still risks recent edits.
 
 ## History and deletion
 
@@ -57,10 +59,10 @@ this compact format. Noncanonical or malformed encoded tokens are rejected.
 
 Copy the complete URL to bookmark a file/page. Renaming a project, file, or page
 does not change the destination. Opening a link waits for local storage to load,
-then selects that exact page. A bare app URL uses the last saved location and
-replaces its history entry with a complete link. File/page changes add history
-entries; Back and Forward select existing destinations without adding another
-entry. Refresh preserves the referenced destination. A trailing slash is accepted
+then selects that exact page. A bare app URL opens Home for the explicitly selected workspace and keeps its
+`?workspace=<id>` identity. Opening a file, changing pages, and returning Home add
+history entries; Back and Forward restore Home or existing file/page destinations
+without adding another entry. Refresh preserves the referenced destination. A trailing slash is accepted
 and removed from valid destination paths.
 
 Existing `/?project=<projectId>&file=<fileId>&page=<pageId>` bookmarks still open
@@ -71,9 +73,9 @@ segments, unknown routes, and links mixing path and query destination IDs are
 invalid. Unrelated query parameters and fragments are preserved.
 
 Invalid, incomplete, duplicate, missing, or deleted destination IDs show a persistent
-unavailable screen rather than displaying a different file. **Open last workspace**
-explicitly returns to the current local workspace, where Projects can select another
-file or import a backup. Back/Forward can also leave this screen. The unavailable
+unavailable screen rather than displaying a different file. **Go to Home**
+explicitly returns to the selected workspace's library to select another file or
+import a backup. Back/Forward can also leave this screen. The unavailable
 screen does not mount editor keyboard shortcuts or the browser MCP connection.
 
 Links identify data within the explicitly selected local service workspace, not shared contents. Another machine or runtime profile may not have that workspace; another browser must explicitly select it. Import regenerates project/file IDs,

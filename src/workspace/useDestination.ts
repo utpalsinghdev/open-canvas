@@ -1,36 +1,44 @@
 import { useEffect, useState } from 'react';
 import { useWorkspaceService } from './persistence';
 import { useEditor } from '../editor/store';
-import { destinationUrl, readDestination } from './destination';
+import { destinationUrl, homeUrl, readDestination } from './destination';
+
+type View =
+  | { kind: 'loading' }
+  | { kind: 'home' }
+  | { kind: 'editor' }
+  | { kind: 'error'; message: string };
 
 const unavailableMessage =
   'This destination is unavailable in this browser workspace. It may have been deleted or belong to another browser or app origin.';
 
-/** Resolve links only after local workspace hydration; history never contains artwork. */
+/** Commit blur-based editor drafts while their original file/node is still active. */
+function finishFocusedEdit() {
+  const focused = document.activeElement;
+  if (focused instanceof HTMLElement && focused.matches('input,textarea,select,[contenteditable="true"]')) focused.blur();
+}
+
+/** Resolve links after workspace hydration. Home never changes the active document. */
 export function useDestination() {
-  const [error, setError] = useState<string | null | undefined>(undefined);
+  const [view, setView] = useState<View>({ kind: 'loading' });
   useEffect(() => {
     let followingHistory = false;
     function followUrl() {
+      finishFocusedEdit();
       const url = new URL(window.location.href);
-      const destination = readDestination(url, useEditor.getState().workspace, useWorkspaceService.getState().record?.id);
+      const serviceId = useWorkspaceService.getState().record?.id;
+      const destination = readDestination(url, useEditor.getState().workspace, serviceId);
       if (destination.kind === 'empty') {
-        history.replaceState(
-          null,
-          '',
-          destinationUrl(url, useEditor.getState().location, useWorkspaceService.getState().record?.id)
-        );
-        setError(null);
+        history.replaceState(null, '', homeUrl(url, serviceId));
+        setView({ kind: 'home' });
         return;
       }
       if (destination.kind === 'invalid') {
-        setError(
-          'This link has an invalid or incomplete project, file, or page reference.'
-        );
+        setView({ kind: 'error', message: 'This link has an invalid or incomplete project, file, or page reference.' });
         return;
       }
       if (destination.kind === 'unavailable') {
-        setError(unavailableMessage);
+        setView({ kind: 'error', message: unavailableMessage });
         return;
       }
       followingHistory = true;
@@ -42,10 +50,10 @@ export function useDestination() {
           state.location.fileId !== fileId ||
           state.location.pageId !== pageId
         ) state.openFile(projectId, fileId, pageId);
-        history.replaceState(null, '', destinationUrl(url, destination.location, useWorkspaceService.getState().record?.id));
-        setError(null);
+        history.replaceState(null, '', destinationUrl(url, destination.location, serviceId));
+        setView({ kind: 'editor' });
       } catch {
-        setError(unavailableMessage);
+        setView({ kind: 'error', message: unavailableMessage });
       } finally {
         followingHistory = false;
       }
@@ -54,17 +62,14 @@ export function useDestination() {
     const unsubscribe = useEditor.subscribe((state, previous) => {
       if (
         followingHistory ||
+        // Library actions on Home can update active file metadata without opening an editor.
+        readDestination(new URL(window.location.href), state.workspace, useWorkspaceService.getState().record?.id).kind === 'empty' ||
         (state.location.projectId === previous.location.projectId &&
           state.location.fileId === previous.location.fileId &&
           state.location.pageId === previous.location.pageId)
-      )
-        return;
-      history.pushState(
-        null,
-        '',
-        destinationUrl(new URL(window.location.href), state.location, useWorkspaceService.getState().record?.id)
-      );
-      setError(null);
+      ) return;
+      history.pushState(null, '', destinationUrl(new URL(window.location.href), state.location, useWorkspaceService.getState().record?.id));
+      setView({ kind: 'editor' });
     });
     window.addEventListener('popstate', followUrl);
     return () => {
@@ -72,13 +77,17 @@ export function useDestination() {
       window.removeEventListener('popstate', followUrl);
     };
   }, []);
-  function recover() {
-    history.pushState(
-      null,
-      '',
-      destinationUrl(new URL(window.location.href), useEditor.getState().location, useWorkspaceService.getState().record?.id)
-    );
-    setError(null);
+
+  function openHome() {
+    finishFocusedEdit();
+    const url = homeUrl(new URL(window.location.href), useWorkspaceService.getState().record?.id);
+    if (url.href !== window.location.href) history.pushState(null, '', url);
+    setView({ kind: 'home' });
   }
-  return { error, recover };
+  function openEditor() {
+    const url = destinationUrl(new URL(window.location.href), useEditor.getState().location, useWorkspaceService.getState().record?.id);
+    if (url.href !== window.location.href) history.pushState(null, '', url);
+    setView({ kind: 'editor' });
+  }
+  return { view, openHome, openEditor };
 }

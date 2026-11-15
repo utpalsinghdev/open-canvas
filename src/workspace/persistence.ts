@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { useEditor } from '../editor/store';
 import { newId } from '../editor/model';
+import { starterDocument } from '../editor/seed';
 import { firstLocation, initialWorkspace, projectPage, workspaceId, type Location, type Workspace } from './model';
 import { viewPatch } from './state';
 import { loadWorkspace } from './storage';
 import { workspaceRequest } from './remote';
 import { serviceRecordSchema, workspaceListSchema, type ServiceRecord } from './service-schema';
 import { hasReviewDrafts } from '../review/drafts';
+import { destinationUrl } from './destination';
 
 const SELECTED = 'open-cavas.service-workspace.v1';
 export const useWorkspaceService = create<{
@@ -69,10 +71,11 @@ export async function openServiceWorkspace(id: string) {
     useWorkspaceService.setState({ error: error instanceof Error ? error.message : 'Workspace unavailable.' });
   } finally { useWorkspaceService.setState({ busy: false }); }
 }
-export async function createServiceWorkspace(name: string, copyBrowser: boolean) {
+export async function createServiceWorkspace(name: string, content: 'introduction' | 'empty' | 'browser') {
   useWorkspaceService.setState({ busy: true, error: '' });
+  const copyBrowser = content === 'browser';
   const workspace = copyBrowser ? browserWorkspace
-    : initialWorkspace({ version: 1, name: 'Untitled', nodes: [], tokens: {} });
+    : initialWorkspace(content === 'introduction' ? starterDocument() : { version: 1, name: 'Untitled', nodes: [], tokens: {} });
   const id = newId();
   try {
     // Remember the explicit destination before dispatch, so an uncertain create can be read on reload.
@@ -81,6 +84,9 @@ export async function createServiceWorkspace(name: string, copyBrowser: boolean)
       method: 'create', id, name, workspace,
       context: copyBrowser ? browserLocation : firstLocation(workspace),
     }));
+    if (content === 'introduction') {
+      history.replaceState(null, '', destinationUrl(new URL(window.location.href), record.context, record.id));
+    }
     applyRecord(record, true);
   } catch (error) {
     useWorkspaceService.setState({ error: error instanceof Error ? error.message : 'Workspace creation failed.' });
