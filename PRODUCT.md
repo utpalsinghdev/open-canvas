@@ -16,13 +16,21 @@ A local-first visual editor. Create artboards and compose text, shapes, and imag
 
 ## Users
 
-Assumption for this MVP: designers and developers working on desktop browsers. Touch layouts provide panel access but do not promise a full mobile design workflow.
+Current audience assumption: designers and developers working on desktop browsers, including people using local MCP agents. Touch layouts provide panel access but do not promise a full mobile design workflow.
+
+## Delivery direction
+
+Deliver complete user workflows in bounded increments. The first local workflow is to open a project, ask a local agent to create or revise native artwork, inspect and edit it manually, request a targeted refinement, save a native backup, and reopen editable content. Verify rendered exports separately from native backups and durable saves.
+
+Later UI-design work can add nesting, layout, reusable components, and token bindings through separately scoped features. Desktop distribution and optional hosted sync have their own delivery and security decisions. These are future directions, not implemented capabilities or blanket implementation authorization.
+
+Use [feature delivery](docs/feature-delivery.md) to define acceptance criteria for each requested increment. Historical MVP scope does not justify silently reducing a later request. Current limits stay documented until implementation and verification support changing them.
 
 ## Capabilities and constraints
 
 Artboards, layers, selection, move/resize, property editing, undo/redo, zoom/pan, local saves, JSON import/export, SVG export, paginated raster PDF export, and local page/layer/position-anchored review threads. No new test files. Maintain documentation and make atomic local commits without asking.
 
-Cloud sync, multiplayer, AI generation, arbitrary HTML execution, vector path editing, auto layout, and third-party editable design document compatibility are outside this MVP. An optional automatically connected browser MCP server supports current editor operations, restricted inert HTML import, SVG-based code output, artwork screenshots, and explicit design token assignment. Projects contain multiple files, and files contain multiple pages. Project/file management, page lifecycle, per-file session history, local service persistence, and project/workspace backups are implemented in the local workspace service, browser UI, and MCP. The implementation is original, not a copy of proprietary source.
+Cloud sync, multiplayer, built-in AI generation, arbitrary HTML execution, vector path editing, auto layout, and third-party editable design document compatibility are not supported. Arbitrary executable HTML remains prohibited by the engineering rules. An optional automatically connected browser MCP server supports current editor operations, restricted inert HTML import, SVG-based code output, artwork screenshots, and explicit design token assignment. Projects contain multiple files, and files contain multiple pages. Project/file management, page lifecycle, per-file session history, local service persistence, and project/workspace backups are implemented in the local workspace service, browser UI, and MCP. The implementation is original, not a copy of proprietary source.
 
 Stable main frontend/MCP use fixed ports 5182/4781; feature work uses separate worktrees and dev ports 5188/4785. Committed main snapshots roll out only through deliberate release/restart, keeping other agents' experiments stable during development.
 

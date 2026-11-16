@@ -79,7 +79,7 @@ The local service owns durable documents. Browser edits save after a 350 ms debo
 
 File/project/workspace JSON backups and append-only imports remain available through Projects. Closing a tab before its pending save finishes can still lose recent browser edits. Keep downloaded backups. See [local workspaces](docs/local-workspaces.md) for storage, migration, concurrency, lifecycle, authentication, and recovery limits.
 
-## MVP limits
+## Current limits
 
 - Up to 50 projects, 50 files per project, and 200 files total. Up to 100 pages per file, 1,000 layers per page, and 10,000 layers per file. One page is active at a time. Each file keeps at most 80 undo snapshots in memory.
 - UI JSON imports up to 40 MB; MCP messages remain limited to 12 MB; raster images up to 2 MB each. Browser storage may have a smaller total quota.
@@ -94,6 +94,7 @@ File/project/workspace JSON backups and append-only imports remain available thr
 
 - [Product scope](PRODUCT.md)
 - [Engineering rules](AGENTS.md) and [CLAUDE.md alias](CLAUDE.md)
+- [Feature delivery and completion criteria](docs/feature-delivery.md)
 - [Runtime profiles and main releases](docs/runtime.md)
 - [Architecture and state flow](docs/architecture.md)
 - [Projects, files, and persistence](docs/workspace.md)

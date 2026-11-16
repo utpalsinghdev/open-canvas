@@ -6,6 +6,14 @@
 - Keep proprietary app bundles, extracted code, private documents, credentials, and raw analysis outside this repository. Write original implementation code.
 - Read PRODUCT.md, DESIGN.md, README.md, and relevant docs before changing behavior. Keep docs accurate during implementation.
 
+## Feature completeness
+- Follow [feature delivery](docs/feature-delivery.md) before implementing behavior. Define the requested user journey and observable acceptance criteria first. Reuse criteria from the user's issue, brief, or supplied roadmap.
+- Small changes describe delivery size, not reduced functionality. Split large work into complete, verifiable increments that preserve the requested outcome.
+- Current capability limits describe today's product. Do not use the original MVP scope to silently narrow a later user request. Make necessary scope decisions explicit before implementing a substitute.
+- Cover schema, commands, rendering, UI, MCP, persistence, history, and import/export wherever the feature affects them. Explain any inapplicable part. A UI control alone does not complete a document capability.
+- Complete authorized work against the acceptance criteria. A build, screenshot, documented limitation, or checked roadmap box alone is not completion. Report unmet criteria and unverified behavior explicitly.
+- Private planning files remain local. Carry only the needed delivery criteria into tracked docs or PRs; never publish private roadmaps, screenshots, or audit notes.
+
 ## Implementation
 - Use React, TypeScript, Vite, Tailwind, and npm. No Next.js or Python application code.
 - Prefer inferred types and discriminated unions. Validate external documents at import/storage boundaries. Do not use `any` or unchecked casts.
@@ -22,9 +30,10 @@
 
 ## Verification and documentation
 - Do not write new test files or disguised test suites unless explicitly requested.
-- Verify with TypeScript checks, production builds, and real browser interactions. Report unverified behavior honestly.
+- For behavior changes, run `npm run check` and `npm run build` plus the relevant real browser/MCP journeys. Report unverified behavior honestly.
 - Maintain docs for architecture, controls, file format, known limits, and actual verification results.
 - Inspect CI requirements before changes when CI exists. Never claim an unrun check passed.
+- For documentation-only changes, verify the diff and links; no app build or browser run is required unless CI requires it.
 
 ## Git
 - Use Conventional Commits for commit titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.
