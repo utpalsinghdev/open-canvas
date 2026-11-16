@@ -37,6 +37,18 @@
 - For documentation-only changes, verify the diff and links; no app build or browser run is required unless CI requires it.
 - For visible UI changes, attach labeled before-and-after screenshots to the PR using the repository's [attach-screenshot-to-pr skill](.agents/skills/attach-screenshot-to-pr/SKILL.md). Contributors configure their own credentials through [skill setup](docs/contributor-skills.md). Capture comparable states and viewport sizes, inspect for sensitive data, keep evidence images outside Git, and verify published image links. Follow the skill's upload rules and report missing evidence or upload blockers explicitly. Documentation-only PRs need no UI screenshots.
 
+## Atomic commits
+
+- Before editing, identify logical commit units from the requested outcomes and their dependencies. Adjust the grouping as the implementation becomes clear.
+- Each commit must have one coherent purpose that a reviewer can explain and assess on its own. Group by behavior, contract, or migration, never by file count or diff size.
+- Keep the implementation, required caller updates, related verification, and documentation together when they are needed for that purpose. Multiple files can belong in one commit.
+- Split independently reviewable or reversible concerns. Keep unrelated fixes, refactors, formatting, dependency changes, and generated artifacts out of a feature commit unless they are required for it.
+- Order dependent commits so each has its prerequisites and leaves a usable, verifiable state. Do not split an inseparable contract or migration into broken intermediate commits just to make commits smaller.
+- Before committing, inspect repository status and the complete staged diff. Stage explicit paths or deliberate hunks, include only the intended unit, and preserve unrelated user work. Check for accidental secrets and generated output.
+- Run the checks relevant to that unit and applicable repository policy. A passing build does not establish that unrelated changes belong together.
+- Write a concise, concrete commit subject describing the resulting change. Follow the repository's convention, using Conventional Commits when none is specified. Avoid vague subjects such as "update files" or "fix stuff".
+- Apply these rules whenever commits are authorized. They do not grant permission to commit, push, rewrite history, merge, or release, and they do not require extra commits when one coherent commit is sufficient.
+
 ## Git
 - Use Conventional Commits for commit titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.
 - User authorizes atomic local commits during this implementation without further confirmation. Keep each commit coherent and verify staged files.
