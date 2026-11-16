@@ -7,6 +7,7 @@ import { type ReviewAnchor } from '@open-cavas/document/review';
 import { anchorPoint } from '@open-cavas/engine/review/anchors';
 import { usePageReview } from '../review/drafts';
 import { IconButton } from './Button';
+import { ReviewSurface } from './ReviewSurface';
 
 export type ReviewControls = {
   open: boolean;
@@ -37,6 +38,10 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
   const selectedLayer = state.selectedIds.length === 1
     ? state.document.nodes.find((node) => node.id === state.selectedIds[0]) : undefined;
   const missing = thread && !anchorPoint(thread.anchor, state.document.nodes);
+  const compact = Boolean(draftAnchor || thread);
+  const activeAnchor = thread?.anchor ?? draftAnchor;
+  const point = activeAnchor ? anchorPoint(activeAnchor, state.document.nodes) : null;
+  function close() { setPlacing(false); review.setOpen(false); }
   const entries = file.document.pages.flatMap((page) => page.threads
     .filter((thread) => filter === 'all' || thread.status === filter)
     .map((thread) => ({ page, thread })));
@@ -51,6 +56,10 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
       secondFrame = requestAnimationFrame(() => {
         const viewport = controls.viewport.current;
         if (!viewport) return;
+        const camera = controls.camera;
+        const x = point.x * camera.zoom + camera.x;
+        const y = point.y * camera.zoom + camera.y;
+        if (x >= 32 && x <= viewport.clientWidth - 32 && y >= 32 && y <= viewport.clientHeight - 80) return;
         controls.setCamera((camera) => ({
           ...camera,
           x: (viewport.clientWidth <= 600 ? viewport.clientWidth / 2 : Math.max(40, (viewport.clientWidth - 344) / 2)) - point.x * camera.zoom,
@@ -78,6 +87,7 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
     setBody('');
     setDraftAnchor(null);
     setPlacing(false);
+    review.setOpen(false);
   }
 
   return <>
@@ -96,12 +106,12 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
         return point && <span className="review-pin draft" style={{ left: point.x * controls.camera.zoom + controls.camera.x, top: point.y * controls.camera.zoom + controls.camera.y }}><MapPin size={14} /></span>;
       })()}
     </div>
-    {review.open && <aside className="review-panel" aria-label="Comments">
-      <div className="review-heading"><h2>Comments</h2><IconButton label="Close comments" onClick={() => { setPlacing(false); review.setOpen(false); }}><X size={16} /></IconButton></div>
-      <div className="review-create">
+    {review.open && <ReviewSurface key={thread?.id ?? (draftAnchor ? 'draft' : 'list')} controls={controls} point={point} compact={compact} onClose={close}>
+      <div className="review-heading"><h2>{thread ? 'Comment' : draftAnchor ? 'New comment' : 'Review threads'}</h2><IconButton label="Close comments" onClick={close}><X size={16} /></IconButton></div>
+      {!compact && <div className="review-create">
         <button className="text-button" disabled={!selectedLayer} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(selectedLayer ? { kind: 'layer', nodeId: selectedLayer.id } : null); setPlacing(false); }}>Comment on selection</button>
-        <button className="text-button" aria-pressed={placing} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(null); setPlacing(!placing); }}>Place pin</button>
-      </div>
+        <button className="text-button" aria-pressed={placing} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(null); setPlacing(true); review.setOpen(false); }}>Place pin</button>
+      </div>}
       {placing && <p className="review-hint" role="status">Click a layer or canvas position. Escape cancels.</p>}
       {draftAnchor && !thread ? <form className="review-composer" onSubmit={(event) => {
         event.preventDefault();
@@ -112,14 +122,17 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
         });
       }}>
         <label htmlFor="new-comment">{draftAnchor.kind === 'layer' ? `Comment on ${state.document.nodes.find((node) => node.id === draftAnchor.nodeId)?.name ?? 'missing layer'}` : 'Comment at canvas position'}</label>
-        <textarea id="new-comment" aria-label="New comment" autoFocus maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} />
-        <div className="review-actions"><button className="export-button" disabled={!body.trim()}>Post comment</button><button type="button" className="text-button" onClick={cancelDraft}>Cancel</button></div>
+        <textarea id="new-comment" aria-label="New comment" placeholder="Write a comment…" rows={3} maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} />
+        <div className="review-actions"><button className="export-button" disabled={!body.trim()}>Save comment</button><button type="button" className="text-button" onClick={cancelDraft}>Cancel</button></div>
       </form> : thread ? <section className="review-thread" aria-label="Selected thread">
         <div className="review-heading"><strong>{thread.status === 'resolved' ? 'Resolved' : 'Open thread'}</strong><button className="text-button" onClick={() => { selectThread(null); }}>All threads</button></div>
         {missing ? <p className="review-warning" role="status">Missing layer. Feedback retained; restore the layer with undo to navigate or change status.</p> : <button className="text-button" onClick={() => {
-          // Reselecting also recenters a target after manual panning.
-          selectThread(null);
-          requestAnimationFrame(() => selectThread(thread.id));
+          const point = anchorPoint(thread.anchor, state.document.nodes);
+          const viewport = controls.viewport.current;
+          if (point && viewport) controls.setCamera((camera) => ({ ...camera,
+            x: viewport.clientWidth / 2 - point.x * camera.zoom,
+            y: viewport.clientHeight / 3 - point.y * camera.zoom,
+          }));
         }}>Go to anchor</button>}
         <ol className="review-messages">{thread.comments.map((comment) => <li key={comment.id}>
           <p>{comment.body}</p><time dateTime={new Date(comment.createdAt).toISOString()}>{new Date(comment.createdAt).toLocaleString()}</time>
@@ -142,6 +155,6 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
           <p>{thread.comments[0].body}</p><span>{thread.comments.length} {thread.comments.length === 1 ? 'comment' : 'comments'}</span>
         </button>) : <p className="review-hint">No {filter === 'all' ? '' : `${filter} `}threads in this file. Select a layer or place a pin to leave feedback.</p>}</div>
       </>}
-    </aside>}
+    </ReviewSurface>}
   </>;
 }

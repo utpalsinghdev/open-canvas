@@ -85,7 +85,7 @@ The first upgrade migrates the old single canvas into a **Personal** project, on
 
 ## Review feedback
 
-Choose **Comment** beside the drawing tools, click a layer or canvas position, then write feedback. Open **Comments** to browse page-aware threads. Read and reply to threads, navigate to their targets across pages, and resolve or reopen them. Posted feedback stays in the selected local service workspace and complete JSON backups. MCP can list/read threads and change their status with explicit page context and revision checks. See [review threads](docs/review-threads.md) for controls, draft behavior, limits, and missing-anchor rules.
+Choose **Add comment** beside the drawing tools, click a layer or canvas position, then write in the compact anchored box and choose **Save comment**. Open **Review** to browse page-aware threads. Read and reply to threads, navigate to their targets across pages, and resolve or reopen them. Posted feedback stays in the selected local service workspace and complete JSON backups. MCP can list/read threads and change their status with explicit page context and revision checks. See [review threads](docs/review-threads.md) for controls, draft behavior, limits, and missing-anchor rules.
 
 ## Keep your work
 

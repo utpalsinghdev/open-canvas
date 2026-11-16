@@ -69,8 +69,8 @@ export function Inspector() {
   const textBounds = node?.kind === 'text' ? textNodeBounds(node) : null;
   return <aside id="properties-panel" className="inspector-panel" aria-label="Properties">
     <div className="panel-heading"><span>Design</span><span className="muted">{node && selected.length === 1 ? node.kind : 'Canvas'}</span></div>
-    {!node ? <div className="inspector-welcome"><div className="mini-canvas-mark" /><h2>Make space for ideas.</h2><p>Select a layer to edit its properties.</p><div className="welcome-shortcuts"><span>Select</span><kbd>V</kbd><span>Artboard</span><kbd>A</kbd><span>Rectangle</span><kbd>R</kbd><span>Text</span><kbd>T</kbd></div><p className="local-note">Stored on this machine.<br />Download JSON for a backup.</p></div>
-      : selected.length > 1 ? <section className="inspector-section"><h3>{selected.length} layers selected</h3><p className="muted">Drag to move together. Shift-click to change selection.</p><div className="alignment-controls"><IconButton label="Duplicate selected layers" onClick={duplicate}><Copy size={16} /></IconButton><IconButton label="Delete selected layers" onClick={remove}><Trash2 size={16} /></IconButton></div></section>
+    {!node ? <div className="inspector-welcome"><h2>No selection</h2><p>Select a layer on the canvas or in Layers to edit its properties.</p></div>
+      : selected.length > 1 ? <section className="inspector-section"><h3>{selected.length} layers selected</h3><p className="muted">Drag to move together. Shift-click to change selection.</p><div className="layer-command-grid"><button onClick={duplicate}><Copy size={16} />Duplicate</button><button onClick={remove}><Trash2 size={16} />Delete</button></div></section>
         : <>
           <div className="selected-heading"><TextField label="Layer name" value={node.name} onCommit={(name) => patch(node.id, { name })} /><IconButton label={node.locked ? 'Unlock layer' : 'Lock layer'} onClick={() => patch(node.id, { locked: !node.locked })}>{node.locked ? <Lock size={14} /> : <Unlock size={14} />}</IconButton></div>
           {locked && <p className="locked-note">Layer or parent is locked.</p>}
@@ -85,7 +85,7 @@ export function Inspector() {
             </section>
             <section className="inspector-section"><h3>Appearance</h3>{node.kind !== 'image' && <FillField key={node.id} node={node} />}<NumericField label="Opacity %" value={node.opacity * 100} min={0} max={100} onCommit={(opacity) => patch(node.id, { opacity: opacity / 100 })} /></section>
             {node.kind === 'text' && <TextProperties key={node.id} node={node} />}
-            <section className="inspector-section"><h3>Arrange</h3><div className="alignment-controls"><IconButton label="Bring to front" onClick={() => reorder('front')}><ArrowUpToLine size={16} /></IconButton><IconButton label="Send to back" onClick={() => reorder('back')}><ArrowDownToLine size={16} /></IconButton><IconButton label="Duplicate layer" onClick={duplicate}><Copy size={16} /></IconButton><IconButton label="Delete layer" onClick={remove}><Trash2 size={16} /></IconButton></div></section>
+            <section className="inspector-section"><h3>Arrange</h3><div className="layer-command-grid"><button aria-label="Bring to front" onClick={() => reorder('front')}><ArrowUpToLine size={16} />To front</button><button aria-label="Send to back" onClick={() => reorder('back')}><ArrowDownToLine size={16} />To back</button><button aria-label="Duplicate layer" onClick={duplicate}><Copy size={16} />Duplicate</button><button aria-label="Delete layer" onClick={remove}><Trash2 size={16} />Delete</button></div></section>
           </fieldset>
         </>}
   </aside>;

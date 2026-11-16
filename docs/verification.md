@@ -659,3 +659,19 @@ Verification used Chromium on Linux with synthetic local workspaces. No new test
 files were added. Full main publication/restart, desktop packaging, hosted web,
 and other browsers were not exercised. The existing snapshot layout remains an
 explicit launcher compatibility path, not a claim that a main rollout occurred.
+
+## Contextual comments (2026-11-16)
+
+- `pnpm run check` and `pnpm run build` passed with the pinned toolchain. The Impeccable mechanical detector reported no findings for the changed editor surfaces.
+- Chromium at 1280 × 800 and 390 × 844: Add comment leaves the canvas unobstructed until placement. Layer and empty-position placement open a compact composer; viewport-edge placement remains inside the canvas. Hover previews identify the same layer used by the resulting composer; empty canvas has a distinct position hint. The native crosshair cursor was confirmed through computed style.
+- Posted a comment and reply with Ctrl+Enter, resolved/reopened the thread, and exercised status undo/redo. Escape preserved an unposted draft, reopening Review restored it, and Cancel discarded it. Escape returned focus to the canvas. Narrow Layers/Properties/Review panels opened mutually exclusively without document-width overflow.
+- Live development SDK reads returned the posted thread and both messages from the browser and durable workspace. Stale status writes and writes while an unfocused hidden draft existed were rejected. The complete JSON backup retained thread IDs, anchor and messages without unsent text. Browser reimport appended an editable file with all 17 original layers and the same posted feedback.
+- Schema, review commands, history, persistence and export formats were not changed. These checks cover their use by the revised interface; no new test files were added. Touch hardware, other browsers, persistence-failure injection and a new full cross-page/missing-anchor regression run were not exercised. Main was not released or restarted. Evidence stays outside Git; public screenshot upload and PR publication were not requested.
+
+## Inspector action clarity (2026-11-16)
+
+The labeled Duplicate, To front and Delete actions were exercised in Chromium with synthetic artwork. Duplication increased 17 layers to 18; undo restored 17. To front moved the chosen rectangle to the end of drawing order, and undo restored the prior order. Deletion reduced 17 layers to 16; undo restored 17. The shared commands and document format are unchanged. Type checking and production build passed with the complete editor change.
+
+## File and workspace context (2026-11-16)
+
+File-menu Escape closed the menu and returned focus to its summary. Clicking outside closed it; focus leaving the menu also uses the same close path. Narrow menu layout, updated storage/backup Help copy and desktop workspace/page identity were inspected in Chromium. Existing save, export and agent-access actions were preserved. `pnpm run check`, `pnpm run build` and `pnpm run changeset:status` passed for the complete change.

@@ -12,7 +12,7 @@ import {
   Frame,
   HelpCircle,
   Layers2,
-  MessageSquare,
+  MessagesSquare,
   PanelLeft,
   PanelRight,
   Plus,
@@ -37,6 +37,8 @@ import {
 } from './editor/files';
 import { currentFile } from '@open-cavas/document/workspace';
 import { createNode, newId } from '@open-cavas/document/model';
+import { usePageReview } from './review/drafts';
+import { useWorkspaceService } from './workspace/persistence';
 
 export function EditorApp({ onHome, onProjects, onImport }: {
   onHome: () => void;
@@ -60,10 +62,37 @@ export function EditorApp({ onHome, onProjects, onImport }: {
   const [propertiesVisible, setPropertiesVisible] = useState(true);
   const [help, setHelp] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const { page: reviewPage, update: updateReview } = usePageReview(location);
+  function toggleReviews() {
+    setPanel(null);
+    if (!commentsOpen && !Object.values(reviewPage.bodies).some((body) => body.trim()))
+      updateReview({ threadId: null, anchor: null });
+    setCommentsOpen((open) => !open);
+  }
   const project = workspace.projects.find(
     (project) => project.id === location.projectId
   );
   const file = currentFile(workspace, location);
+  const workspaceName = useWorkspaceService((state) => state.record?.name);
+  const fileMenu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    function outside(event: PointerEvent) {
+      if (event.target instanceof Node && fileMenu.current && !fileMenu.current.contains(event.target)) fileMenu.current.open = false;
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key !== 'Escape' || !fileMenu.current?.open) return;
+      event.preventDefault();
+      event.stopPropagation();
+      fileMenu.current.open = false;
+      fileMenu.current.querySelector('summary')?.focus();
+    }
+    window.document.addEventListener('pointerdown', outside);
+    window.document.addEventListener('keydown', escape, true);
+    return () => {
+      window.document.removeEventListener('pointerdown', outside);
+      window.document.removeEventListener('keydown', escape, true);
+    };
+  }, []);
   const activePage = file.document.pages.find(
     (page) => page.id === location.pageId
   );
@@ -185,6 +214,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           <button
             className="project-switcher"
             aria-label="Open projects"
+            title={`Project: ${project?.name ?? ''}`}
             onClick={() => onProjects()}
           >
             <FolderOpen size={15} />
@@ -208,8 +238,11 @@ export function EditorApp({ onHome, onProjects, onImport }: {
               if (event.key === 'Enter') event.currentTarget.blur();
             }}
           />
-          <details className="file-menu">
+          <details ref={fileMenu} className="file-menu" onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+          }}>
             <summary aria-label="File menu">
+              <span>File</span>
               <ChevronDown size={14} />
             </summary>
             <div className="file-menu-items">
@@ -274,11 +307,11 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           <span className="muted">/</span>
           <span>{activePage?.name}</span>
         </div>
-        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(true); }} />
+        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(false); }} />
         <div className="workspace-end">
-          <IconButton className="icon-button desktop-panel-control" label="Comments" aria-expanded={commentsOpen} onClick={() => setCommentsOpen((open) => !open)}>
-            <MessageSquare size={17} />
-          </IconButton>
+          <button className="review-toggle desktop-panel-control" aria-label="Review threads" aria-expanded={commentsOpen} onClick={toggleReviews}>
+            <MessagesSquare size={17} /><span>Review</span>
+          </button>
           <IconButton
             className="icon-button desktop-panel-control"
             label={propertiesVisible ? 'Collapse Properties sidebar' : 'Expand Properties sidebar'}
@@ -301,7 +334,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           aria-pressed={panel === 'layers'}
           aria-expanded={panel === 'layers'}
           aria-controls="layers-panel"
-          onClick={() => setPanel(panel === 'layers' ? null : 'layers')}
+          onClick={() => { setCommentsOpen(false); setPanel(panel === 'layers' ? null : 'layers'); }}
         >
           <Layers2 size={15} />
           Layers
@@ -310,13 +343,13 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           aria-pressed={panel === 'properties'}
           aria-expanded={panel === 'properties'}
           aria-controls="properties-panel"
-          onClick={() => setPanel(panel === 'properties' ? null : 'properties')}
+          onClick={() => { setCommentsOpen(false); setPanel(panel === 'properties' ? null : 'properties'); }}
         >
           <PanelRight size={15} />
           Properties
         </button>
-        <button aria-expanded={commentsOpen} onClick={() => { setPanel(null); setCommentsOpen((open) => !open); }}>
-          <MessageSquare size={15} />Comments
+        <button aria-label="Review threads" aria-expanded={commentsOpen} onClick={toggleReviews}>
+          <MessagesSquare size={15} />Review
         </button>
         {panel && (
           <IconButton label="Close panel" onClick={() => setPanel(null)}>
@@ -339,7 +372,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
             ? `${selectedIds.length} selected`
             : 'Local-first design editor'}
         </span>
-        <span>Open Cavas / Web preview</span>
+        <span className="workspace-context" title={`Workspace: ${workspaceName ?? ''} / Page: ${activePage?.name ?? ''}`}>Workspace: {workspaceName} / {activePage?.name}</span>
         <button onClick={save}>Download backup</button>
       </footer>
       <input
