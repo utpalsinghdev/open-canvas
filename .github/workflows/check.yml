@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .node-version
@@ -30,4 +32,4 @@ jobs:
       - name: Build web application
         run: corepack pnpm run build
       - name: Check release plan
-        run: corepack pnpm run changeset:status
+        run: corepack pnpm run changeset:status --since=origin/main
