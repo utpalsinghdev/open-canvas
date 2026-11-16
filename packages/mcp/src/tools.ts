@@ -79,7 +79,7 @@ const canvasTools = {
     nodeIds: z.array(id).max(1000),
   }),
   create_artboard: mutation(
-    'Create an artboard. Coordinates are absolute world pixels.',
+    'Create an artboard without changing selection. Use select_nodes to select it explicitly. Coordinates are absolute world pixels.',
     {
       name: z.string().min(1).max(160),
       x: z.number().finite(),
@@ -90,7 +90,7 @@ const canvasTools = {
     }
   ),
   create_nodes: mutation(
-    'Create up to 100 editable shapes, text layers, or safe embedded raster images in one undo step. Parent must be an artboard. Coordinates are absolute, not relative to parent.',
+    'Create up to 100 editable shapes, text layers, or safe embedded raster images in one undo step without changing selection. Use select_nodes to select the returned IDs explicitly. Parent must be an artboard. Coordinates are absolute, not relative to parent.',
     { nodes: z.array(draftSchema).min(1).max(100) }
   ),
   update_nodes: mutation(
@@ -111,7 +111,7 @@ const canvasTools = {
     { nodeIds: ids, dx: z.number().finite(), dy: z.number().finite() }
   ),
   duplicate_nodes: mutation(
-    'Duplicate layers and artboard children, returning new IDs.',
+    'Duplicate layers and artboard children, returning new IDs without changing selection. Use select_nodes to select copies explicitly.',
     { nodeIds: ids }
   ),
   delete_nodes: mutation(
@@ -136,7 +136,7 @@ const canvasTools = {
   undo: mutation('Undo the latest document edit, including manual edits.', {}),
   redo: mutation('Redo the latest undone document edit.', {}),
   write_html: mutation(
-    'Import a restricted static HTML subset into an existing artboard as editable layers. Supports explicit pixel geometry, simple vertical flow, hex colors, text, padding, and embedded raster images. Rejects scripts, network assets, flex/grid, and unsupported CSS. Not arbitrary web-page rendering.',
+    'Import a restricted static HTML subset into an existing artboard as editable layers without changing selection. Use select_nodes to select the returned IDs explicitly. Supports explicit pixel geometry, simple vertical flow, hex colors, text, padding, and embedded raster images. Rejects scripts, network assets, flex/grid, and unsupported CSS. Not arbitrary web-page rendering.',
     { artboardId: id, html: z.string().min(1).max(100_000) }
   ),
   export_document: read(
