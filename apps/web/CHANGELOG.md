@@ -1,5 +1,16 @@
 # open-cavas
 
+## 0.7.1
+
+### Patch Changes
+
+- b400b7b: Label layer arrangement actions, simplify the unselected inspector, and improve layer-list readability and scrolling.
+- f8d4a1a: Write comments and replies in compact boxes beside canvas targets. Distinguish Add comment from the file-wide Review list, preserve session drafts when closing, and support Ctrl/Cmd+Enter to submit.
+  
+  Preview the hovered comment target with a layer outline and name before placing feedback.
+- d724d19: Recompose the desktop editor around one header, a vertical drawing-tool rail, and grouped property fields. Show native active-page artwork previews in Home, keep compact project switching, and separate workspace opening from creation and recovery. Preserve existing editing, saving, and export behavior.
+- ba1d55b: Show workspace/page context, label and dismiss the File menu consistently, and correct Help guidance for local saves and editable backups.
+
 ## 0.7.0
 
 ### Minor Changes
