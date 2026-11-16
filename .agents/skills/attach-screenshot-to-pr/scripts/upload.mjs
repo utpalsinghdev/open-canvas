@@ -1,13 +1,43 @@
 #!/usr/bin/env node
+import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
 import { basename, extname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
 
 class UploadError extends Error {}
 
 const credentialsUrl = new URL('../.env', import.meta.url);
 const usage = 'Usage: node upload.mjs /absolute/path/to/screenshot.png | --check';
+
+// Resolve from the helper, not the caller's cwd, to isolate each repository's account.
+function sharedCredentialsPath() {
+  let commonDirectory;
+  try {
+    commonDirectory = execFileSync('git', [
+      'rev-parse', '--path-format=absolute', '--git-common-dir',
+    ], { cwd: fileURLToPath(new URL('.', import.meta.url)), encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    throw new UploadError('No skill .env found. Shared credentials require Git; alternatively provide all three Cloudinary environment variables.');
+  }
+  return resolve(commonDirectory, 'open-cavas', 'screenshot-upload.env');
+}
+
+async function readCredentialsFile(path) {
+  let info;
+  try {
+    info = await stat(path);
+  } catch (error) {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  }
+  if (!info.isFile()) throw new UploadError('Credential file must be a regular file.');
+  if (process.platform !== 'win32' && (info.mode & 0o077) !== 0) {
+    throw new UploadError('Credential file must be owner-only. Run chmod 600 on the credential file.');
+  }
+  return parseEnv(await readFile(path, 'utf8'));
+}
 
 async function configuration() {
   const names = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
@@ -17,24 +47,17 @@ async function configuration() {
     // Keep one credential source so partial environment settings cannot mix accounts.
     env = process.env;
   } else {
-    let info;
-    try {
-      info = await stat(credentialsUrl);
-    } catch (error) {
-      if (error.code !== 'ENOENT') throw error;
-      throw new UploadError('Cloudinary is not configured. Copy the skill .env.example to .env, fill in your own values, and run chmod 600 on .env. Alternatively set all three CLOUDINARY environment variables.');
+    env = await readCredentialsFile(credentialsUrl);
+    if (env === null) env = await readCredentialsFile(sharedCredentialsPath());
+    if (env === null) {
+      throw new UploadError('Cloudinary is not configured. Configure the skill .env or the shared Git-directory open-cavas/screenshot-upload.env file with owner-only permissions. Alternatively set all three CLOUDINARY environment variables.');
     }
-    if (!info.isFile()) throw new UploadError('The skill .env must be a regular file.');
-    if (process.platform !== 'win32' && (info.mode & 0o077) !== 0) {
-      throw new UploadError('Credential file must be owner-only. Run chmod 600 on the skill .env file.');
-    }
-    env = parseEnv(await readFile(credentialsUrl, 'utf8'));
   }
   const cloud = env.CLOUDINARY_CLOUD_NAME;
   const key = env.CLOUDINARY_API_KEY;
   const secret = env.CLOUDINARY_API_SECRET;
   if (!cloud || !key || !secret || !/^[a-z0-9_-]+$/i.test(cloud)) {
-    throw new UploadError('Missing or invalid Cloudinary configuration. Provide all three values in the skill .env file or all three environment variables.');
+    throw new UploadError('Missing or invalid Cloudinary configuration. Provide all three values in the selected credential file or all three environment variables.');
   }
   return { cloud, key, secret };
 }
