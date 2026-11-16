@@ -64,6 +64,10 @@ Active pan overrides tool and resize cursors without changing pointer geometry.
 
 Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence starts bright and finishes within 520 ms, then leaves a static blue pending mark. Fast requests retain a dimmed neutral recent-request mark only until 600 ms after dispatch; pending status clears immediately when execution ends. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.
 
+## Committed artwork reveal
+
+MCP-created artboards and layers enter together per committed batch with a single 220 ms ease-out opacity reveal, from 25% to full presentation opacity. Separate canvas wrappers leave stored layer opacity, geometry, clipping, and hit testing intact. No stagger, movement, loop, or extra undo state is added. Reduced motion displays final artwork immediately. Manual creation, navigation, reload, and undo/redo keep their existing rendering.
+
 ## Local workspace selection
 
 ## Installed font families

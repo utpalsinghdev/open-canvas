@@ -12,6 +12,7 @@ import { automaticConnection, type ConnectionStatus } from './connection';
 import { agentActivity } from './activity';
 import { hasReviewDrafts } from '../review/drafts';
 import { activityTarget, beginPageActivity, paintPageActivity } from './page-activity';
+import { revealCommittedCreation } from './creation-reveal';
 import { z } from 'zod';
 
 const activityEndSchema = z.object({ type: z.literal('activity-end'), id: z.string() });
@@ -152,7 +153,9 @@ function attachBrowser(socket: WebSocket) {
           reviewHandlers[method] ?? workspaceHandlers[method] ??
           (definition.mutation ? mutations[method] : reads[method]);
         if (!handler) throw new Error('Tool implementation unavailable.');
+        const before = useEditor.getState();
         const outcome = handler(args);
+        revealCommittedCreation(method, before, useEditor.getState());
         const resultRevision = revision;
         const resultContext = useEditor.getState().location;
         const result = await outcome;

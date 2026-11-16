@@ -143,6 +143,12 @@ Pending calls are tracked independently. Navigating away hides another page's ac
 
 Nine square points form a fixed 37 by 25 px lattice, with wider horizontal spacing. A diagonal light sequence travels across them, then leaves a static blue pending mark. The sequence starts bright, finishes within 520 ms and never loops; only highlight opacity animates. Reduced-motion preferences render static pending points without the light sequence. Their screen-space size stays fixed, they follow the leading artwork bounds, and they clamp inside the viewport while panning. They do not intercept pointer input. Reload development browser tabs after connector changes, and restart development MCP clients after broker changes.
 
+## Committed artwork presentation
+
+Connected-canvas creation, duplication, and restricted HTML import reveal newly committed layers with one 220 ms ease-out opacity transition. Each validated batch enters the document together, in one undo step, before later requests execute; no partial drafts or task-wide buffering are introduced. Earlier artwork remains if a later request fails. Ordinary edits, navigation, reload, undo, and redo do not replay the entrance.
+
+The transition uses canvas-only wrappers, preserving stored layer opacity, positions, clipping, and hit testing. Reduced motion shows final artwork immediately. JSON backups, saving, SVG/PDF exports, and MCP screenshots use the unchanged document renderer, not these wrappers. Presentation makes no task-completion or durable-save claim. Backend-only workspace operations retain their existing idle-browser synchronization path.
+
 ## Durable workspace targets
 
 The server now exposes 51 tools, including `list_workspaces` and `create_workspace`. Pass exactly one durable `workspaceId` or live browser `canvasId`. Workspace-target mutations use durable revisions and acknowledge storage completion; canvas-target mutations retain in-memory/session semantics. Never mix revisions across targets. Explicit context selects backend pages without redirecting the user. Read [local workspaces](local-workspaces.md) before migration, recovery, or lifecycle changes.

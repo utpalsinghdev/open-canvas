@@ -9,6 +9,7 @@ import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
 import { AgentActivity } from './AgentActivity';
+import { clearCreationReveals, useCreationReveal } from '../mcp/creation-reveal';
 import { CommentTargetPreview } from './CommentTargetPreview';
 import { textNodeBounds, textContentBounds } from '@open-cavas/engine/typography';
 
@@ -29,12 +30,17 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
   const placing = tool === 'comment';
   const setPlacing = (placing: boolean) => setTool(placing ? 'comment' : 'select');
   const location = useEditor((state) => state.location);
+  const batches = useCreationReveal((state) => state.batches);
+  const revealing = new Set([...batches.values()].filter(({ target }) =>
+    target.projectId === location.projectId && target.fileId === location.fileId && target.pageId === location.pageId
+  ).flatMap(({ nodeIds }) => [...nodeIds]));
   const { page: reviewPage, update: updateReview } = usePageReview(location);
   const draftAnchor = reviewPage.anchor;
   const setDraftAnchor = (anchor: typeof draftAnchor) => updateReview({ anchor });
   const editing = document.nodes.find((node) => node.id === editingId);
   const editingNode = editing?.kind === 'text' ? editing : null;
 
+  useEffect(() => clearCreationReveals, []);
   useEffect(() => {
     function down(event: KeyboardEvent) {
       if (event.target instanceof HTMLElement && (event.target.closest('input,textarea,select') || event.target.isContentEditable)) return;
@@ -197,14 +203,14 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       <defs><pattern id="canvas-dots" width={24 * camera.zoom} height={24 * camera.zoom} patternUnits="userSpaceOnUse" x={camera.x} y={camera.y}><circle cx="1" cy="1" r="0.7" className="grid-dot" /></pattern></defs>
       <rect width="100%" height="100%" fill="url(#canvas-dots)" />
       <g transform={`translate(${camera.x} ${camera.y}) scale(${camera.zoom})`}>
-        {visible.filter((node) => node.parentId === null).map((node) => node.kind === 'artboard' ? <g key={node.id}>
+        {visible.filter((node) => node.parentId === null).map((node) => node.kind === 'artboard' ? <g key={node.id} className={revealing.has(node.id) ? 'agent-created-node' : undefined}>
           <defs><clipPath id={`board-${node.id}`}><rect x={node.x} y={node.y} width={node.width} height={node.height} rx={node.radius} /></clipPath></defs>
           <text className="artboard-label" x={node.x} y={node.y - 14 / camera.zoom} fontSize={11 / camera.zoom} data-node-id={node.id}>{node.name}</text>
           <g clipPath={`url(#board-${node.id})`} opacity={node.opacity}>
             <NodeView node={{ ...node, opacity: 1 }} />
-            {visible.filter((child) => child.parentId === node.id).map((child) => <NodeView key={child.id} node={child} />)}
+            {visible.filter((child) => child.parentId === node.id).map((child) => <g key={child.id} className={revealing.has(child.id) ? 'agent-created-node' : undefined}><NodeView node={child} /></g>)}
           </g>
-        </g> : <NodeView key={node.id} node={node} />)}
+        </g> : <g key={node.id} className={revealing.has(node.id) ? 'agent-created-node' : undefined}><NodeView node={node} /></g>)}
         {preview && <NodeView node={preview} />}
         {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <rect {...bounds} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
         {!placing && selected.map((node) => {
