@@ -1,17 +1,13 @@
 /* Hallmark · genre: modern-minimal · scope: app · built: the project · redesign: full · v2.0.0 */
 /* Critique: artwork-led file browsing and a vertical tool rail replace stacked command bars. */
-/* Hallmark · waive 7b · surface: absolute; controls use contrasting ink · User requires true black editor chrome and white primary text. */
 :root {
   --desktop-panel-width: 288px;
   --desktop-layers-width: 240px;
   --tool-rail-width: 48px;
-  --preview-background: #141414;
-  --menu-shadow: 0 12px 40px #00000099;
-  --danger: #ffadad;
 }
 
 .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; color: var(--foreground); background: var(--control); }
-.secondary-button:active:not(:disabled) { background: var(--active); }
+.secondary-button:active:not(:disabled) { background: var(--active); color: var(--on-active); }
 .workspace-screen { height: 100%; overflow-y: auto; }
 .workspace-access .brand { margin-bottom: 32px; }
 .workspace-access h1 { font-size: 24px; font-weight: 500; margin: 0; text-wrap: balance; }
@@ -84,7 +80,7 @@
   .pages-heading { font-size: 12px; padding-bottom: 8px; }
   .page-select { font-size: 12px; height: 34px; }
   .page-actions .icon-button { width: 24px; height: 28px; }
-  .page-item.current { background: var(--control); }
+  .page-item.current { background: var(--active); }
   .layer-list { padding: 8px 8px 12px; }
   .layer-row { height: 32px; }
   .layer-select { gap: 8px; }
@@ -169,7 +165,7 @@
   .home-library .file-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 28px 24px; align-content: start; padding: 4px; }
   .home-library .file-row { display: flex; flex-direction: column; align-items: stretch; padding: 0; gap: 0; border: 0; min-width: 0; }
   .home-library .file-open { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0; border-radius: 6px; overflow: hidden; flex: none; }
-  .home-library .file-open:hover { background: none; }
+  .home-library .file-open:hover { background: none; color: var(--foreground); }
   .home-library .file-open:hover .file-preview { border-color: var(--subtle); }
   .home-library .file-open:focus-visible { outline-offset: 2px; }
   .home-library .file-preview { display: block; position: relative; width: 100%; aspect-ratio: 1.5; max-height: 260px; background: var(--preview-background); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
@@ -187,9 +183,8 @@
   .library-name-form label { font-size: 12px; max-width: 400px; }
   .library-name-form input { min-height: 36px; padding-inline: 12px; border-radius: 4px; }
   .library-name-form > button, .library-removal button { min-height: 36px; border-radius: 4px; }
-  .library-name-form > button[type="submit"]:not(:disabled) { background: var(--foreground); color: var(--background); }
   .library-removal { padding: 16px; font-size: 12px; border: 1px solid var(--line); margin-bottom: 20px; }
-  .library-removal button:first-of-type:not(:disabled) { color: var(--danger); }
+  .library-removal button:first-of-type:not(:disabled):not(:hover) { color: var(--danger); }
   .home-library > footer { grid-column: 2; grid-row: 3; padding: 16px 48px; }
   .home-library > footer, .projects-dialog > footer { font-size: 11px; }
   .home-library > footer .workspace-storage, .projects-dialog > footer .workspace-storage { font-size: 11px; margin: 0 0 8px; }

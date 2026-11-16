@@ -2,21 +2,22 @@
 
 ## Editor contract
 
-Open Cavas is a working editor, not a marketing page. The user's pinned direction is true black application background, white primary text, dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
+Open Cavas is a working editor, not a marketing page. The user's pinned direction is the Navy/Cream/Coral light palette: Cream surfaces, Navy content and outlines, Coral primary-action fills with Navy labels. Keep dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
 
 Opening a file exposes editable artwork between Layers and Properties. The selected workspace's root destination shows Home for browsing projects and files. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
 
 ## Tokens
 
-The shared tokens are declared in `apps/web/src/styles.css` under `:root`. `apps/web/src/desktop.css`, loaded afterward, owns desktop dimensions and menu elevation tokens.
+The shared tokens are declared in `apps/web/src/styles.css` under `:root`. `apps/web/src/desktop.css`, loaded afterward, owns desktop dimensions.
 
-- Background and panel: `--background`, `--panel`, both `#000000`.
-- Primary text: `--foreground`, `#ffffff`.
-- Controls: `--control` `#101010`; hover `--hover` `#1a1a1a`; selected `--active` `#242424`.
-- Borders: `--line`, `#252525`.
-- Secondary text: `--muted`, `#a0a0a0`; inactive detail `--subtle`, `#777777`.
-- Focus: `--accent`, `#a6c7ff`; selection bounds `--selection`, `#8cb7ff`.
-- Save/error warning: `--warning`, `#ffc486`.
+- Primitives: `--navy` `#14213d`, `--cream` `#f4ede0`, `--coral` `#ff6b5b`. No additional opaque palette shades.
+- Background, panel, controls and preview backdrop use Cream. Native form controls use `color-scheme: light`.
+- Primary and secondary text, borders, focus, selection bounds and activity marks use Navy. Type size, weight and layout carry text hierarchy rather than low-contrast ink.
+- Hover and active controls use Navy with Cream ink (`--on-active`). Selected layer/marquee washes use 12% Navy, and grid dots use 24% Navy, over the current surface.
+- Primary actions use Coral with Navy ink and a Navy boundary; hover inverts to Navy/Cream. Coral/Cream is only 2.40:1, so Coral never carries text or essential outlines on Cream.
+- Navy/Cream contrast is 13.72:1; Navy/Coral is 5.71:1. Focus uses a separated 2 px Navy outline with a Cream gap. Disabled buttons retain native disabled behavior and use reduced opacity.
+- Save/error and destructive feedback use Navy with explicit wording, not Coral as a semantic error/success color.
+- Menu elevation and dialog backdrops use transparent Navy; inline text editing stays transparent to preserve artwork colors.
 - UI type: platform system sans through `--font-ui`. Artwork font is document data.
 
 Spacing declarations use a 4 px grid. Borders are 1 px. Compact controls have 3 to 5 px corner radii. Drawing handles are 8 screen pixels regardless of zoom.
@@ -31,11 +32,11 @@ A dotted world grid provides position context without repainting animation. Artb
 
 ## Review threads
 
-Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height black box beside the target, clamped within the canvas as the camera changes. New-comment composition uses a single borderless text area with Cancel and the shared white-primary Save action, without a visible title or target-label row. The target remains in the accessible description. Save commits nonempty feedback; Cancel discards the draft; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
+Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height Cream box beside the target, clamped within the canvas as the camera changes. New-comment composition uses a single borderless text area with Cancel and the shared Coral-primary Save action, without a visible title or target-label row. The target remains in the accessible description. Save commits nonempty feedback; Cancel discards the draft; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
 
 ## Review
 
-Desktop at 1440 by 1000 and mobile at 390 by 844 were inspected in a real browser. Mobile has no document-width overflow and exposes both panels. Design detector returned no findings. Static Hallmark checks have no floor failures; pure black and white are explicitly waived because they are user requirements. Hallmark's render tier was unavailable, so browser captures and interactions provide visual evidence instead. This was a single-agent review, not an independent review.
+Verification results and browser coverage are recorded in [docs/verification.md](docs/verification.md). Theme changes use real browser captures at desktop and narrow widths, computed contrast checks, and the Impeccable detector. Review is single-agent unless explicitly noted otherwise.
 
 
 ## Automatic agent connection
@@ -62,7 +63,7 @@ only to the canvas SVG and Select-mode resize handles, never panels or controls.
 Active pan overrides tool and resize cursors without changing pointer geometry.
 ## Page request activity
 
-Nine blue 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A pale-blue light sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static blue pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.
+Nine Navy 5 px squares form a precise 37 by 25 px lattice above the displayed page artwork's leading corner, outside the artwork SVG. A Navy highlight sequence crosses the fixed geometry diagonally; the dots never jump, bounce, merge, or rotate. The sequence finishes within 2.04 seconds, then leaves a static Navy pending mark. Only the opacity of each dot's highlight animates, without blur, filters, or looping. Reduced motion shows the static lattice immediately. The mark stays screen-sized, follows the page bounds, and clamps inside the viewport when panned offscreen. Accessible status names “Agent processing a request on this page”; no text badge or decorative container is drawn. Clearing status makes no success or save claim.
 
 ## Local workspace selection
 
@@ -80,7 +81,7 @@ One compact Export dropdown replaces separate SVG and PDF header buttons. Its tw
 
 ## Workspace storage and recovery clarity
 
-The workspace chooser and Home/Projects footer use compact disclosures for the actual app-server save directory. Once selected, the disclosure identifies the workspace name, full ID, and JSON file. Recovery guidance distinguishes empty browser storage from unreadable storage and explains reopening the original profile and exact app address. Browser copy and backup stay disabled without validated saved data; the introductory fallback is not presented as recovered work. Existing black editor styling and native focus behavior remain.
+The workspace chooser and Home/Projects footer use compact disclosures for the actual app-server save directory. Once selected, the disclosure identifies the workspace name, full ID, and JSON file. Recovery guidance distinguishes empty browser storage from unreadable storage and explains reopening the original profile and exact app address. Browser copy and backup stay disabled without validated saved data; the introductory fallback is not presented as recovered work. The shared light theme and visible keyboard focus apply here too.
 
 ## Inspector and layer navigation
 
@@ -92,7 +93,7 @@ File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps
 
 ## Desktop density and action hierarchy
 
-Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a white active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use the existing blue selection wash and ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
+Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a Navy/Cream active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use a translucent Navy selection wash and Navy ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
 
 Home has a 240 px project rail and an adaptive grid of native page previews, file names, metadata, and explicit actions. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Previews are read-only and mounted only near the visible library area; they are neither saved snapshots nor exports. Project dialogs keep compact rows. Artwork in the editor remains uncapped.
 
