@@ -14,6 +14,7 @@ import { useEditor } from '../editor/store';
 import { download, saveDocument } from '../editor/files';
 import { IconButton } from './Button';
 import { WorkspaceStorage } from './WorkspaceStorage';
+import { FilePreview } from './FilePreview';
 
 type Edit =
   | { kind: 'project'; id: string | null; name: string }
@@ -72,7 +73,7 @@ export function Projects(props: Props) {
     <>
       <header className="projects-heading">
         {props.mode === 'home'
-          ? <h1 id="home-heading" ref={heading} tabIndex={-1}>Home</h1>
+          ? <h1 id="home-heading" ref={heading} tabIndex={-1}>Files</h1>
           : <h2 id="projects-heading">Projects</h2>}
         <div>
           <button onClick={() => props.onImport(project.id)}>
@@ -101,6 +102,7 @@ export function Projects(props: Props) {
       </header>
       <div className="projects-layout">
         <nav className="project-list" aria-label="Projects">
+          <div className="project-nav-heading">Projects<span>{state.workspace.projects.length}</span></div>
           <button
             className="new-project-button"
             onClick={() => {
@@ -258,14 +260,17 @@ export function Projects(props: Props) {
                       })
                     }
                   >
-                    <File size={18} />
-                    <span>
+                    {props.mode === 'home' && <FilePreview document={file.document} pageId={file.pageId} />}
+                    <span className="file-info">
+                      <File size={16} />
+                      <span>
                       <strong>{file.document.name}</strong>
                       <small>
                         {file.document.pages.length}{' '}
                         {file.document.pages.length === 1 ? 'page' : 'pages'}
                         {file.id === state.location.fileId ? ', last opened' : ''}
                       </small>
+                      </span>
                     </span>
                   </button>
                   <div className="file-actions">

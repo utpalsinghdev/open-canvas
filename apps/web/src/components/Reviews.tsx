@@ -39,6 +39,7 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
     ? state.document.nodes.find((node) => node.id === state.selectedIds[0]) : undefined;
   const missing = thread && !anchorPoint(thread.anchor, state.document.nodes);
   const compact = Boolean(draftAnchor || thread);
+  const composing = Boolean(draftAnchor && !thread);
   const activeAnchor = thread?.anchor ?? draftAnchor;
   const point = activeAnchor ? anchorPoint(activeAnchor, state.document.nodes) : null;
   function close() { setPlacing(false); review.setOpen(false); }
@@ -106,8 +107,8 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
         return point && <span className="review-pin draft" style={{ left: point.x * controls.camera.zoom + controls.camera.x, top: point.y * controls.camera.zoom + controls.camera.y }}><MapPin size={14} /></span>;
       })()}
     </div>
-    {review.open && <ReviewSurface key={thread?.id ?? (draftAnchor ? 'draft' : 'list')} controls={controls} point={point} compact={compact} onClose={close}>
-      <div className="review-heading"><h2>{thread ? 'Comment' : draftAnchor ? 'New comment' : 'Review threads'}</h2><IconButton label="Close comments" onClick={close}><X size={16} /></IconButton></div>
+    {review.open && <ReviewSurface key={thread?.id ?? (draftAnchor ? 'draft' : 'list')} controls={controls} point={point} compact={compact} composing={composing} onClose={close}>
+      {!composing && <div className="review-heading"><h2>{thread ? 'Comment' : 'Review threads'}</h2><IconButton label="Close comments" onClick={close}><X size={16} /></IconButton></div>}
       {!compact && <div className="review-create">
         <button className="text-button" disabled={!selectedLayer} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(selectedLayer ? { kind: 'layer', nodeId: selectedLayer.id } : null); setPlacing(false); }}>Comment on selection</button>
         <button className="text-button" aria-pressed={placing} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(null); setPlacing(true); review.setOpen(false); }}>Place pin</button>
@@ -121,9 +122,9 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
           setPlacing(false);
         });
       }}>
-        <label htmlFor="new-comment">{draftAnchor.kind === 'layer' ? `Comment on ${state.document.nodes.find((node) => node.id === draftAnchor.nodeId)?.name ?? 'missing layer'}` : 'Comment at canvas position'}</label>
-        <textarea id="new-comment" aria-label="New comment" placeholder="Write a comment…" rows={3} maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} />
-        <div className="review-actions"><button className="export-button" disabled={!body.trim()}>Save comment</button><button type="button" className="text-button" onClick={cancelDraft}>Cancel</button></div>
+        <label className="sr-only" id="new-comment-target" htmlFor="new-comment">{draftAnchor.kind === 'layer' ? `Comment on ${state.document.nodes.find((node) => node.id === draftAnchor.nodeId)?.name ?? 'missing layer'}` : 'Comment at canvas position'}</label>
+        <textarea id="new-comment" aria-label="New comment" aria-describedby="new-comment-target" placeholder="Add a comment…" rows={3} maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} />
+        <div className="review-actions"><button type="button" className="secondary-button" onClick={cancelDraft}>Cancel</button><button className="export-button" aria-label="Save comment" disabled={!body.trim()}>Save</button></div>
       </form> : thread ? <section className="review-thread" aria-label="Selected thread">
         <div className="review-heading"><strong>{thread.status === 'resolved' ? 'Resolved' : 'Open thread'}</strong><button className="text-button" onClick={() => { selectThread(null); }}>All threads</button></div>
         {missing ? <p className="review-warning" role="status">Missing layer. Feedback retained; restore the layer with undo to navigate or change status.</p> : <button className="text-button" onClick={() => {

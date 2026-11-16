@@ -81,9 +81,6 @@ button svg, summary svg { flex: none; }
 .file-menu-items { position: absolute; top: 33px; left: 0; width: 190px; border: 1px solid var(--line); background: var(--control); padding: 4px; z-index: 30; border-radius: 5px; }
 .file-menu-items button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; text-align: left; border-radius: 3px; }
 .workspace-bar { height: 55px; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 224px minmax(0, 1fr) 248px; flex: none; align-items: center; }
-.workspace-label { display: flex; align-items: center; gap: 12px; padding-left: 16px; font-size: 11px; }
-.workspace-label > :first-child { color: var(--muted); }
-.workspace-end { display: flex; justify-content: flex-end; padding-right: 16px; }
 .tool-strip { display: flex; align-items: center; justify-self: center; gap: 12px; }
 .tool-group { display: flex; align-items: center; gap: 4px; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 4px; flex: none; color: var(--muted); }
@@ -104,7 +101,6 @@ button svg, summary svg { flex: none; }
 .inspector-panel { border-left: 1px solid var(--line); }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; padding: 20px 16px 16px; font-weight: 500; }
 .panel-heading > :last-child:not(:first-child) { font-weight: 400; font-size: 11px; }
-.collapse-all-button { padding: 4px; border-radius: 3px; white-space: nowrap; }
 .muted { color: var(--muted); }
 .page-row { display: flex; align-items: center; gap: 8px; height: 35px; margin: 0 8px 16px; padding: 0 8px; border: 1px solid var(--line); border-radius: 3px; font-size: 11px; }
 .page-row svg { color: var(--muted); }
@@ -233,7 +229,6 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 @media (max-width: 1100px) {
   .app-shell { --layers-width: 192px; --properties-width: 224px; }
   .workspace-bar { grid-template-columns: 192px minmax(0, 1fr) 224px; }
-  .workspace-label { gap: 8px; }
   .canvas-caption { bottom: 56px; font-size: 9px; }
   .field-grid { gap: 8px; }
   .number-field { gap: 4px; padding: 8px 4px; }
@@ -241,8 +236,7 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 @media (max-width: 900px) {
   .app-header { gap: 16px; padding: 0 12px; }
   .workspace-bar { display: flex; justify-content: center; position: relative; }
-  .workspace-label, .desktop-panel-control { display: none; }
-  .workspace-end { position: absolute; right: 2px; padding: 0; }
+  .desktop-panel-control { display: none; }
   .editor-workspace { display: flex; position: relative; }
   .canvas-viewport { flex: 1; }
   .layers-panel, .inspector-panel { display: none; }
@@ -271,7 +265,6 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
   .tool-strip { gap: 4px; padding-right: 28px; }
   .tool-group { gap: 0; }
   .tool-strip .icon-button { width: 27px; height: 33px; }
-  .workspace-end .icon-button { width: 27px; }
   .tool-strip .control-divider { margin: 0 4px; }
   .status-bar > :nth-child(2) { display: none; }
   .canvas-caption { left: 12px; bottom: 56px; font-size: 9px; }

@@ -206,6 +206,15 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           </span>
           <span>Open Cavas</span>
         </div>
+        <IconButton
+          className="icon-button desktop-panel-control"
+          label={layersVisible ? 'Collapse Layers sidebar' : 'Expand Layers sidebar'}
+          aria-expanded={layersVisible}
+          aria-controls="layers-panel"
+          onClick={() => setLayersVisible((visible) => !visible)}
+        >
+          <PanelLeft size={17} />
+        </IconButton>
         <button className="home-button" onClick={onHome}>
           <House size={15} />Home
         </button>
@@ -290,25 +299,6 @@ export function EditorApp({ onHome, onProjects, onImport }: {
             <AlertTriangle size={12} />
             Not saved
           </span>}
-          <ExportMenu onSvg={exportFile} />
-        </div>
-      </header>
-      <div className="workspace-bar">
-        <div className="workspace-label">
-          <IconButton
-            label={layersVisible ? 'Collapse Layers sidebar' : 'Expand Layers sidebar'}
-            aria-expanded={layersVisible}
-            aria-controls="layers-panel"
-            onClick={() => setLayersVisible((visible) => !visible)}
-          >
-            <PanelLeft size={17} />
-          </IconButton>
-          <span>Page</span>
-          <span className="muted">/</span>
-          <span>{activePage?.name}</span>
-        </div>
-        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(false); }} />
-        <div className="workspace-end">
           <button className="review-toggle desktop-panel-control" aria-label="Review threads" aria-expanded={commentsOpen} onClick={toggleReviews}>
             <MessagesSquare size={17} /><span>Review</span>
           </button>
@@ -321,13 +311,14 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           >
             <PanelRight size={17} />
           </IconButton>
-          <IconButton
-            label="Keyboard shortcuts and help"
-            onClick={() => setHelp(true)}
-          >
+          <IconButton label="Keyboard shortcuts and help" onClick={() => setHelp(true)}>
             <HelpCircle size={17} />
           </IconButton>
+          <ExportMenu onSvg={exportFile} />
         </div>
+      </header>
+      <div className="workspace-bar">
+        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(false); }} />
       </div>
       <div className="mobile-panel-controls">
         <button

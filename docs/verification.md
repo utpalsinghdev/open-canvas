@@ -1,5 +1,48 @@
 # Verification record
 
+## Compact desktop controls
+
+The follow-up uses an accessible Collapse all icon, removes toolbar undo/redo buttons while preserving shortcuts, and reduces the new-comment composer to a text area with Cancel/Save. Verified at 1440 × 1000 in the isolated development browser:
+
+- Collapse all folded the layer list from 17 rows to two artboard rows and disabled the icon. Its accessible name and tooltip remained Collapse all. Individual artboards reopened normally.
+- No undo/redo buttons remained. After changing rectangle width from 230 to 240, Ctrl+Z restored 230 and Ctrl+Shift+Z restored 240. Restored 230 afterward.
+- With the same draft text, the 288 px-wide comment box measured 134 px high rather than the previous 233 px. Textarea focus remained visible, target context remained in its accessible description, and an empty draft disabled Save.
+- Escape hid the draft; reopening Review retained its text. Cancel discarded it. Ctrl+Enter saved a nonempty comment and opened the existing conversation view.
+
+## Desktop workbench recomposition
+
+The second desktop pass replaced the stacked command bars with one header and a vertical drawing-tool rail, introduced native active-page previews in Home, regrouped inspector fields, and split workspace setup into opening and creation columns. Verified in the same isolated feature worktree:
+
+- `pnpm run check` and `pnpm run build` passed with the pinned Node/pnpm toolchain. No application build errors; existing dependency annotation warnings remain.
+- At 1440 × 1000, the canvas starts at x=288 and y=52, immediately after the 240 px Layers panel and 48 px tool rail. With both panels collapsed, the rail moves to x=0 and canvas spans x=48 through 1440, preserving selection. Toolbar accessibility orientation is vertical on desktop and horizontal on narrow layouts.
+- Drew a 200 × 150 rectangle from the vertical rail on an empty page; undo removed it and redo restored it. Restored the empty page afterward. Edited the introductory rectangle width to 240, undid to 230, verified lock disabling, and reloaded to confirm its saved 230 px width.
+- Home previewed native artwork, then a duplicated file with independent clip IDs. Switching that copy to its empty second page produced an explicit Empty page preview while the original retained artwork. Renamed the copy and exercised search with no matches.
+- Reimported a downloaded version-2 backup as a new file with two pages and 17 introductory layers, opened it, and observed its native Home preview. Deleted only that verification file through the confirmation UI. Existing files remained.
+- Downloaded JSON, SVG, and PDF through the recomposed header. JSON retained two pages and 17 layers on the introductory page; SVG remained 1248 × 760; PDF retained its PDF 1.7 header.
+- Captured the same 13 desktop surfaces/states as the initial pass. Updated examples include extra synthetic workspace/file entries and resolved feedback created during verification. Inspected 1024 × 768 and 1920 × 1080 desktop layouts, plus a 390 × 844 chooser/editor-overlay sanity check. Tested viewport and document widths matched. Camera position intentionally stays unchanged when only viewport size changes; Fit canvas reframes it.
+- Impeccable reported no findings. Hallmark's final static scan had zero failures and one long introductory-action label warning, with explicit desktop nowrap and narrow wrapping. Its render tier remains unavailable; real Chromium captures supply visual evidence.
+
+This remains single-reviewer verification. Lazy preview mounting, visibility, clipping, and opacity follow the existing native renderer, but there was no large-library performance benchmark or exhaustive visual-fidelity comparison. No new tests, schema migration, backend/MCP contract change, main release, or service restart were added.
+
+## Initial desktop interface pass
+
+Verified with Node.js 24.22.1 and pnpm 12.21.0 in an isolated development worktree:
+
+- `pnpm run check` and `pnpm run build` passed. Build retained the existing dependency annotation warnings.
+- Impeccable's detector reported no findings on the changed UI targets. Hallmark's static scan reported zero failures and one long-label warning. The introductory action has explicit desktop nowrap styling and wraps on narrow screens. Hallmark's render tier did not run because puppeteer-core was unavailable; real Chromium screenshots supplied visual evidence instead.
+- Captured matching 1440 × 1000 Before/After states for workspace selection, Home, file creation, Projects, editor with no selection, empty page, shape inspector, typography, File menu, Export menu, Help, review list, and comment composition. The base and updated editor auto-fit the same artwork at different zoom levels because panel widths changed.
+- Desktop checks at 1024 × 768 and 1920 × 1080 had no document-width overflow. At 1024 px, drawing tools stayed between the side regions. At 390 × 844, workspace setup fit without document-width overflow and the existing Properties overlay remained accessible. This was a narrow-layout sanity check, not a mobile redesign.
+- Opened a saved workspace, created an introductory workspace with 17 native layers, and created an empty workspace. The latter retained its Home-first behavior and opened an empty Untitled file.
+- Empty workspace-name input disabled both creation actions. Browser copy/backup remained disabled without recoverable browser data and were accessible through the recovery disclosure.
+- Home search showed No matching files for an unmatched query. Created a file, opened it, and confirmed its presence through a saved MCP workspace read. Exercised file deletion with its explicit confirmation and observed the row disappear.
+- Changed rectangle width from 230 to 240, verified undo to 230 and redo to 240 after reselecting the layer, then restored 230. Locking disabled the property fieldset. Both desktop sidebars collapsed and reopened; the canvas filled the freed columns.
+- Added a page, returned to the original page, reloaded the file destination, and observed both pages plus the restored 230 px rectangle width.
+- Posted a review comment, posted a reply, resolved the thread, and reopened it. Opened and dismissed Projects, Help, File, and Export surfaces.
+- Downloaded and parsed a version-2 JSON backup with both pages and 17 layers on the original page. Downloaded a 1248 × 760 SVG and a one-page PDF 1.7 through the existing export menu. These checks verified the controls and generated artifacts, not a pixel comparison or native JSON reimport.
+- An official MCP SDK client discovered the development workspace and connected canvas. `list_projects` returned the newly created file and page with persistence reported as saved. No MCP contract or document model changed.
+
+No new test files were added. Verification did not include an independent review. Browser-copy recovery with real legacy data, forced service/save failures, Safari/Firefox, and touch devices were not verified. No main release or service restart was performed.
+
 ## Pinned Node and pnpm migration
 
 Verified on Node.js 24.22.1 and pnpm 12.21.0 in the feature worktree:
