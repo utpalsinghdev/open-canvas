@@ -26,7 +26,7 @@ A versioned JSON document holds an ordered node list. Node kinds are artboard, r
 
 Roots render in document order. Each artboard renders its background and then its children in document order, inside a clip path. Later siblings paint above earlier siblings. Bring to front and Send to back modify document order. Artboard opacity applies to its whole group. Parent visibility and locking affect children. Text layout measures with the resolved loaded font, then applies explicit line breaks, optional wrapping, tracking, line height, and fixed/auto-height/auto-width sizing. Missing legacy typography fields receive schema defaults. SVG embeds loaded bundled fonts; unavailable requested fonts remain in document data while rendering through the reported fallback. Browser fallback is Arial; backend fallback is bundled Inter when a system family is missing.
 
-Rotated node bounds drive export/viewport fitting. Marquee uses unrotated node bounds and selects only non-artboard nodes; exact rotated-shape intersection is outside this MVP.
+Rotated node bounds drive export/viewport fitting. Marquee uses unrotated node bounds and selects only non-artboard nodes; exact rotated-shape intersection is outside this MVP. `apps/web/src/editor/marquee-selection.ts` derives the box and candidate IDs once per gesture render for both transient candidate bounds and pointer-release selection. It retains measured text bounds, inherited visibility/locking, Shift-additive selection and the existing three-world-unit drag threshold. Candidate rendering changes neither editor selection nor document/history while the pointer moves; resize handles appear only after release.
 
 ## State changes
 

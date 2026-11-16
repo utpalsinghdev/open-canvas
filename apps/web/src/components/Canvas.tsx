@@ -1,7 +1,7 @@
 import { useEffect, useState, type PointerEvent } from 'react';
 import { Maximize, Minus, Plus } from 'lucide-react';
 import { createNode, isHidden, isLocked, withChildren, type DesignNode } from '@open-cavas/document/model';
-import { intersects, resized, translated } from '@open-cavas/engine/geometry';
+import { resized, translated } from '@open-cavas/engine/geometry';
 import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
@@ -11,6 +11,7 @@ import { usePageReview } from '../review/drafts';
 import { AgentActivity } from './AgentActivity';
 import { CanvasTargetPreview } from './CanvasTargetPreview';
 import { selectableCanvasNode } from '../editor/canvas-target';
+import { marqueeSelection } from '../editor/marquee-selection';
 import { textNodeBounds, textContentBounds } from '@open-cavas/engine/typography';
 
 type Point = { x: number; y: number };
@@ -133,6 +134,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
     if (width < 4 && height < 4) return drag.node;
     return { ...drag.node, x: Math.round(Math.min(drag.start.x, drag.current.x)), y: Math.round(Math.min(drag.start.y, drag.current.y)), width: Math.min(20_000, Math.max(1, Math.round(width))), height: Math.min(20_000, Math.max(1, Math.round(height))) };
   }
+  const marquee = gesture?.mode === 'marquee' ? marqueeSelection({ ...gesture, nodes: document.nodes, selectedIds }) : null;
   function finish() {
     if (!gesture) return;
     if (gesture.mode === 'move' && (gesture.delta.x || gesture.delta.y)) {
@@ -162,11 +164,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
         if (node.kind === 'text') setEditingId(node.id);
       }
     }
-    if (gesture.mode === 'marquee') {
-      const box = { x: Math.min(gesture.start.x, gesture.current.x), y: Math.min(gesture.start.y, gesture.current.y), width: Math.abs(gesture.current.x - gesture.start.x), height: Math.abs(gesture.current.y - gesture.start.y) };
-      const ids = document.nodes.filter((node) => node.kind !== 'artboard' && !isHidden(node, document.nodes) && !isLocked(node, document.nodes) && intersects(box, node.kind === 'text' ? { ...node, ...textNodeBounds(node) } : node)).map((node) => node.id);
-      if (box.width > 3 || box.height > 3) select([...new Set([...(gesture.additive ? selectedIds : []), ...ids])]);
-    }
+    if (marquee?.ids) select(marquee.ids);
     useEditor.setState({ interactionActive: false });
     setGesture(null);
   }
@@ -182,7 +180,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
   const preview = gesture?.mode === 'draw' ? drawnNode(gesture) : null;
   // Keep stored text frames distinct from the content-sized editing area.
   const visible = nodes.filter((node) => !isHidden(node, nodes) && node.id !== editingId);
-  const selected = visible.filter((node) => selectedIds.includes(node.id));
+  const selected = visible.filter((node) => (marquee?.ids ?? selectedIds).includes(node.id));
 
   const cursor = gesture?.mode === 'pan' ? 'grabbing' : space || tool === 'hand' ? 'grab' : tool;
 
@@ -211,13 +209,13 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
           const bounds = node.kind === 'text' ? textNodeBounds(node) : node;
           const handles = node.kind !== 'text' || node.sizing === 'fixed' ? ['nw', 'ne', 'sw', 'se']
             : node.sizing === 'auto-height' ? ['w', 'e'] : ['n', 's'];
-          return <g key={node.id} transform={`rotate(${node.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`}>
+          return <g key={node.id} className={marquee ? 'marquee-target-preview' : undefined} transform={`rotate(${node.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`}>
             <rect x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height} className="selection-outline" strokeWidth={1 / camera.zoom} strokeDasharray={node.kind === 'text' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} pointerEvents="none" />
             {node.kind === 'text' && <rect {...textContentBounds(node)} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />}
-            {selected.length === 1 && !isLocked(node, nodes) && handles.map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : corner.includes('w') ? 0 : bounds.width / 2) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : corner.includes('n') ? 0 : bounds.height / 2) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
+            {!marquee && selected.length === 1 && !isLocked(node, nodes) && handles.map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : corner.includes('w') ? 0 : bounds.width / 2) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : corner.includes('n') ? 0 : bounds.height / 2) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
           </g>;
         })}
-        {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}
+        {marquee && <rect className="marquee" {...marquee.box} strokeWidth={1 / camera.zoom} />}
       </g>
     </svg>
     {(tool === 'select' || tool === 'comment') && !space && !gesture && !editingId && <CanvasTargetPreview key={tool} controls={controls} nodes={visible} tool={tool} selectedIds={selectedIds} />}
