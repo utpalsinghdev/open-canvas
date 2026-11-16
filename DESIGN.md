@@ -81,3 +81,7 @@ One compact Export dropdown replaces separate SVG and PDF header buttons. Its tw
 ## Workspace storage and recovery clarity
 
 The workspace chooser and Home/Projects footer use compact disclosures for the actual app-server save directory. Once selected, the disclosure identifies the workspace name, full ID, and JSON file. Recovery guidance distinguishes empty browser storage from unreadable storage and explains reopening the original profile and exact app address. Browser copy and backup stay disabled without validated saved data; the introductory fallback is not presented as recovered work. Existing black editor styling and native focus behavior remain.
+
+## Inspector and layer navigation
+
+Inspector arrangement actions use visible icon-and-text controls in two columns; an unselected inspector gives one concise next step. Layers scroll independently below Pages with 12 px names.
