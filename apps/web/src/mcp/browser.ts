@@ -13,6 +13,7 @@ import { agentActivity } from './activity';
 import { hasReviewDrafts } from '../review/drafts';
 import { activityTarget, beginPageActivity, paintPageActivity } from './page-activity';
 import { revealCommittedCreation } from './creation-reveal';
+import { requestAnchors } from './request-anchors';
 import { z } from 'zod';
 
 const activityEndSchema = z.object({ type: z.literal('activity-end'), id: z.string() });
@@ -107,7 +108,8 @@ function attachBrowser(socket: WebSocket) {
           throw new Error('Canvas target mismatch.');
         const target = activityTarget(method, parsedArgs, useEditor.getState().location);
         if (target) {
-          finishActivity = beginPageActivity(target);
+          const state = useEditor.getState();
+          finishActivity = beginPageActivity(target, requestAnchors(method, parsedArgs, state.document, state.selectedIds), () => activity.delete(id));
           activity.set(id, finishActivity);
           await paintPageActivity();
         }
@@ -188,7 +190,6 @@ function attachBrowser(socket: WebSocket) {
         });
       } finally {
         finishActivity?.();
-        activity.delete(id);
         agentActivity.active--;
         agentActivity.lastUsed = Date.now();
       }
