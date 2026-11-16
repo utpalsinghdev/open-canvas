@@ -6,7 +6,7 @@ Main is the stable application used by other threads. Feature work runs in separ
 
 Use Node.js 24.22.1 and pnpm 12.21.0. `package.json` declares both exact versions, `.nvmrc` and `.node-version` select Node, and `pnpm-workspace.yaml` enables strict install engine checks. Corepack selects the package manager from `packageManager`. Select Node with your existing version manager. Use `corepack pnpm` if the matching pnpm shim is unavailable; Corepack must be on PATH. No global version selection or shim installation happens automatically.
 
-Install with `pnpm install --frozen-lockfile`. `pnpm-lock.yaml` is the only dependency lockfile. Release preparation uses `corepack pnpm install --frozen-lockfile --ignore-scripts` and `corepack pnpm run build` inside the archived snapshot. The snapshot retains pnpm's own dependency layout. Existing stable releases remain unchanged until an authorized release and restart.
+Install with `pnpm install --frozen-lockfile`. `pnpm-lock.yaml` is the only dependency lockfile. The pnpm build policy explicitly skips esbuild's install scripts; its platform binary comes from the locked optional dependency. Release preparation uses `corepack pnpm install --frozen-lockfile --ignore-scripts` and `corepack pnpm run build` inside the archived snapshot. The snapshot retains pnpm's own dependency layout. Existing stable releases remain unchanged until an authorized release and restart.
 
 ## Reserved profiles
 
