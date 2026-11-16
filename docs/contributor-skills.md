@@ -26,6 +26,6 @@ Run from the repository root:
 node .agents/skills/attach-screenshot-to-pr/scripts/upload.mjs --check
 ```
 
-Node.js 22.6 or later is required. This command validates local configuration without making a network request. It does not prove the credentials work. No personal credentials are provided by the repository, and no global agent configuration is changed by checkout.
+Use the repository's pinned Node.js 24.22.1. The standalone helper requires at least Node.js 22.6 and no dependency install. This command validates local configuration without making a network request. It does not prove the credentials work. No personal credentials are provided by the repository, and no global agent configuration is changed by checkout.
 
 Uploads use the contributor's account. Cloudinary URLs are public, so inspect screenshots and obtain the task's upload authorization first. Capture evidence outside Git and keep Before/After states comparable. Follow the skill's PR read-back and image verification steps.

@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-React, TypeScript, Vite, Tailwind, npm. Delegated implementation choice follows the user's standing stack preferences. Zustand owns editor state; Zod validates documents.
+React, TypeScript, Vite, Tailwind, pnpm. Delegated implementation choice follows the user's standing stack preferences. Zustand owns editor state; Zod validates documents.
 
 ## Purpose
 

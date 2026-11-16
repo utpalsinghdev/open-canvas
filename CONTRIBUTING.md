@@ -18,7 +18,7 @@ Public reports and images must omit credentials, browser tickets, broker metadat
 
 Use a feature branch in a separate worktree and follow [runtime isolation](docs/runtime.md). Keep main's ports, service data, and committed snapshot separate from development. Do not restart another contributor's services.
 
-Inspect current CI before editing. For behavior changes, run `npm run check` and `npm run build`, then exercise relevant browser and MCP journeys. For documentation-only changes, check the diff and links unless CI requires more. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
+Inspect current CI before editing. For behavior changes, run `pnpm run check` and `pnpm run build`, then exercise relevant browser and MCP journeys. For documentation-only changes, check the diff and links unless CI requires more. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
 
 ## Write a pull request
 

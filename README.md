@@ -10,20 +10,22 @@ See the [introduction and screenshot](docs/introduction.md).
 
 ## Run stable main
 
-Use Node.js 22+ and npm, in the primary main checkout.
+Use Node.js **24.22.1** and pnpm **12.21.0**, pinned in `package.json`, `.nvmrc`, and `.node-version`. Select Node with your version manager, then use `corepack pnpm` to run the pinned package manager without changing global defaults. Corepack must be installed and on PATH. Examples below use `pnpm`; use `corepack pnpm` if you have no matching pnpm shim.
+
+In the primary main checkout:
 
 ```sh
-npm ci
-npm run release:main  # Requires clean committed main; builds a frozen snapshot
-npm run service:install # Persistent main frontend at http://localmachine:5182
-# npm start remains available for manual foreground use
+pnpm install --frozen-lockfile
+pnpm run release:main  # Requires clean committed main; builds a frozen snapshot
+pnpm run service:install # Persistent main frontend at http://localmachine:5182
+# pnpm start remains available for manual foreground use
 ```
 
-Main MCP uses private loopback port **4781**. Generate its config with `npm run --silent mcp:config`, start/reconnect your agent, and select an explicit workspace with `list_workspaces`. Data operations do not need an open browser. Browser rendering connects automatically when the application is open. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
+Main MCP uses private loopback port **4781**. Generate its config with `pnpm --silent run mcp:config`, start/reconnect your agent, and select an explicit workspace with `list_workspaces`. Data operations do not need an open browser. Browser rendering connects automatically when the application is open. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
 
 ## Versions and changelog
 
-Use `npm run changeset` to record a feature/fix and its patch/minor/major bump. Commit that Markdown entry with the change. `npm run changeset:status` shows pending releases. Before an authorized release, `npm run version:apply` consumes entries, updates package versions and the lockfile, and generates `CHANGELOG.md`. Review and commit the result before `npm run release:main`.
+Use `pnpm run changeset` to record a feature/fix and its patch/minor/major bump. Commit that Markdown entry with the change. `pnpm run changeset:status` shows pending releases. Before an authorized release, `pnpm run version:apply` consumes entries, updates package versions and the lockfile, and generates `CHANGELOG.md`. Review and commit the result before `pnpm run release:main`.
 
 The app stays private. Versioning does not publish to npm, create tags, deploy, or restart main automatically. Detailed workflow is in [docs/versioning.md](docs/versioning.md).
 
@@ -32,15 +34,15 @@ The app stays private. Versioning does not publish to npm, create tags, deploy, 
 Use a feature branch in a separate worktree:
 
 ```sh
-npm ci
-npm run dev                        # http://localmachine:5188
-npm run --silent mcp:config:dev     # Separate development agent entry
-npm run build                      # TypeScript and source bundle; not a main release
+pnpm install --frozen-lockfile
+pnpm run dev                        # http://localmachine:5188
+pnpm --silent run mcp:config:dev     # Separate development agent entry
+pnpm run build                      # TypeScript and source bundle; not a main release
 ```
 
 The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
 
-After feature verification and authorized merge, run `npm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
+After feature verification and authorized merge, run `pnpm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
 
 ## Agent control through MCP
 

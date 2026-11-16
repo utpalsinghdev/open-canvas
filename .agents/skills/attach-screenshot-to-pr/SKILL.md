@@ -9,7 +9,7 @@ Use this skill for PR visual evidence. Keep screenshots in a task-specific tempo
 
 ## Configure your own account
 
-Requires Node.js 22.6 or later. The helper uses built-in APIs and needs no npm install. This repository contains no shared Cloudinary account or credentials.
+Use the repository's pinned Node.js 24.22.1. The standalone helper requires at least Node.js 22.6 and uses built-in APIs without a dependency install. This repository contains no shared Cloudinary account or credentials.
 
 Use the canonical skill directory `.agents/skills/attach-screenshot-to-pr`. Codex discovers it there. Pi and Claude Code discover the same skill through relative directory symlinks under `.pi/skills` and `.claude/skills`. Run commands from the repository root, or resolve paths against the checkout. If directory symlinks are unavailable, follow [contributor setup](../../../docs/contributor-skills.md).
 

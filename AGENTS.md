@@ -15,7 +15,7 @@
 - Private planning files remain local. Carry only the needed delivery criteria into tracked docs or PRs; never publish private roadmaps, screenshots, or audit notes.
 
 ## Implementation
-- Use React, TypeScript, Vite, Tailwind, and npm. No Next.js or Python application code.
+- Use React, TypeScript, Vite, Tailwind, and pnpm. Use the pinned Node and pnpm versions in package.json. No Next.js or Python application code.
 - Prefer inferred types and discriminated unions. Validate external documents at import/storage boundaries. Do not use `any` or unchecked casts.
 - Keep changes small and focused. Prefer files around 200 to 400 lines. Avoid deep nesting and speculative abstractions.
 - Keep comments useful and current. No unrelated refactors or cleanup.
@@ -30,7 +30,7 @@
 
 ## Verification and documentation
 - Do not write new test files or disguised test suites unless explicitly requested.
-- For behavior changes, run `npm run check` and `npm run build` plus the relevant real browser/MCP journeys. Report unverified behavior honestly.
+- For behavior changes, run `pnpm run check` and `pnpm run build` plus the relevant real browser/MCP journeys. Report unverified behavior honestly.
 - Maintain docs for architecture, controls, file format, known limits, and actual verification results.
 - Inspect CI requirements before changes when CI exists. Never claim an unrun check passed.
 - For documentation-only changes, verify the diff and links; no app build or browser run is required unless CI requires it.
@@ -68,6 +68,6 @@
 ## Stable main and isolated development
 - Read docs/runtime.md before starting, building, releasing, or changing runtime configuration.
 - Main frontend is 5182 and private MCP is 4781. Dev frontend is 5188 and private MCP is 4785. Additional simultaneous worktrees need distinct assigned dev port pairs. Never point development at main broker or metadata.
-- Run feature development in a separate worktree on a feature branch with npm run dev and dev-specific MCP config scripts. Do not edit or rebuild files served by main as a side effect of development.
-- Main runs a committed snapshot via npm run release:main and npm start. Source npm run build is verification, not publication. Merge verified features, prepare a release, then deliberately restart main and reconnect agents at the agreed release boundary.
+- Run feature development in a separate worktree on a feature branch with pnpm run dev and dev-specific MCP config scripts. Do not edit or rebuild files served by main as a side effect of development.
+- Main runs a committed snapshot via pnpm run release:main and pnpm start. Source pnpm run build is verification, not publication. Merge verified features, prepare a release, then deliberately restart main and reconnect agents at the agreed release boundary.
 - Do not kill active main broker/client processes, delete their metadata/worktrees, or modify global agent settings silently. Legacy launcher migration and owner restarts can disconnect other threads; coordinate them explicitly.

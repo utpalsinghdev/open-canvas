@@ -31,7 +31,7 @@ For example, raster PDF pages can satisfy an explicitly raster export task. They
 
 ## Verify against the criteria
 
-Inspect current CI and repository instructions before choosing checks. For TypeScript or behavior changes, run `npm run check` and `npm run build` in the feature worktree. Exercise the relevant browser and MCP journeys using isolated dev ports and data. Preserve the stable main runtime.
+Inspect current CI and repository instructions before choosing checks. For TypeScript or behavior changes, run `pnpm run check` and `pnpm run build` in the feature worktree. Exercise the relevant browser and MCP journeys using isolated dev ports and data. Preserve the stable main runtime.
 
 Use realistic content for the requested job. Include affected failure cases and regressions rather than relying only on a happy-path screenshot. For document changes, verify old-document migration, malformed input, asset/ID preservation, native round trips, and history. For storage changes, verify backup restoration and interrupted or rejected writes before claiming recovery.
 

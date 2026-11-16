@@ -66,7 +66,7 @@ try {
   await rename(temporary, target);
   execFileSync('systemctl', ['--user', 'daemon-reload'], { stdio: 'inherit' });
   execFileSync('systemctl', ['--user', 'enable', '--now', UNIT], { stdio: 'inherit' });
-  process.stdout.write(`Installed ${UNIT}. Main frontend is managed outside agent sessions.\nExisting active services are not restarted by this installer. Use npm run service:restart at an authorized rollout boundary.\n`);
+  process.stdout.write(`Installed ${UNIT}. Main frontend is managed outside agent sessions.\nExisting active services are not restarted by this installer. Use pnpm run service:restart at an authorized rollout boundary.\n`);
 } catch (error) {
   process.stderr.write(`${error instanceof Error ? error.message : 'Service installation failed.'}\n`);
   process.exitCode = 1;

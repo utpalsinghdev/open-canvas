@@ -1,5 +1,16 @@
 # Verification record
 
+## Pinned Node and pnpm migration
+
+Verified on Node.js 24.22.1 and pnpm 12.21.0 in the feature worktree:
+
+- `corepack pnpm install --frozen-lockfile`, `corepack pnpm run check`, and `corepack pnpm run build` passed. Build retained the existing Zod annotation warnings.
+- The imported pnpm lockfile preserves direct dependency versions except for aligning `@types/node` with Node 24. A frozen install with Node 22.23.4 was rejected by strict engine validation.
+- `corepack pnpm run changeset:status` reported the migration's pending patch without applying a version change.
+- The isolated development launcher returned HTTP 200 through localmachine. `corepack pnpm --silent run mcp:config:dev` produced parseable JSON, and an official SDK stdio client completed `list_workspaces` against its isolated broker.
+
+Historical npm commands below describe checks actually run before this migration. They are not current setup instructions. No new test files or editor UI changes accompany the migration. No main service restart or global toolchain-default change was performed.
+
 No test files were written. Verification uses the real browser, TypeScript, production build, static UI checks, and downloaded artifacts.
 
 ## Checks and outcomes

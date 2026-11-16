@@ -59,7 +59,7 @@
 ## Verification
 
 <!-- Name exact relevant commands and observed outcomes, plus real browser/MCP
-     journeys. Behavior changes require npm run check and npm run build.
+     journeys. Behavior changes require pnpm run check and pnpm run build.
      Docs-only changes need diff/link checks unless CI requires more.
      Name unrun or failed checks that affect confidence. Keep incidental
      machine logs and the complete private validation ledger out of this PR. -->

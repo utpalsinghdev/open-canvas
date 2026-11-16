@@ -6,8 +6,8 @@ import { checkoutRoot, runtimeSettings, assertDevelopmentCheckout } from './runt
 export async function selectedRelease() {
   let pointer;
   try { pointer = JSON.parse(await readFile(path.join(checkoutRoot, '.cavas', 'main-release.json'), 'utf8')); }
-  catch { throw new Error('No valid main release. Run npm run release:main from clean main.'); }
-  if (!pointer || typeof pointer.commit !== 'string' || !/^[a-f0-9]{40}$/.test(pointer.commit)) throw new Error('Invalid main release pointer. Run npm run release:main from clean main.');
+  catch { throw new Error('No valid main release. Run pnpm run release:main from clean main.'); }
+  if (!pointer || typeof pointer.commit !== 'string' || !/^[a-f0-9]{40}$/.test(pointer.commit)) throw new Error('Invalid main release pointer. Run pnpm run release:main from clean main.');
   const directory = path.join(checkoutRoot, '.cavas', 'releases', pointer.commit);
   if (await realpath(directory) !== directory) throw new Error('Release directory must not be a symlink.');
   return { directory, commit: pointer.commit };
