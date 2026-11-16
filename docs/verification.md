@@ -718,3 +718,7 @@ The labeled Duplicate, To front and Delete actions were exercised in Chromium wi
 ## File and workspace context (2026-11-16)
 
 File-menu Escape closed the menu and returned focus to its summary. Clicking outside closed it; focus leaving the menu also uses the same close path. Narrow menu layout, updated storage/backup Help copy and desktop workspace/page identity were inspected in Chromium. Existing save, export and agent-access actions were preserved. `pnpm run check`, `pnpm run build` and `pnpm run changeset:status` passed for the complete change.
+
+## Issue #61: visible short page requests
+
+Terra 6.1 reproduced request marks lasting roughly 7–80 ms in isolated local Brave on the unchanged base. After the change, a live SDK `get_tree` call showed pending status for about 6 ms, followed by a neutral recent-request mark; the mark cleared approximately 600 ms after it appeared. The highlight duration was 360 ms plus diagonal staggering. Pending did not remain set during the receipt. `pnpm run check`, `pnpm run build`, and `git diff --check` passed with the pinned toolchain. Existing Zod dependency annotation warnings remain. This initial check does not cover long calls, cancellation, reduced motion, or Mac rendering; those require the combined browser pass. No new test files were added.

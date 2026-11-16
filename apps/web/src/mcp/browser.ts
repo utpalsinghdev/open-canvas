@@ -33,7 +33,7 @@ export function connectBrowser(onStatus: (status: ConnectionStatus) => void) {
 function attachBrowser(socket: WebSocket) {
   let connected = false;
   let detached = false;
-  const activity = new Map<string, () => void>();
+  const activity = new Map<string, ReturnType<typeof beginPageActivity>>();
   const send = (message: unknown) => {
     if (socket.readyState !== WebSocket.OPEN) return;
     const encoded = JSON.stringify(message);
@@ -84,7 +84,7 @@ function attachBrowser(socket: WebSocket) {
       }
       const ended = activityEndSchema.safeParse(value);
       if (ended.success) {
-        activity.get(ended.data.id)?.();
+        activity.get(ended.data.id)?.(true);
         activity.delete(ended.data.id);
         return;
       }
@@ -95,7 +95,7 @@ function attachBrowser(socket: WebSocket) {
       }
       const { id, method, args } = request.data;
       agentActivity.active++;
-      let finishActivity: (() => void) | undefined;
+      let finishActivity: ReturnType<typeof beginPageActivity> | undefined;
       try {
         const definition = Object.entries(tools).find(
           ([name]) => name === method
@@ -195,7 +195,7 @@ function attachBrowser(socket: WebSocket) {
   };
   return () => {
     detached = true;
-    for (const finish of activity.values()) finish();
+    for (const finish of activity.values()) finish(true);
     activity.clear();
     unsubscribe();
     socket.onopen = null;
