@@ -1,14 +1,16 @@
 # Set up contributor skills
 
-The repository shares one screenshot skill across coding agents:
+The repository shares contribution skills across coding agents:
 
 | Agent | Project skill location |
 | --- | --- |
-| Codex | `.agents/skills/attach-screenshot-to-pr/` is the canonical skill. |
-| Pi | `.pi/skills/attach-screenshot-to-pr` links to the canonical directory. |
-| Claude Code | `.claude/skills/attach-screenshot-to-pr` links to the canonical directory. |
+| Codex | `.agents/skills/` holds canonical skill directories. |
+| Pi | `.pi/skills/` links each skill to its canonical directory. |
+| Claude Code | `.claude/skills/` links each skill to its canonical directory. |
 
-Reload your agent's skills or start a new session after checkout. Invoke `attach-screenshot-to-pr` using your agent's skill syntax, or ask it to use the screenshot skill. The files are shared; each host supplies its own browser tools and retains its permission rules. Automatic discovery in each host still depends on the installed host version.
+Use [oss-pr-writing](../.agents/skills/oss-pr-writing/SKILL.md) to draft issues and PRs using the project templates. Use [attach-screenshot-to-pr](../.agents/skills/attach-screenshot-to-pr/SKILL.md) for before-and-after visual evidence. Only the screenshot upload helper needs credentials.
+
+Reload your agent's skills or start a new session after checkout. Invoke either skill using your agent's skill syntax, or ask it to read the repository skill explicitly. The files are shared; each host supplies its own tools and retains its permission rules. Automatic discovery and precedence over a same-named global skill depend on the installed host version.
 
 Checkouts must preserve directory symlinks for automatic discovery at the Pi and Claude Code locations. If your platform cannot use symlinks, ask the agent to read the canonical `SKILL.md` directly. That fallback loads the skill manually and still uses the canonical helper and credential location.
 

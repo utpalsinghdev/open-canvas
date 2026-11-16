@@ -44,6 +44,7 @@
 - Preserve unrelated user work. Never stop another project's services.
 
 ## GitHub issues and pull requests
+- Follow [contribution guidance](CONTRIBUTING.md) and the repository PR/issue templates. Use the project [oss-pr-writing skill](.agents/skills/oss-pr-writing/SKILL.md) for public drafts; keep sections relevant to the change.
 - Prefix issue titles with a bracketed type, such as `[Bug]` or `[Feature Request]`, followed by a specific description.
 - Use Conventional Commits for PR titles with a required scope: `type(scope): description`. Use a lowercase type, a meaningful scope, and a concise imperative description without a trailing period.
 - Write PR descriptions in direct, specific, conversational English. Scale the structure to the change; use Summary, Linked issue, Reproduction, Verification, and Docs sections when useful. Explain the problem, the change, preserved behavior, and relevant limitations. Use `Closes #N` only when the PR resolves that issue.
