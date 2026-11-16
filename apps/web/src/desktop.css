@@ -8,8 +8,6 @@
   --preview-background: #141414;
   --menu-shadow: 0 12px 40px #00000099;
   --danger: #ffadad;
-  --comment-action: #2563eb;
-  --comment-action-hover: #1d4ed8;
 }
 
 .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; color: var(--foreground); background: var(--control); }
@@ -235,13 +233,9 @@
   .project-nav-heading { display: none; }
 }
 
-.review-popover.review-draft { background: var(--control); border-radius: 10px; }
 .review-draft .review-composer { padding: 12px; gap: 12px; }
 .review-popover.review-draft .review-composer textarea { min-height: 64px; max-height: 160px; padding: 0; border: 0; border-radius: 0; background: none; font-size: 13px; line-height: 1.5; }
 .review-draft:has(textarea:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
 .review-draft textarea:focus-visible { outline: none; }
 .review-draft .review-actions { flex-wrap: nowrap; gap: 8px; }
-.review-draft .review-actions button { min-height: 32px; padding: 6px 12px; border-radius: 6px; font-size: 12px; }
-.review-draft .export-button { background: var(--comment-action); border-color: var(--comment-action); color: var(--foreground); }
-.review-draft .export-button:not(:disabled):hover, .review-draft .export-button:not(:disabled):active { background: var(--comment-action-hover); border-color: var(--comment-action-hover); }
-.review-draft .export-button:disabled { background: var(--active); border-color: var(--line); color: var(--subtle); }
+.review-draft .review-actions button { min-height: 32px; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
