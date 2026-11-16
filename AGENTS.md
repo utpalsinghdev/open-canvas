@@ -34,6 +34,7 @@
 - Maintain docs for architecture, controls, file format, known limits, and actual verification results.
 - Inspect CI requirements before changes when CI exists. Never claim an unrun check passed.
 - For documentation-only changes, verify the diff and links; no app build or browser run is required unless CI requires it.
+- For visible UI changes, attach labeled before-and-after screenshots to the PR using the installed `attach-screenshot-to-pr` skill. Capture comparable states and viewport sizes, inspect for sensitive data, keep evidence images outside Git, and verify published image links. Follow the skill's upload rules and report missing evidence or upload blockers explicitly. Documentation-only PRs need no UI screenshots.
 
 ## Git
 - Use Conventional Commits for commit titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.

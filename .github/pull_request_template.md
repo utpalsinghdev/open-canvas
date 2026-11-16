@@ -13,3 +13,7 @@
 ## Docs and limits
 
 <!-- Link updated contracts. Name remaining limitations without treating unmet requirements as complete. Keep private planning artifacts and machine logs out of this PR. -->
+
+## Screenshots
+
+<!-- Required for visible UI changes. Use the installed attach-screenshot-to-pr skill and embed labeled Before and After images with descriptive alt text. Compare the same content/state and viewport; include desktop/narrow views where affected. Keep evidence images outside Git, inspect for sensitive data, and verify the published URLs. Report missing evidence or upload blockers. For docs-only or nonvisual changes, remove this section or mark it not applicable. -->
