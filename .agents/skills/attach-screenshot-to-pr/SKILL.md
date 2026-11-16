@@ -22,7 +22,24 @@ chmod 600 .agents/skills/attach-screenshot-to-pr/.env
 
 Fill in `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` privately in that ignored `.env`. On Windows, restrict access using file ACLs instead of `chmod`. Use your own account and review its storage/bandwidth terms before uploading.
 
-CI or a secret manager may supply all three environment variables instead. If any of these variables is set, the helper uses environment variables exclusively and requires all three. It does not merge accounts or fall back to a local credential file. Do not put secrets in shell command arguments or logs.
+### Share credentials across this repository's worktrees
+
+Ignored `.env` files are not copied into new worktrees. To configure one private credential source for all worktrees, run this once from the repository root after configuring the local `.env`:
+
+```sh
+shared_dir="$(git rev-parse --path-format=absolute --git-common-dir)/open-cavas"
+mkdir -p "$shared_dir"
+chmod 700 "$shared_dir"
+# Do not overwrite an existing shared file without reviewing which account it uses.
+[ ! -e "$shared_dir/screenshot-upload.env" ] &&
+  install -m 600 .agents/skills/attach-screenshot-to-pr/.env "$shared_dir/screenshot-upload.env"
+```
+
+The shared file lives inside Git's common directory, outside tracked files. Linked worktrees of this repository find it automatically; separate clones need their own configuration. Protect it with file ACLs on Windows. Do not commit it, print it, or copy it into chat. Credential changes in the local `.env` do not automatically update the shared copy.
+
+Lookup order is exclusive: environment variables, then the worktree's skill `.env`, then `open-cavas/screenshot-upload.env` under the common Git directory. File lookup uses the helper's repository, not the shell's current directory. Only a missing local file permits shared fallback; incomplete, unreadable, or insecure local files fail rather than switching accounts. A copied helper outside Git can still use its local `.env` or environment variables.
+
+CI or a secret manager may supply all three environment variables instead. If any of these variables is set, the helper uses environment variables exclusively and requires all three. It does not merge accounts or fall back to either credential file. Do not put secrets in shell command arguments or logs.
 
 ```sh
 node .agents/skills/attach-screenshot-to-pr/scripts/upload.mjs --check

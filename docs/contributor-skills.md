@@ -18,7 +18,9 @@ Checkouts must preserve directory symlinks for automatic discovery at the Pi and
 
 Read the [screenshot skill](../.agents/skills/attach-screenshot-to-pr/SKILL.md). Copy its blank `.env.example` to `.env` and privately provide your own Cloudinary cloud name, API key, and API secret. Both repository and skill ignore rules exclude populated `.env` files. Never force-add them. On Unix, use `chmod 600`; on Windows, restrict the file with ACLs.
 
-Alternatively, supply all three `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` environment variables through your secret manager or CI secret store. Environment configuration is exclusive; partial environment settings fail rather than borrowing values from `.env`.
+For linked worktrees, configure the private `open-cavas/screenshot-upload.env` file inside the repository's common Git directory using the [skill's shared setup](../.agents/skills/attach-screenshot-to-pr/SKILL.md#share-credentials-across-this-repositorys-worktrees). New worktrees can then upload without copying `.env` files. This shares credentials only within the same local repository, not across separate clones. Updates to a local `.env` do not update the shared copy.
+
+Alternatively, supply all three `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` environment variables through your secret manager or CI secret store. Lookup is exclusive: environment variables, worktree-local `.env`, then the shared file. Only a missing local file permits fallback. Partial environment settings and invalid or insecure local files fail rather than borrowing values or switching accounts.
 
 Run from the repository root:
 
