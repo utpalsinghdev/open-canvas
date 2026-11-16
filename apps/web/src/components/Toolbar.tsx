@@ -1,4 +1,4 @@
-import { Circle, Frame, Hand, ImagePlus, MousePointer2, RectangleHorizontal, Type, Undo2, Redo2, MessageSquare } from 'lucide-react';
+import { Circle, Frame, Hand, ImagePlus, MousePointer2, RectangleHorizontal, Type, Undo2, Redo2, MessageSquarePlus } from 'lucide-react';
 import type { Tool } from '@open-cavas/document/model';
 import { useEditor } from '../editor/store';
 import { IconButton } from './Button';
@@ -19,13 +19,13 @@ export function Toolbar({ onImage, onComment }: { onImage: () => void; onComment
   return <div className="tool-strip" role="toolbar" aria-label="Drawing tools">
     <div className="tool-group">{tools.map(({ id, label, icon: Icon }) => <IconButton key={id} label={label} aria-pressed={tool === id} onClick={() => setTool(id)}><Icon size={18} strokeWidth={1.6} /></IconButton>)}
       <IconButton label="Add image" onClick={onImage}><ImagePlus size={18} strokeWidth={1.6} /></IconButton>
-      <IconButton label="Comment" aria-pressed={tool === 'comment'} onClick={() => {
-        onComment();
+      <IconButton label="Add comment" aria-pressed={tool === 'comment'} onClick={() => {
         if (tool === 'comment') { setTool('select'); return; }
         if (hasReviewDrafts()) { notify('Post or cancel the existing draft before starting another comment.'); return; }
+        onComment();
         update({ threadId: null, anchor: null });
         setTool('comment');
-      }}><MessageSquare size={18} strokeWidth={1.6} /></IconButton>
+      }}><MessageSquarePlus size={18} strokeWidth={1.6} /></IconButton>
     </div>
     <span className="control-divider" />
     <div className="tool-group">

@@ -12,7 +12,7 @@ import {
   Frame,
   HelpCircle,
   Layers2,
-  MessageSquare,
+  MessagesSquare,
   PanelLeft,
   PanelRight,
   Plus,
@@ -37,6 +37,7 @@ import {
 } from './editor/files';
 import { currentFile } from '@open-cavas/document/workspace';
 import { createNode, newId } from '@open-cavas/document/model';
+import { usePageReview } from './review/drafts';
 
 export function EditorApp({ onHome, onProjects, onImport }: {
   onHome: () => void;
@@ -60,6 +61,13 @@ export function EditorApp({ onHome, onProjects, onImport }: {
   const [propertiesVisible, setPropertiesVisible] = useState(true);
   const [help, setHelp] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const { page: reviewPage, update: updateReview } = usePageReview(location);
+  function toggleReviews() {
+    setPanel(null);
+    if (!commentsOpen && !Object.values(reviewPage.bodies).some((body) => body.trim()))
+      updateReview({ threadId: null, anchor: null });
+    setCommentsOpen((open) => !open);
+  }
   const project = workspace.projects.find(
     (project) => project.id === location.projectId
   );
@@ -274,11 +282,11 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           <span className="muted">/</span>
           <span>{activePage?.name}</span>
         </div>
-        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(true); }} />
+        <Toolbar onImage={() => imageInput.current?.click()} onComment={() => { setPanel(null); setCommentsOpen(false); }} />
         <div className="workspace-end">
-          <IconButton className="icon-button desktop-panel-control" label="Comments" aria-expanded={commentsOpen} onClick={() => setCommentsOpen((open) => !open)}>
-            <MessageSquare size={17} />
-          </IconButton>
+          <button className="review-toggle desktop-panel-control" aria-label="Review threads" aria-expanded={commentsOpen} onClick={toggleReviews}>
+            <MessagesSquare size={17} /><span>Review</span>
+          </button>
           <IconButton
             className="icon-button desktop-panel-control"
             label={propertiesVisible ? 'Collapse Properties sidebar' : 'Expand Properties sidebar'}
@@ -301,7 +309,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           aria-pressed={panel === 'layers'}
           aria-expanded={panel === 'layers'}
           aria-controls="layers-panel"
-          onClick={() => setPanel(panel === 'layers' ? null : 'layers')}
+          onClick={() => { setCommentsOpen(false); setPanel(panel === 'layers' ? null : 'layers'); }}
         >
           <Layers2 size={15} />
           Layers
@@ -310,13 +318,13 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           aria-pressed={panel === 'properties'}
           aria-expanded={panel === 'properties'}
           aria-controls="properties-panel"
-          onClick={() => setPanel(panel === 'properties' ? null : 'properties')}
+          onClick={() => { setCommentsOpen(false); setPanel(panel === 'properties' ? null : 'properties'); }}
         >
           <PanelRight size={15} />
           Properties
         </button>
-        <button aria-expanded={commentsOpen} onClick={() => { setPanel(null); setCommentsOpen((open) => !open); }}>
-          <MessageSquare size={15} />Comments
+        <button aria-label="Review threads" aria-expanded={commentsOpen} onClick={toggleReviews}>
+          <MessagesSquare size={15} />Review
         </button>
         {panel && (
           <IconButton label="Close panel" onClick={() => setPanel(null)}>

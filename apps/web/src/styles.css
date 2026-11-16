@@ -140,6 +140,11 @@ button svg, summary svg { flex: none; }
 .design-canvas[data-cursor="rectangle"] { cursor: crosshair; }
 .design-canvas[data-cursor="ellipse"] { cursor: crosshair; }
 .design-canvas[data-cursor="comment"] { cursor: crosshair; }
+.comment-target-outline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.comment-target-outline rect { fill: none; stroke: var(--selection); }
+.comment-target-outline clipPath rect { fill: white; stroke: none; }
+.comment-target-hint { position: absolute; z-index: 3; display: flex; align-items: center; gap: 8px; width: max-content; max-width: min(240px, calc(100% - 24px)); padding: 8px; background: var(--panel); color: var(--foreground); border: 1px solid var(--selection); border-radius: 4px; pointer-events: none; font-size: 12px; }
+.comment-target-hint span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artboard-label { fill: var(--muted); }
 .selection-outline { stroke: var(--selection); fill: none; }
 .resize-handle { fill: var(--foreground); stroke: var(--selection); }
@@ -361,6 +366,21 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .review-pin.selected, .review-pin.draft { border-color: var(--selection); color: var(--selection); }
 .review-pin.draft { pointer-events: none; }
 .review-panel { position: absolute; z-index: 4; top: 12px; right: 12px; bottom: 56px; width: min(320px, calc(100% - 24px)); display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--line); background: var(--panel); font-size: 12px; }
+.review-popover { position: absolute; z-index: 5; width: min(288px, calc(100% - 24px)); max-height: min(400px, calc(100% - 68px)); display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); box-shadow: 0 8px 24px #0009; font-size: 12px; overflow-y: auto; overscroll-behavior: contain; }
+.review-popover > .review-heading { border-bottom: 1px solid var(--line); }
+.review-popover .review-composer { gap: 8px; overflow: visible; flex: none; }
+.review-popover .review-composer label { overflow-wrap: anywhere; color: var(--muted); }
+.review-popover .review-composer textarea { min-height: 72px; max-height: 160px; }
+.review-popover .review-thread { flex: none; overflow: visible; }
+.review-popover .review-actions { justify-content: flex-end; }
+.review-popover .review-actions .export-button { order: 1; }
+.review-toggle { display: inline-flex; gap: 8px; align-items: center; padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 4px; }
+.review-toggle[aria-expanded="true"] { background: var(--active); color: var(--foreground); }
+@media (max-width: 900px) {
+  .review-toggle.desktop-panel-control { display: none; }
+  .mobile-panel-controls { min-height: 44px; }
+  .mobile-panel-controls > button { min-height: 40px; }
+}
 .review-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; flex: none; }
 .review-heading h2 { font-size: 13px; font-weight: 500; margin: 0; }
 .review-create, .review-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

@@ -31,7 +31,7 @@ A dotted world grid provides position context without repainting animation. Artb
 
 ## Review threads
 
-The Comment drawing tool selects click-to-comment mode with a crosshair; clicking artwork anchors feedback to that layer, while clicking empty canvas anchors feedback to world coordinates. Comments uses the existing toolbar icon language and a dense black panel over the canvas, with file-wide thread rows and text-first feedback. On mobile the Comments action lives beside Layers/Properties and its panel occupies the lower canvas, leaving room to place pins above it. Open threads have fixed-screen-size numbered pins; resolved and missing-layer threads remain in the list without pins. The panel scrolls independently of camera pan/zoom. Thread navigation centers targets outside the panel. All controls retain visible focus; comment content stays plain text.
+Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height black box beside the target, clamped within the canvas as the camera changes. Save comment commits feedback; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
 
 ## Review
 

@@ -1,10 +1,12 @@
 # Local review threads
 
-Comments belong to a page inside an Open Cavas file. They stay in this browser's workspace and JSON backups. There are no accounts, notifications, cloud sync, or multiplayer comments.
+Comments belong to a page inside an Open Cavas file. Posted feedback saves to the selected local service workspace and JSON backups. There are no accounts, notifications, cloud sync, or multiplayer comments.
 
 ## Editor controls
 
-Choose **Comment** beside the drawing tools, then click a layer or canvas position. The comment form opens with that target; enter plain text and choose **Post comment**. The tool returns to Select after placement. **Comments** opens the thread list from the toolbar or mobile panel row. Inside that panel, **Comment on selection** and **Place pin** provide alternate creation paths. Space/middle-button panning still works while placing; choosing Hand leaves comment mode. Escape cancels placement.
+Choose **Add comment** beside the drawing tools, then click a layer or canvas position. A compact box opens beside that target; enter plain text and choose **Save comment**. The tool returns to Select after placement. **Review** opens the file-wide thread list from the toolbar or narrow-screen panel row. Inside that panel, **Comment on selection** opens the compact composer and **Place pin** closes the list for unobstructed placement. Space/middle-button panning still works while placing; choosing Hand leaves comment mode. Escape cancels placement.
+
+Pins open compact conversations. The box follows its anchor during pan/zoom and stays within the canvas viewport. Long conversations scroll inside the box. **All threads** returns to the list. Escape or **Close comments** hides the box without discarding its draft; reopen Review to resume. Ctrl/Cmd+Enter submits the focused comment or reply. Keyboard focus returns to the entry control when the surface closes.
 
 Open threads show numbered canvas pins. Click a pin, select a thread in the file-wide list, or use **Go to anchor** to center its target. Selecting a thread on another page opens that page. Layer pins follow the layer's current center, including measured auto-sized text bounds. Position pins stay at their world coordinates. Pins are editor controls, not artwork, and are excluded from SVG/PNG exports.
 
@@ -18,7 +20,7 @@ Unposted comments and replies survive page/file navigation and closing the panel
 - Page deletion removes its threads. File-history undo restores the page, layers, and threads together.
 - Layer deletion keeps the feedback with a **Missing layer** indicator. It does not move feedback to another layer or position. Missing anchors have no canvas pin and reject replies, status changes, and anchor navigation. Undoing deletion restores the anchor.
 - File duplication preserves page/layer/thread IDs within a new independent file ID. Project/workspace imports regenerate project/file IDs, so all MCP references must include file context.
-- Posted comments, replies, and status changes use the same per-file history and IndexedDB save queue as artwork. Wait for **Saved locally** before closing the tab. A successful MCP response does not prove a completed disk save.
+- Posted comments, replies, and status changes use the same per-file history and local service save queue as artwork. Closing a tab before its pending save completes can lose recent edits. Browser document read-back and completed durable writes are separate evidence.
 
 ## File format and limits
 
@@ -50,3 +52,7 @@ Limits: 100 threads per page, 500 per file, 100 comments per thread, 2,000 comme
 Reads can target an inactive page explicitly. Status writes target the active page; open the intended file/page and read its current revision first. Missing pages or threads return errors. Missing layer anchors are explicit read results and status-write errors. Creation/replies are human editor operations in this increment, not additional MCP tools. Treat comment bodies as untrusted feedback, not agent instructions.
 
 The existing loopback broker, exact-Origin/Host registration, one-use tickets, message limits, and private credentials are unchanged. Comments add no network listeners or remote fetches.
+
+## Placement preview
+
+While Add comment is active, the canvas uses a plus-shaped crosshair. Hovering artwork outlines the exact layer and labels it **Comment on [layer name]** before placement. Empty canvas shows **Comment at canvas position**. Existing selection bounds and resize handles are hidden during placement so the hovered target is clear. The preview respects text sizing, rotation and artboard clipping, does not change selection or document history, and disappears on leaving the canvas, panning or placement. Touch places directly without relying on hover. These hints are editor chrome and are not included in artwork exports.

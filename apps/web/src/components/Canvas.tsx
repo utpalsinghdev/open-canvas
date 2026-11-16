@@ -9,6 +9,7 @@ import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
 import { AgentActivity } from './AgentActivity';
+import { CommentTargetPreview } from './CommentTargetPreview';
 import { textNodeBounds, textContentBounds } from '@open-cavas/engine/typography';
 
 type Point = { x: number; y: number };
@@ -206,7 +207,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
         </g> : <NodeView key={node.id} node={node} />)}
         {preview && <NodeView node={preview} />}
         {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <rect {...bounds} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
-        {selected.map((node) => {
+        {!placing && selected.map((node) => {
           const bounds = node.kind === 'text' ? textNodeBounds(node) : node;
           const handles = node.kind !== 'text' || node.sizing === 'fixed' ? ['nw', 'ne', 'sw', 'se']
             : node.sizing === 'auto-height' ? ['w', 'e'] : ['n', 's'];
@@ -219,6 +220,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
         {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}
       </g>
     </svg>
+    {placing && !space && !gesture && <CommentTargetPreview controls={controls} nodes={visible} />}
     {editingNode && <CanvasTextEditor key={editingNode.id} node={editingNode} camera={camera}
       commit={(text) => { if (text !== editingNode.text) patch(editingNode.id, { text }); setEditingId(null); }}
       cancel={() => setEditingId(null)} />}

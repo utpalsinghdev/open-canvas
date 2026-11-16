@@ -659,3 +659,11 @@ Verification used Chromium on Linux with synthetic local workspaces. No new test
 files were added. Full main publication/restart, desktop packaging, hosted web,
 and other browsers were not exercised. The existing snapshot layout remains an
 explicit launcher compatibility path, not a claim that a main rollout occurred.
+
+## Contextual comments (2026-11-16)
+
+- `pnpm run check` and `pnpm run build` passed with the pinned toolchain. The Impeccable mechanical detector reported no findings for the changed editor surfaces.
+- Chromium at 1280 × 800 and 390 × 844: Add comment leaves the canvas unobstructed until placement. Layer and empty-position placement open a compact composer; viewport-edge placement remains inside the canvas. Hover previews identify the same layer used by the resulting composer; empty canvas has a distinct position hint. The native crosshair cursor was confirmed through computed style.
+- Posted a comment and reply with Ctrl+Enter, resolved/reopened the thread, and exercised status undo/redo. Escape preserved an unposted draft, reopening Review restored it, and Cancel discarded it. Escape returned focus to the canvas. Narrow Layers/Properties/Review panels opened mutually exclusively without document-width overflow.
+- Live development SDK reads returned the posted thread and both messages from the browser and durable workspace. Stale status writes and writes while an unfocused hidden draft existed were rejected. The complete JSON backup retained thread IDs, anchor and messages without unsent text. Browser reimport appended an editable file with all 17 original layers and the same posted feedback.
+- Schema, review commands, history, persistence and export formats were not changed. These checks cover their use by the revised interface; no new test files were added. Touch hardware, other browsers, persistence-failure injection and a new full cross-page/missing-anchor regression run were not exercised. Main was not released or restarted. Evidence stays outside Git; public screenshot upload and PR publication were not requested.

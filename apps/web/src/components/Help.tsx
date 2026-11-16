@@ -15,5 +15,6 @@ export function Help({ onClose }: { onClose: () => void }) {
     ].map(([action, shortcut]) => <div key={action}><span>{action}</span><kbd>{shortcut}</kbd></div>)}</div>
     <p>Double-click text to edit. Drag a corner to resize. Select an artboard to export only that artboard.</p>
     <p>Work saves in this browser. Download JSON for a portable backup. Images stay local. Starter artwork is an editable example.</p>
+    <p>Choose Add comment, then click a layer or canvas position. Save feedback in the small box beside it. Review opens all threads. Escape closes a comment without discarding its draft; Ctrl/Cmd+Enter submits it.</p>
   </dialog>;
 }
