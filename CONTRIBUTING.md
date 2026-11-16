@@ -1,8 +1,8 @@
 # Contribute to Open Cavas
 
-Anyone can contribute, including first-time open-source contributors. There is no minimum account age, prior contribution count, invitation, or organization membership requirement. Bug reports, design feedback, documentation, accessibility improvements, and code are all welcome. Review is based on the proposed change and its evidence.
+Thanks for helping improve Open Cavas. Bug reports, design feedback, documentation, accessibility improvements, and code contributions help make the editor more useful.
 
-The project website is [open-canvas.xyz](https://open-canvas.xyz). It has not launched yet; use this repository's documentation and issues for setup, questions, and contributions.
+Visit [open-canvas.xyz](https://open-canvas.xyz) for the project website. Use this repository's documentation and issues for setup, questions, and contributions.
 
 Read [AGENTS.md](AGENTS.md), [product scope](PRODUCT.md), and the [design rules](DESIGN.md) before changing behavior. Use [feature delivery](docs/feature-delivery.md) to define a complete user outcome. Keep external reference projects read-only and write original implementation code.
 
@@ -17,7 +17,7 @@ Read [AGENTS.md](AGENTS.md), [product scope](PRODUCT.md), and the [design rules]
 | Shared contribution skills | [Project skills](.agents/skills) and [skill setup](docs/contributor-skills.md) |
 | Docs, examples, or reproduction details | [README](README.md), [project docs](docs), and existing issues |
 
-You can propose a small correction directly. For a larger feature, migration, dependency, or runtime change, describe the intended outcome in an issue before investing in implementation. This helps agree scope and compatibility; it is not an eligibility check. If you are unsure where to start, open an issue with your question.
+You can propose a small correction directly. For a larger feature, migration, dependency, or runtime change, describe the intended outcome in an issue before investing in implementation. This helps agree scope and compatibility. If you are unsure where to start, open an issue with your question.
 
 ## Report a problem or request a feature
 
@@ -86,14 +86,12 @@ The [project PR-writing skill](.agents/skills/oss-pr-writing/SKILL.md) provides 
 
 Use Conventional Commits for commit subjects and keep each commit coherent. Keep the PR focused on the agreed outcome. Push review fixes as normal commits and describe relevant changes without rewriting shared history. Follow the existing authorization rules for publishing and releases.
 
-Explain what you verified and where you need help. A reproducible bug report or a clear design example is useful even when you cannot supply a fix. Treat contributors respectfully and discuss the behavior or code rather than making assumptions about the person. No internal tracker, private membership, or minimum number of merged PRs is required to submit a contribution.
+Explain what you verified and where you need help. A reproducible bug report or a clear design example is useful even when you cannot supply a fix. Treat contributors respectfully and discuss the behavior or code rather than making assumptions about the person.
 
 ## Project boundaries
 
 Discuss broad stack changes, storage migrations, and runtime changes before implementing them. Preserve the local-first workflow, explicit MCP targets/revisions, and recovery guarantees. Do not add executable HTML, shell access through design tools, arbitrary remote asset fetching, or public exposure of the private broker. Do not include proprietary source, confidential documents, credentials, or unlicensed assets.
 
-These requirements apply to the proposed implementation. They do not restrict who may participate.
-
 ## License
 
-Open Cavas is licensed under the [Apache License 2.0](LICENSE). Contributions intentionally submitted for inclusion are offered under the same license unless explicitly stated otherwise, as described in Section 5 of the license. Submit work you have the right to contribute and preserve applicable third-party copyright and license notices. Third-party dependencies and assets retain their own licenses. No separate contributor license agreement or contribution-count requirement is imposed.
+Open Cavas is licensed under the [Apache License 2.0](LICENSE). Contributions intentionally submitted for inclusion are offered under the same license unless explicitly stated otherwise, as described in Section 5 of the license. Submit work you have the right to contribute and preserve applicable third-party copyright and license notices. Third-party dependencies and assets retain their own licenses.
