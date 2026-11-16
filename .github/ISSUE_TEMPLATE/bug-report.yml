@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a reproducible problem in Open Cavas.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search existing open and closed issues before submitting. Use real observations and a minimal example. Remove private artwork, credentials, browser tickets, and broker metadata from anything you attach.
+  - type: checkboxes
+    id: existing-issues
+    attributes:
+      label: Existing reports
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the actual behavior and which task it prevents you from completing.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the starting state and repeatable steps using synthetic content when possible.
+      placeholder: |
+        1. Open or create a disposable workspace and file.
+        2. Perform the operation that fails.
+        3. Describe the result.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe the result you expected from those steps.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or source commit
+      description: Give the release version or Git commit if known. Say unknown if you cannot identify it.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Browser and runtime
+      description: Include browser/version, OS, and whether this is stable main or a development build. For MCP, include client/version and whether the operation targets a browser canvas or a service workspace. Do not include secrets or private local paths.
+    validations:
+      required: true
+  - type: textarea
+    id: save-state
+    attributes:
+      label: Save or recovery impact
+      description: If relevant, describe whether the change appeared, survived reload, or reopened from a native backup. Applied edits and durable saves are separate. Do not risk valuable work to reproduce a failure.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots and error details
+      description: Optionally attach sanitized screenshots, the visible error, or a small relevant log excerpt. Include the UI entry point for visual problems. Do not upload confidential designs or raw broker metadata.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include related issues, frequency, affected imports or exports, and any workaround you actually tried.

@@ -7,13 +7,13 @@ Changesets plans semantic versions and writes release notes. Git commits still i
 On the feature branch/worktree, after implementing a meaningful user-visible change:
 
 ```sh
-npm run changeset
+pnpm run changeset
 ```
 
 Select `open-cavas`, choose patch/minor/major, and write a short user-facing summary. Commit the generated `.changeset/*.md` entry with the feature. Multiple entries can accumulate before one release. Documentation-only changes do not need an entry unless they materially affect the shipped product.
 
 ```sh
-npm run changeset:status
+pnpm run changeset:status
 ```
 
 This reports pending changes without consuming them or bumping versions.
@@ -23,15 +23,15 @@ This reports pending changes without consuming them or bumping versions.
 After approved features are merged, and when a version bump is authorized:
 
 ```sh
-npm run version:apply
+pnpm run version:apply
 ```
 
-Changesets consumes pending entries, updates package.json, and generates or extends CHANGELOG.md. The script also refreshes package-lock.json with npm's package-lock-only mode and install scripts disabled. Review the diff and commit package.json, package-lock.json, CHANGELOG.md, and consumed Changeset deletions as one version change.
+Changesets consumes pending entries, updates package.json, and generates or extends CHANGELOG.md. The script also refreshes pnpm-lock.yaml in lockfile-only mode with install scripts disabled. Review the diff and commit package.json, pnpm-lock.yaml, CHANGELOG.md, and consumed Changeset deletions as one version change.
 
 Then use the existing deployment workflow:
 
 ```sh
-npm run release:main
+pnpm run release:main
 ```
 
 This requires clean committed main and prepares its frozen snapshot. Deliberately restart the main frontend and MCP clients at the agreed release window. See [runtime.md](runtime.md). Neither Changesets nor version:apply restarts services.

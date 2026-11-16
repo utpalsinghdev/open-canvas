@@ -4,7 +4,7 @@ Workspace-target MCP operations execute in the local workspace service, includin
 
 ## Start and select
 
-`npm run dev` starts the development frontend and its private workspace broker. Use the assigned `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` for additional worktrees. `npm start` starts the selected main release and its broker at the coordinated release boundary. Neither command publishes a release.
+`pnpm run dev` starts the development frontend and its private workspace broker. Use the assigned `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` for additional worktrees. `pnpm start` starts the selected main release and its broker at the coordinated release boundary. Neither command publishes a release.
 
 A standalone MCP stdio client can also own the broker without starting a frontend. Other clients attach through authenticated private metadata. If an existing MCP client owns the broker when the frontend starts, the frontend attaches rather than stealing ownership. Before dispatch, attached clients verify the authenticated owner identity. If it disappears, they may acquire the exclusive listener and reclaim metadata only for a dead owner, or attach to an authenticated replacement. Simultaneous starters wait up to five seconds for absent private metadata to be published; invalid metadata and unverified listeners still fail closed. The frontend checks ownership every two seconds and restarts its own failed service child with capped backoff. Live owners, invalid metadata and unverified listeners are never replaced. No design request is replayed; recovery is not a release upgrade.
 

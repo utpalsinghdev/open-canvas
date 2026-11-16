@@ -32,5 +32,5 @@ export function assertDevelopmentCheckout(root = checkoutRoot) {
   const branch = git(root, 'branch', '--show-current');
   const common = path.resolve(root, git(root, 'rev-parse', '--git-common-dir'));
   if (path.dirname(common) === path.resolve(root)) throw new Error('Use a separate feature worktree for development, not the primary main checkout.');
-  if (!branch || branch === 'main') throw new Error('Development must run on a feature branch in a separate checkout/worktree. Use npm start for the main release.');
+  if (!branch || branch === 'main') throw new Error('Development must run on a feature branch in a separate checkout/worktree. Use pnpm start for the main release.');
 }

@@ -6,15 +6,15 @@ Open Cavas exposes 51 tools over the official MCP SDK's stdio transport. It cont
 
 Use the fixed runtime profiles described in [runtime.md](runtime.md).
 
-**Main:** frontend http://localmachine:5182, private broker 127.0.0.1:4781. Prepare a committed snapshot with `npm run release:main`, serve it with `npm start`, and generate the main agent configuration:
+**Main:** frontend http://localmachine:5182, private broker 127.0.0.1:4781. Prepare a committed snapshot with `pnpm run release:main`, serve it with `pnpm start`, and generate the main agent configuration:
 
 ```sh
-npm run --silent mcp:config
+pnpm --silent run mcp:config
 ```
 
 Copy its `open-cavas` entry into the agent configuration and start/reconnect that client. Open the application in the actual browser holding your workspace. That tab connects automatically, including when the broker starts after the page or restarts later. No pairing code, Pair click, or pairing CLI exists. Generated config still points at the stable main launcher and selected release.
 
-**Development:** from a feature worktree run `npm run dev` and configure the agent with `npm run --silent mcp:config:dev`. Frontend is http://localmachine:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage.
+**Development:** from a feature worktree run `pnpm run dev` and configure the agent with `pnpm --silent run mcp:config:dev`. Frontend is http://localmachine:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage.
 
 The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause persists for the selected service workspace and revokes its browser connections; resume explicitly from that workspace. Reload does not re-enable paused access. Registration retries use capped backoff, not design-command retries. Use `list_workspaces` and an explicit `workspaceId` for data access without an open tab. All document tools also support backend-native execution with `workspaceId`, including restricted HTML import, visual exports and PNG capture. No hidden browser runs. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
 

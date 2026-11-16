@@ -2,6 +2,12 @@
 
 Main is the stable application used by other threads. Feature work runs in separate worktrees and does not replace the live main release.
 
+## Pinned toolchain
+
+Use Node.js 24.22.1 and pnpm 12.21.0. `package.json` declares both exact versions, `.nvmrc` and `.node-version` select Node, and `pnpm-workspace.yaml` enables strict install engine checks. Corepack selects the package manager from `packageManager`. Select Node with your existing version manager. Use `corepack pnpm` if the matching pnpm shim is unavailable; Corepack must be on PATH. No global version selection or shim installation happens automatically.
+
+Install with `pnpm install --frozen-lockfile`. `pnpm-lock.yaml` is the only dependency lockfile. The pnpm build policy explicitly skips esbuild's install scripts; its platform binary comes from the locked optional dependency. Release preparation uses `corepack pnpm install --frozen-lockfile --ignore-scripts` and `corepack pnpm run build` inside the archived snapshot. The snapshot retains pnpm's own dependency layout. Existing stable releases remain unchanged until an authorized release and restart.
+
 ## Reserved profiles
 
 | Profile | Browser app | Private MCP broker | MCP config name |
@@ -18,21 +24,21 @@ Main ports and Origin cannot be overridden. Development refuses either main port
 In the primary main checkout:
 
 ```sh
-npm ci
-npm run release:main
-npm run service:install  # Install/start persistent main frontend on Linux
+pnpm install --frozen-lockfile
+pnpm run release:main
+pnpm run service:install  # Install/start persistent main frontend on Linux
 ```
 
 `release:main` requires clean committed main. It archives exactly HEAD into a private `.cavas/releases/<commit>/` directory, installs that snapshot's locked dependencies, builds and typechecks it, and atomically updates `.cavas/main-release.json` only after success. An existing release for the same commit is reused. Failed builds do not change the release pointer. Dependencies and built assets belong to that snapshot, not the development checkout's node_modules or dist.
 
-`npm start` resolves the pointer once and serves that snapshot on 5182. It refuses to switch to another port. `npm run preview` is an alias for the same main runtime. A normal `npm run build` is a source check/build, not publication of main. Subsequent builds and feature changes do not change the main snapshot that a running process serves.
+`pnpm start` resolves the pointer once and serves that snapshot on 5182. It refuses to switch to another port. `pnpm run preview` is an alias for the same main runtime. A normal `pnpm run build` is a source check/build, not publication of main. Subsequent builds and feature changes do not change the main snapshot that a running process serves.
 
-The release script does not stop processes, restart services, push Git commits, or alter global MCP settings. On Linux, npm run service:install installs an explicitly named systemd user service for the main frontend. It restarts on failure and survives agent-session termination. User-manager availability after logout/reboot depends on the host's existing linger/login policy; the installer does not change that policy. npm start remains available for manual foreground use. The currently selected and running release can differ while preparing the next release; complete the coordinated restart before asking new clients to use it.
+The release script does not stop processes, restart services, push Git commits, or alter global MCP settings. On Linux, pnpm run service:install installs an explicitly named systemd user service for the main frontend. It restarts on failure and survives agent-session termination. User-manager availability after logout/reboot depends on the host's existing linger/login policy; the installer does not change that policy. pnpm start remains available for manual foreground use. The currently selected and running release can differ while preparing the next release; complete the coordinated restart before asking new clients to use it.
 
 Main MCP configuration:
 
 ```sh
-npm run --silent mcp:config
+pnpm --silent run mcp:config
 ```
 
 The generated configuration invokes the stable primary-checkout launcher, which resolves the selected release for each new stdio client. It does not point at a feature worktree's source files. Configure all main MCP clients with that entry. `get_capabilities` reports the profile, Origin, and release commit. HTML includes `cavas-profile` and `cavas-release` meta tags for read-only runtime identification.
@@ -42,11 +48,11 @@ The generated configuration invokes the stable primary-checkout launcher, which 
 Use a feature branch in a separate worktree, install its dependencies, then:
 
 ```sh
-npm run dev
-npm run --silent mcp:config:dev
+pnpm run dev
+pnpm --silent run mcp:config:dev
 ```
 
-`npm run dev:agent` is an alias for the same development frontend. The launcher rejects main branches, detached checkouts, and the primary checkout. Development uses source/HMR and port 5188, broker 4785, and a distinct MCP entry. Its configured stdio client runs `runtime.mjs dev mcp`; `npm run mcp:dev` runs that transport directly, not a daemon to start beside every MCP client.
+`pnpm run dev:agent` is an alias for the same development frontend. The launcher rejects main branches, detached checkouts, and the primary checkout. Development uses source/HMR and port 5188, broker 4785, and a distinct MCP entry. Its configured stdio client runs `runtime.mjs dev mcp`; `pnpm run mcp:dev` runs that transport directly, not a daemon to start beside every MCP client.
 
 Each profile/port pair has its own private internal broker metadata:
 
@@ -57,22 +63,22 @@ Each profile/port pair has its own private internal broker metadata:
 
 Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. All `.cavas` contents are ignored by Git and denied by Vite's development filesystem guard.
 
-Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and npm scripts are the supported launch paths.
+Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and pnpm scripts are the supported launch paths.
 
 ## Roll out a feature
 
 1. Verify the feature in its own development app and broker.
 2. Merge locally into main when authorized. Do not point main agents at the feature worktree.
-3. Review pending Changesets with `npm run changeset:status`. When a version release is authorized, run `npm run version:apply`, inspect package/lockfile/changelog changes, and commit them. Then run `npm run release:main` from clean main. Versioning and runtime publication are separate steps; see versioning.md.
+3. Review pending Changesets with `pnpm run changeset:status`. When a version release is authorized, run `pnpm run version:apply`, inspect package/lockfile/changelog changes, and commit them. Then run `pnpm run release:main` from clean main. Versioning and runtime publication are separate steps; see versioning.md.
 4. Schedule the restart. Have active users wait for Saved locally and keep JSON backups. Stop only the known main frontend and main broker owner, not unrelated services or attached client processes by broad name.
-5. Run `npm run service:restart` for an installed main frontend service, or `npm start` for manual use, and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
+5. Run `pnpm run service:restart` for an installed main frontend service, or `pnpm start` for manual use, and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
 6. Verify HTTP through localmachine, matching frontend/MCP release IDs, and document read-back before resuming experiments.
 
 An existing main frontend can keep serving the previous release while the new release is built. Restart is the controlled update boundary, not a side effect of development. MCP owner restart disconnects browser sockets; live migration without disconnect is not implemented.
 
 ## First migration from old launch commands
 
-Earlier versions served root dist or worktree dist and launched MCP directly from source with `.cavas/broker.json`. Those running processes are not killed automatically. Prepare the first main snapshot, then switch the frontend to `npm start`. Replace legacy client config with generated main config and restart its broker owner during a coordinated window. Legacy broker metadata is never automatically adopted or overwritten. If the old owner still occupies 4781, new main clients fail safely rather than stealing it.
+Earlier versions served root dist or worktree dist and launched MCP directly from source with `.cavas/broker.json`. Those running processes are not killed automatically. Prepare the first main snapshot, then switch the frontend to `pnpm start`. Replace legacy client config with generated main config and restart its broker owner during a coordinated window. Legacy broker metadata is never automatically adopted or overwritten. If the old owner still occupies 4781, new main clients fail safely rather than stealing it.
 
 Do not delete old worktrees or broker metadata while active clients depend on them. Until legacy MCP clients are reconfigured/restarted, their process remains on the old launcher even though frontend main is isolated. Runtime scripts do not claim otherwise.
 
@@ -95,13 +101,13 @@ This removes routine requests to manually refresh a saved, idle workspace after 
 
 ## Persistent main frontend service
 
-`npm run service:install` installs `open-cavas-main.service` under the current user's systemd configuration and enables/starts it. It requires the primary main checkout and a prepared release. It rejects an occupied main port unless that exact service is already active, and refuses to replace a unit owned by another tool. It does not stop unrelated services, change user linger policy, or restart an already active main service. Existing managed unit changes receive a private backup.
+`pnpm run service:install` installs `open-cavas-main.service` under the current user's systemd configuration and enables/starts it. It requires the primary main checkout and a prepared release. It rejects an occupied main port unless that exact service is already active, and refuses to replace a unit owned by another tool. It does not stop unrelated services, change user linger policy, or restart an already active main service. Existing managed unit changes receive a private backup.
 
 The unit invokes the stable main launcher, selects its frozen release at startup, and uses Restart=on-failure. Children remain in its control group, so a crash cannot leave an orphan frontend occupying the port. The service is independent of T3 tool/shell lifetime.
 
 ```sh
-npm run service:status
-npm run service:restart  # At an authorized release boundary only
+pnpm run service:status
+pnpm run service:restart  # At an authorized release boundary only
 journalctl --user -u open-cavas-main.service -n 50 --no-pager
 ```
 

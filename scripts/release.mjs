@@ -26,8 +26,8 @@ try {
     await mkdir(staging, { mode: 0o700 });
     const archive = execFileSync('git', ['-C', checkoutRoot, 'archive', '--format=tar', commit], { maxBuffer: 30_000_000 });
     execFileSync('tar', ['-xf', '-', '-C', staging], { input: archive });
-    await command('npm', ['ci', '--ignore-scripts'], staging);
-    await command('npm', ['run', 'build'], staging, { CAVAS_RELEASE_COMMIT: commit });
+    await command('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts'], staging);
+    await command('corepack', ['pnpm', 'run', 'build'], staging, { CAVAS_RELEASE_COMMIT: commit });
     await writeFile(path.join(staging, '.cavas-release.json'), JSON.stringify({ commit, createdAt: new Date().toISOString() }));
     await rename(staging, target);
     staging = undefined;
@@ -38,7 +38,7 @@ try {
   const temporary = `${pointer}.${process.pid}`;
   await writeFile(temporary, JSON.stringify({ commit }), { mode: 0o600, flag: 'wx' });
   await rename(temporary, pointer);
-  process.stdout.write(`Main release prepared: ${commit}\nExisting services were not stopped or changed. At your release window, restart npm start and reconnect MCP clients.\n`);
+  process.stdout.write(`Main release prepared: ${commit}\nExisting services were not stopped or changed. At your release window, restart pnpm start and reconnect MCP clients.\n`);
 } catch (error) {
   if (staging) await rm(staging, { recursive: true, force: true });
   process.stderr.write(`${error instanceof Error ? error.message : 'Release failed.'}\n`);
