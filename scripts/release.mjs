@@ -28,7 +28,7 @@ try {
     execFileSync('tar', ['-xf', '-', '-C', staging], { input: archive });
     await command('corepack', ['pnpm', 'install', '--frozen-lockfile', '--ignore-scripts'], staging);
     await command('corepack', ['pnpm', 'run', 'build'], staging, { CAVAS_RELEASE_COMMIT: commit });
-    await writeFile(path.join(staging, '.cavas-release.json'), JSON.stringify({ commit, createdAt: new Date().toISOString() }));
+    await writeFile(path.join(staging, '.cavas-release.json'), JSON.stringify({ commit, layoutVersion: 2, createdAt: new Date().toISOString() }));
     await rename(staging, target);
     staging = undefined;
   }

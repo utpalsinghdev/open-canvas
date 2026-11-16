@@ -27,7 +27,7 @@ Main MCP uses private loopback port **4781**. Generate its config with `pnpm --s
 
 ## Versions and changelog
 
-Use `pnpm run changeset` to record a feature/fix and its patch/minor/major bump. Commit that Markdown entry with the change. `pnpm run changeset:status` shows pending releases. Before an authorized release, `pnpm run version:apply` consumes entries, updates package versions and the lockfile, and generates `CHANGELOG.md`. Review and commit the result before `pnpm run release:main`.
+Use `pnpm run changeset` to record a feature/fix and its patch/minor/major bump. Commit that Markdown entry with the change. `pnpm run changeset:status` shows pending releases. Before an authorized release, `pnpm run version:apply` consumes entries, updates package versions and the lockfile, and generates `apps/web/CHANGELOG.md`. Review and commit the result before `pnpm run release:main`.
 
 The app stays private. Versioning does not publish to npm, create tags, deploy, or restart main automatically. Detailed workflow is in [docs/versioning.md](docs/versioning.md).
 
@@ -45,6 +45,18 @@ pnpm run build                      # TypeScript and source bundle; not a main r
 The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
 
 After feature verification and authorized merge, run `pnpm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
+
+## Repository layout
+
+- `apps/web`: existing React/Vite editor and browser storage, font, and transport adapters.
+- `apps/local-service`: Node workspace storage, native rendering, private broker, and stdio MCP entry points.
+- `packages/document`: versioned schemas, constructors, IDs, and legacy migration.
+- `packages/engine`: validated edits, file history, geometry, typography, and SVG serialization.
+- `packages/mcp`: tool/service schemas and shared handler factories.
+- `scripts`: root development, release, service, and dependency-boundary commands.
+- `public`: shared shipped fonts and favicon, retaining their existing browser URLs.
+
+Run `pnpm run check` and `pnpm run build` at the root. See [repository layout and import rules](docs/repository-layout.md). Desktop and hosted web are future consumers, not applications included in this workspace.
 
 ## Agent control through MCP
 

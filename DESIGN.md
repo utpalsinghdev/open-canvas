@@ -8,7 +8,7 @@ Opening a file exposes editable artwork between Layers and Properties. The selec
 
 ## Tokens
 
-The authoritative tokens are declared in `src/styles.css` under `:root`.
+The authoritative tokens are declared in `apps/web/src/styles.css` under `:root`.
 
 - Background and panel: `--background`, `--panel`, both `#000000`.
 - Primary text: `--foreground`, `#ffffff`.

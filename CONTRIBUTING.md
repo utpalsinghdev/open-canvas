@@ -10,9 +10,9 @@ Read [AGENTS.md](AGENTS.md), [product scope](PRODUCT.md), and the [design rules]
 
 | Contribution | Where to start |
 | --- | --- |
-| Editor behavior, controls, or accessibility | [Editor code](src/editor) and [design rules](DESIGN.md) |
-| Documents, project navigation, or saving | [Workspace code](src/workspace), [workspace contracts](docs/workspace.md), and [document format](docs/document-format.md) |
-| MCP tools or service behavior | [MCP code](src/mcp), [local service](server), and [capabilities](docs/mcp-capabilities.md) |
+| Editor behavior, controls, or accessibility | [Web editor](apps/web/src), [shared engine](packages/engine/src), and [design rules](DESIGN.md) |
+| Documents, project navigation, or saving | [Workspace schemas](packages/document/src/workspace.ts) and [browser persistence](apps/web/src/workspace), [workspace contracts](docs/workspace.md), and [document format](docs/document-format.md) |
+| MCP tools or service behavior | [MCP code](packages/mcp/src), [local service](apps/local-service/src), and [capabilities](docs/mcp-capabilities.md) |
 | Setup, versioning, or runtime tooling | [Scripts](scripts) and [runtime guide](docs/runtime.md) |
 | Shared contribution skills | [Project skills](.agents/skills) and [skill setup](docs/contributor-skills.md) |
 | Docs, examples, or reproduction details | [README](README.md), [project docs](docs), and existing issues |

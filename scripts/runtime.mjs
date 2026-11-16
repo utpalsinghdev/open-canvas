@@ -10,7 +10,10 @@ export async function selectedRelease() {
   if (!pointer || typeof pointer.commit !== 'string' || !/^[a-f0-9]{40}$/.test(pointer.commit)) throw new Error('Invalid main release pointer. Run pnpm run release:main from clean main.');
   const directory = path.join(checkoutRoot, '.cavas', 'releases', pointer.commit);
   if (await realpath(directory) !== directory) throw new Error('Release directory must not be a symlink.');
-  return { directory, commit: pointer.commit };
+  const marker = JSON.parse(await readFile(path.join(directory, '.cavas-release.json'), 'utf8'));
+  const layoutVersion = marker.layoutVersion ?? 1;
+  if (marker.commit !== pointer.commit || ![1, 2].includes(layoutVersion)) throw new Error('Unsupported main release layout. Prepare a compatible main snapshot.');
+  return { directory, commit: pointer.commit, layoutVersion };
 }
 export async function launch(profile, action) {
   const settings = runtimeSettings(profile);
@@ -18,10 +21,14 @@ export async function launch(profile, action) {
   if (profile === 'dev') assertDevelopmentCheckout();
   const release = profile === 'main' ? await selectedRelease() : null;
   const root = release?.directory ?? checkoutRoot;
+  // Already-prepared snapshots retain their original single-package layout.
+  const legacy = release?.layoutVersion === 1;
+  const webRoot = legacy ? root : path.join(root, 'apps/web');
+  const serviceRoot = path.join(root, legacy ? 'server' : 'apps/local-service/src');
   const env = { ...process.env, CAVAS_PROFILE: profile, CAVAS_APP_PORT: String(settings.appPort), CAVAS_MCP_PORT: String(settings.brokerPort), CAVAS_APP_ORIGIN: settings.origin, CAVAS_RUNTIME_STATE_ROOT: settings.stateDirectory, CAVAS_RELEASE_COMMIT: release?.commit ?? 'development' };
   const args = action === 'web'
-    ? [path.join(root, 'node_modules/vite/bin/vite.js'), ...(profile === 'main' ? ['preview'] : []), '--host', '0.0.0.0', '--port', String(settings.appPort), '--strictPort']
-    : [path.join(root, 'node_modules/tsx/dist/cli.mjs'), path.join(root, 'server/index.ts')];
+    ? [path.join(webRoot, 'node_modules/vite/bin/vite.js'), ...(profile === 'main' ? ['preview'] : []), '--config', path.join(webRoot, 'vite.config.ts'), '--host', '0.0.0.0', '--port', String(settings.appPort), '--strictPort']
+    : [path.join(root, 'node_modules/tsx/dist/cli.mjs'), path.join(serviceRoot, 'index.ts')];
   process.stderr.write(`Open Cavas ${profile}: ${action === 'web' ? settings.origin : `private MCP ${settings.brokerPort}`} ${release ? `release ${release.commit.slice(0, 7)}` : ''}\n`);
   let backend;
   let stopping = false;
@@ -35,7 +42,7 @@ export async function launch(profile, action) {
     }, restartDelay);
   }
   async function startBackend() {
-    const processBackend = spawn(process.execPath, ['--import', 'tsx', path.join(root, 'server/workspace-daemon.ts')], {
+    const processBackend = spawn(process.execPath, ['--import', 'tsx', path.join(serviceRoot, 'workspace-daemon.ts')], {
       cwd: root, env, stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
     });
     backend = processBackend;

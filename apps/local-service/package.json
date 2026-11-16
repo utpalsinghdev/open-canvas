@@ -1,0 +1,25 @@
+{
+  "name": "@open-cavas/local-service",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@open-cavas/document": "workspace:*",
+    "@open-cavas/engine": "workspace:*",
+    "@open-cavas/mcp": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "@napi-rs/canvas": "^1.1.1",
+    "cssstyle": "^6.2.0",
+    "parse5": "^8.1.1",
+    "sharp": "^0.35.5",
+    "ws": "^8.23.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/cssstyle": "^2.2.4",
+    "@types/ws": "^8.18.2"
+  }
+}

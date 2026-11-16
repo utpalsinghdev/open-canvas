@@ -1,6 +1,6 @@
 # Document format
 
-The authoritative schema is `src/editor/model.ts`. TypeScript types derive from it. Current downloads use a version-2 multi-page file, described below. Version-1 single-page data remains accepted as a legacy import and used internally as the active-page projection. Both use `<name>.cavas.json`.
+The authoritative schema is `packages/document/src/model.ts`. TypeScript types derive from it. Current downloads use a version-2 multi-page file, described below. Version-1 single-page data remains accepted as a legacy import and used internally as the active-page projection. Both use `<name>.cavas.json`.
 
 ```json
 {
@@ -64,7 +64,7 @@ Undo history, current selection, viewport, agent pairing, state revision, and pa
 
 Pages have stable IDs and nonempty names. A file has 1 to 100 pages; each page has at most 1,000 nodes, with at most 10,000 nodes across the file. Node IDs must be unique across the file. Parent references must resolve to an artboard on the same page. Token metadata belongs to the file, not individual pages.
 
-Project archives use `{ "kind": "open-cavas-project", "version": 1, "project": ... }`. Workspace archives use `{ "kind": "open-cavas-workspace", "version": 1, "projects": [...] }`. A project has an ID/name and a nonempty `files` array. Each file record has an ID, a version-2 `document`, and `pageId` identifying its remembered active page. The runtime schema is `src/workspace/model.ts`.
+Project archives use `{ "kind": "open-cavas-project", "version": 1, "project": ... }`. Workspace archives use `{ "kind": "open-cavas-workspace", "version": 1, "projects": [...] }`. A project has an ID/name and a nonempty `files` array. Each file record has an ID, a version-2 `document`, and `pageId` identifying its remembered active page. The runtime schema is `packages/document/src/workspace.ts`.
 
 Workspace validation requires unique project IDs and unique file IDs across projects. Project/file/page names are trimmed and nonempty. Imported archives append projects with regenerated project/file IDs, retaining page/node IDs within each independent file. A version-1 document becomes a new version-2 file with one generated Page 1.
 

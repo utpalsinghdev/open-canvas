@@ -1,0 +1,25 @@
+{
+  "name": "@open-cavas/engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./geometry": "./src/geometry.ts",
+    "./review/actions": "./src/review/actions.ts",
+    "./review/anchors": "./src/review/anchors.ts",
+    "./seed": "./src/seed.ts",
+    "./state": "./src/state.ts",
+    "./svg": "./src/svg.ts",
+    "./typography": "./src/typography.ts",
+    "./workspace/actions": "./src/workspace/actions.ts",
+    "./workspace/sharing": "./src/workspace/sharing.ts",
+    "./workspace/state": "./src/workspace/state.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@open-cavas/document": "workspace:*",
+    "zustand": "^5.0.0"
+  }
+}

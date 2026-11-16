@@ -8,6 +8,12 @@ Use Node.js 24.22.1 and pnpm 12.21.0. `package.json` declares both exact version
 
 Install with `pnpm install --frozen-lockfile`. `pnpm-lock.yaml` is the only dependency lockfile. The pnpm build policy explicitly skips esbuild's install scripts; its platform binary comes from the locked optional dependency. Release preparation uses `corepack pnpm install --frozen-lockfile --ignore-scripts` and `corepack pnpm run build` inside the archived snapshot. The snapshot retains pnpm's own dependency layout. Existing stable releases remain unchanged until an authorized release and restart.
 
+## Source and build paths
+
+Run lifecycle commands from the repository root. The frontend lives in `apps/web`, its Vite configuration in `apps/web/vite.config.ts`, and its build output in `apps/web/dist`. The private Node entry points live in `apps/local-service/src`. Shared workspace packages export TypeScript source, which Vite bundles and the existing tsx launcher loads. `public/` at the repository root remains the single shipped font/favicon source for both runtimes. Root `dist` is no longer served or built.
+
+Release preparation installs the entire workspace from the lockfile, checks all packages, and builds the web app within the frozen snapshot. Root launcher/config paths, profile names, browser URLs, and private metadata/storage paths are unchanged. No user data moves during this source reorganization. New snapshot markers include `layoutVersion: 2`; markers without that field retain the original layout. The root launcher can still select those older snapshots before a coordinated rollout or during rollback.
+
 ## Reserved profiles
 
 | Profile | Browser app | Private MCP broker | MCP config name |
@@ -63,7 +69,7 @@ Each profile/port pair has its own private internal broker metadata:
 
 Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. All `.cavas` contents are ignored by Git and denied by Vite's development filesystem guard.
 
-Do not invoke `server/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and pnpm scripts are the supported launch paths.
+Do not invoke `apps/local-service/src/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and pnpm scripts are the supported launch paths.
 
 ## Roll out a feature
 

@@ -20,7 +20,7 @@ async function checkPublicFiles(directory: string, root: string, ancestors = new
 }
 
 /** Vite's lexical deny globs alone do not block symlink aliases to private state. */
-export function privateStateGuard(): Plugin {
+export function privateStateGuard(repositoryRoot: string): Plugin {
   let config: ResolvedConfig;
   function middleware(preview: boolean): Connect.NextHandleFunction {
     return (request, response, next) => {
@@ -39,9 +39,9 @@ export function privateStateGuard(): Plugin {
           }
         }
         for (const candidate of candidates) {
-          if (privatePath(candidate, config.root)) throw new Error('Private application data.');
+          if (privatePath(candidate, repositoryRoot)) throw new Error('Private application data.');
           try {
-            if (privatePath(await realpath(candidate), config.root)) throw new Error('Private application data.');
+            if (privatePath(await realpath(candidate), repositoryRoot)) throw new Error('Private application data.');
           } catch (error) {
             if (!(error instanceof Error && 'code' in error &&
                 (error.code === 'ENOENT' || error.code === 'ENOTDIR'))) throw error;
@@ -64,7 +64,7 @@ export function privateStateGuard(): Plugin {
         if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return;
         throw error;
       }
-      await checkPublicFiles(config.publicDir, config.root);
+      await checkPublicFiles(config.publicDir, repositoryRoot);
     },
     configureServer(server) { server.middlewares.use(middleware(false)); },
     configurePreviewServer(server) { server.middlewares.use(middleware(true)); },
