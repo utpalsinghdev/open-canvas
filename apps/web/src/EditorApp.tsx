@@ -26,6 +26,7 @@ import { Toolbar } from './components/Toolbar';
 import { AgentConnection } from './components/AgentConnection';
 import { Help } from './components/Help';
 import { ExportMenu } from './components/ExportMenu';
+import { useMenuInert } from './components/useMenuInert';
 import { IconButton } from './components/Button';
 import { useEditor } from './editor/store';
 import { useCamera } from './editor/useCamera';
@@ -74,7 +75,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
   );
   const file = currentFile(workspace, location);
   const workspaceName = useWorkspaceService((state) => state.record?.name);
-  const fileMenu = useRef<HTMLDetailsElement>(null);
+  const fileMenu = useMenuInert();
   useEffect(() => {
     function outside(event: PointerEvent) {
       if (event.target instanceof Node && fileMenu.current && !fileMenu.current.contains(event.target)) fileMenu.current.open = false;

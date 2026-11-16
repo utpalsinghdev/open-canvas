@@ -1,5 +1,17 @@
 # Verification record
 
+## Issue #66: transient editor motion
+
+- Baseline local Brave 151.1.93.136 showed zero-duration motion on Review list/composer/conversation and File/Export menus at 1440 × 1000 and 390 × 844. Updated live frame samples observed 160 ms entrances and 100 ms exits; Review content faded from zero to full opacity. Final exit samples reached zero before removal without reverting to full opacity. This is DOM/frame evidence, not a painted-frame flicker measurement.
+- Closing Review immediately made retained content inert, hidden from assistive technology and pointer-transparent; hit testing reached underlying content and focus moved out. Three Cancel/reopen cycles, within-duration rapid toggles and list/thread switching ended in the correct state. Review retained its nonmodal outside-click behavior.
+- File/Export Tab, Shift+Tab, Escape, focus restoration and outside-click dismissal passed. Closed menu items were not hit targets. Help and Projects retained native Escape dismissal and trigger focus restoration.
+- Reduced motion enabled before reload skipped effects. Enabling it during active entry and exit ended animation immediately and removed exiting content. Narrow Layers/Review/Properties remained mutually exclusive, Properties scrolled internally and document width remained 390 px.
+- Notification entry, eight-second expiry, replacement and dismissal passed without stale hit targets. Drawing a 170 × 140 rectangle and undo worked; pan moved the canvas by 60 × 30 px, and text entry/undo worked. A nonempty SVG download contained the rectangle; a complete JSON backup contained no UI motion properties.
+- `corepack pnpm install --frozen-lockfile`, `corepack pnpm run check`, `corepack pnpm run build` and `corepack pnpm run changeset:status` passed with Node 24.22.1 and pnpm 12.21.0. Existing Zod annotation warnings remain. The UI detector returned no findings; workspace TypeScript passed, while one active LSP path was inconclusive rather than confirmed clean.
+- Independent source security/edge review found no concrete issue or network-boundary expansion. Browser frame sampling then identified a possible exit-opacity reset; the lifecycle was corrected and independently browser-checked. The final small lifecycle correction was not sent for a second source review.
+
+Screenshots use isolated synthetic workspaces and stay outside Git. No new test files, document/schema changes, broker/authentication changes or main service restarts were added. Local Brave was preferred and available; Mac, Safari/Firefox and physical touch hardware were not exercised. Native menu motion falls back to instant behavior on browsers without the required CSS support. See [editor motion](editor-motion.md) for the full surface audit and intentionally instant interactions.
+
 ## Compact desktop controls
 
 The follow-up uses an accessible Collapse all icon, removes toolbar undo/redo buttons while preserving shortcuts, and reduces the new-comment composer to a text area with Cancel/Save. Verified at 1440 × 1000 in the isolated development browser:

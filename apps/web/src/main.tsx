@@ -6,6 +6,7 @@ import { loadDocumentFonts } from './editor/typography';
 import { watchMainRelease } from './editor/release-updates';
 import './styles.css';
 import './desktop.css';
+import './motion.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Application root is missing.');

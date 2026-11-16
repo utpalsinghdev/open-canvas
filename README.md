@@ -121,6 +121,7 @@ File/project/workspace JSON backups and append-only imports remain available thr
 - [Document format](docs/document-format.md)
 - [Verification record](docs/verification.md)
 - [Design system](DESIGN.md)
+- [Editor motion and transient-surface audit](docs/editor-motion.md)
 - [MCP setup](docs/mcp.md) and [coverage](docs/mcp-capabilities.md)
 
 The starter composition is original editable demonstration content.
