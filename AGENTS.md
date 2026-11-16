@@ -3,6 +3,7 @@
 ## Product and scope
 - Build Open Cavas, a web-based design editor.
 - Work in this repository. Keep external reference projects read-only.
+- Keep names and links for external reference products, along with comparison notes, out of tracked files and public commit, issue, and PR prose. Preserve required third-party notices.
 - Keep proprietary app bundles, extracted code, private documents, credentials, and raw analysis outside this repository. Write original implementation code.
 - Read PRODUCT.md, DESIGN.md, README.md, and relevant docs before changing behavior. Keep docs accurate during implementation.
 

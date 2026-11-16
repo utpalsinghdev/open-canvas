@@ -97,6 +97,7 @@ File/project/workspace JSON backups and append-only imports remain available thr
 - [Product scope](PRODUCT.md)
 - [Engineering rules](AGENTS.md) and [CLAUDE.md alias](CLAUDE.md)
 - [Contribution, issue, and PR guidance](CONTRIBUTING.md)
+- [Apache License 2.0](LICENSE)
 - [Feature delivery and completion criteria](docs/feature-delivery.md)
 - [Shared skills for Pi, Codex, and Claude Code](docs/contributor-skills.md)
 - [Runtime profiles and main releases](docs/runtime.md)
