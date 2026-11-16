@@ -1,5 +1,7 @@
 # Open Cavas
 
+Project website: [open-canvas.xyz](https://open-canvas.xyz), not launched yet. Setup and contribution instructions are available in this repository.
+
 A local-first web design editor. Create artboards, arrange text, shapes, and images, then export SVG/PDF or download an editable JSON document. No account required. Manual editing is browser-only; optional MCP control runs a local bridge.
 
 ## First visit

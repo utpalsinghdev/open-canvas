@@ -2,6 +2,8 @@
 
 Anyone can contribute, including first-time open-source contributors. There is no minimum account age, prior contribution count, invitation, or organization membership requirement. Bug reports, design feedback, documentation, accessibility improvements, and code are all welcome. Review is based on the proposed change and its evidence.
 
+The project website is [open-canvas.xyz](https://open-canvas.xyz). It has not launched yet; use this repository's documentation and issues for setup, questions, and contributions.
+
 Read [AGENTS.md](AGENTS.md), [product scope](PRODUCT.md), and the [design rules](DESIGN.md) before changing behavior. Use [feature delivery](docs/feature-delivery.md) to define a complete user outcome. Keep external reference projects read-only and write original implementation code.
 
 ## Choose a contribution
