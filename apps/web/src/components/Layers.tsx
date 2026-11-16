@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { ChevronDown, ChevronRight, ChevronsDownUp, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
 import type { DesignNode } from '@open-cavas/document/model';
 import { useEditor } from '../editor/store';
@@ -6,7 +6,7 @@ import { Pages } from './Pages';
 import { IconButton } from './Button';
 
 const icons = { artboard: Frame, rectangle: RectangleHorizontal, ellipse: Circle, text: Type, image: Image };
-export function Layers() {
+export const Layers = memo(function Layers() {
   const { document, selectedIds, select, patch } = useEditor();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   function row(node: DesignNode, child = false) {
@@ -43,4 +43,4 @@ export function Layers() {
     {!roots.length && <p className="panel-empty">Your layers will appear here.</p>}</div>
     <div className="panel-footer"><span>Multi-select</span><kbd>Shift + click</kbd></div>
   </aside>;
-}
+});

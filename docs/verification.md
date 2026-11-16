@@ -1,5 +1,19 @@
 # Verification record
 
+## Canvas drag rendering
+
+Verified with Node.js 24.22.1, pnpm 12.21.0, and headless Brave 151.1.93.136 on Fedora 44 using isolated synthetic artwork. The representative page contained 20 artboards and 800 rectangle swatches, with expanded Layers, a 1280 × 639 viewport, DPR 1, and 16% fit zoom.
+
+- Development CPU profiles showed repeated React element creation/reconciliation and garbage collection during Hand pan and Select move. Camera changes rebuilt the Layers panel; preview updates repeatedly cleared/reset global manual-edit state. Memoized artwork and Layers rendering, cached visibility/grouping, and start/end-only guard updates remove this repeated work. No easing or trailing animation was added.
+- A single profiled development run per mode initially recorded 62 Hand and 38 Select long tasks of at least 50 ms. An initial post-change run recorded 2 and 3. These measurements included profiler overhead and post-drag idle time, so they are diagnostic evidence, not production latency measurements.
+- Five interleaved runs per side and gesture loaded baseline and fixed optimized JS bundles through browser-only interception on the same isolated development origin. Bundle hashes were checked and CPU profiling was disabled. Each run delivered 40 trusted CDP pointer moves and verified approximately 80 × 30 screen-pixel movement. Vite's client remained loaded, so this was not a pure production runtime. rAF p95 was generally 16.7–16.8 ms on both sides. CDP response waits limited input cadence; gesture durations and event ages do not establish physical-pointer or presentation latency. Production responsiveness remains inconclusive.
+- Controlled-GC retained JS heap stayed approximately 13–15 MiB across those runs. Sampled in-gesture peaks were 63–72 MiB before versus 22–23 MiB after for Hand, and 59–64 MiB versus 24–26 MiB for Select. These are JS heap samples, not total browser memory, RSS, or a leak proof. No retained-heap regression was observed in this fixture.
+- Browser input exercised Hand, Space, middle-button and wheel panning, pointer-anchored zoom, Select moves at 16% and 28%, artboard/child movement, resize, marquee, rectangle/text drawing, and locked/hidden hit behavior. Completed artwork dragging added one history entry; undo/redo restored geometry. Escape, pointer cancellation, and canvas unmount cleared the guard. Eight preview moves emitted no editor-store notifications.
+- Verification caught and corrected a text-drawing handoff regression before publication. The final handoff retained `interactionActive: true` without an intervening false transition. A real SDK stdio client attempted a canvas-target mutation with current revision/context while the text editor was open: it rejected with the manual-edit error and geometry stayed unchanged. After Escape, a fresh-revision mutation succeeded and undo restored geometry. Saving returned to `saved`.
+- Text entry, bundled Inter rendering, saved reload, and Home preview were exercised. Asynchronous font-load invalidation was not isolated. No schema, backup format, import/export contract, MCP tool, network listener, Origin/Host guard, or Tailscale configuration changed. Main was not released or restarted.
+
+Local Brave was available, so the Mac SSH route was not needed. No headed Mac, physical-pointer, total-memory, or GPU-compositing claim is made. Still screenshots cannot demonstrate this motion-only change. No new test files were added; browser profiling and interaction checks are not continuous regression coverage.
+
 ## Compact desktop controls
 
 The follow-up uses an accessible Collapse all icon, removes toolbar undo/redo buttons while preserving shortcuts, and reduces the new-comment composer to a text area with Cancel/Save. Verified at 1440 × 1000 in the isolated development browser:

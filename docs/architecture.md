@@ -13,7 +13,7 @@ See [repository layout](repository-layout.md) for package ownership, dependency 
 - `apps/web/src/editor/useCamera.ts` owns pan/zoom, pointer-anchored wheel zoom, and fit-to-visible-root bounds.
 - `apps/web/src/editor/useShortcuts.ts` binds keyboard actions without intercepting text/form editing.
 - `apps/web/src/editor/files.ts` validates file imports, reads safe raster images, serializes SVG, and triggers downloads. `apps/web/src/editor/pdf.ts` captures explicit artboard/page targets, validates resources and size budgets, rasterizes the shared SVG at 2×, and lazily loads pdf-lib to package lossless PNG pages with 96 px/in dimensions. `ExportMenu.tsx` provides the shared SVG/PDF header dropdown, explicit scope labels, and PDF pending/error feedback. See [PDF export](pdf-export.md).
-- `apps/web/src/components/Canvas.tsx` renders SVG artboards, gesture previews, selection, resizing, and on-canvas text editing.
+- `apps/web/src/components/Canvas.tsx` renders gesture previews, selection, resizing, and on-canvas text editing. `CanvasArtwork.tsx` memoizes the SVG artwork subtree and groups children in one pass. Camera translation updates the enclosing transform without rebuilding artwork; unchanged node views and the Layers panel skip parent-driven rerenders. Font-state subscriptions still invalidate memoized node bounds and artwork.
 - `apps/web/src/components/Artwork.tsx` renders supported artwork independently of editor selection. `FilePreview.tsx` reuses its native node rendering for the remembered active page of each Home file, including parent visibility, text bounds, artboard clipping, opacity, and unique clip IDs. IntersectionObserver mounts artwork near the visible library area and unmounts it offscreen; narrow Home does not mount preview artwork. Preview rendering has no save, history, export, or MCP side effects.
 - `apps/web/src/components/Layers.tsx`, `Inspector.tsx`, `Toolbar.tsx`, and `Help.tsx` provide editor controls.
 - `apps/web/src/App.tsx` selects the Home/editor destination and owns shared JSON import and status feedback. `apps/web/src/EditorApp.tsx` connects canvas file actions, naming, and responsive panels. `apps/web/src/components/Projects.tsx` reuses one library implementation in Home and the editor dialog; `WorkspaceNotice.tsx` preserves save recovery in both destinations.
@@ -31,8 +31,8 @@ Rotated node bounds drive export/viewport fitting. Marquee uses unrotated node b
 ## State changes
 
 1. A pointer gesture starts with document geometry and selected IDs.
-2. Pointer moves update transient React preview state, not the document or undo history.
-3. Pointer release creates a validated active-page mutation. Cancellation discards the preview.
+2. Pointer moves update transient React preview state, not the document or undo history. The manual-edit guard follows interaction start/end, not each preview update.
+3. Pointer release creates a validated active-page mutation. Cancellation discards the preview. Drawing text transfers directly into on-canvas editing without releasing the manual-edit guard; it clears when both the gesture and text edit end, or the canvas unmounts.
 4. Workspace actions replace that page inside its version-2 file and keep an immutable file snapshot in its own 80-entry history.
 5. A 350 ms debounce sends the selected workspace to the private local service with its expected durable revision. Stale saves reject without replacing newer data.
 

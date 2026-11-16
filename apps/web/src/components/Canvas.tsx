@@ -1,10 +1,11 @@
-import { useEffect, useState, type PointerEvent } from 'react';
+import { useEffect, useMemo, useState, type PointerEvent } from 'react';
 import { Maximize, Minus, Plus } from 'lucide-react';
 import { createNode, isHidden, isLocked, withChildren, type DesignNode } from '@open-cavas/document/model';
 import { intersects, resized, translated } from '@open-cavas/engine/geometry';
 import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
+import { CanvasArtwork } from './CanvasArtwork';
 import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
@@ -52,10 +53,11 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
     window.addEventListener('blur', blur);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); };
   }, []);
+  const interactionActive = gesture !== null || editingId !== null;
   useEffect(() => {
-    useEditor.setState({ interactionActive: gesture !== null || editingId !== null });
-    return () => { useEditor.setState({ interactionActive: false }); };
-  }, [gesture, editingId]);
+    useEditor.setState({ interactionActive });
+  }, [interactionActive]);
+  useEffect(() => () => { useEditor.setState({ interactionActive: false }); }, []);
 
   function world(event: PointerEvent): Point {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -167,10 +169,10 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       const ids = document.nodes.filter((node) => node.kind !== 'artboard' && !isHidden(node, document.nodes) && !isLocked(node, document.nodes) && intersects(box, node.kind === 'text' ? { ...node, ...textNodeBounds(node) } : node)).map((node) => node.id);
       if (box.width > 3 || box.height > 3) select([...new Set([...(gesture.additive ? selectedIds : []), ...ids])]);
     }
-    useEditor.setState({ interactionActive: false });
+    // The effect releases the guard only when both gesture and text editing end.
     setGesture(null);
   }
-  const nodes = document.nodes.map((node) => {
+  const nodes = useMemo(() => document.nodes.map((node) => {
     if (gesture?.mode === 'move' && gesture.ids.has(node.id)) return translated(node, gesture.delta.x, gesture.delta.y);
     if (gesture?.mode === 'resize') {
       const next = resized(gesture.node, gesture.delta.x, gesture.delta.y, gesture.corner);
@@ -178,10 +180,13 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       if (gesture.node.kind === 'artboard' && node.parentId === gesture.node.id) return translated(node, next.x - gesture.node.x, next.y - gesture.node.y);
     }
     return node;
-  });
+  }), [document.nodes, gesture]);
   const preview = gesture?.mode === 'draw' ? drawnNode(gesture) : null;
   // Keep stored text frames distinct from the content-sized editing area.
-  const visible = nodes.filter((node) => !isHidden(node, nodes) && node.id !== editingId);
+  const visible = useMemo(() => {
+    const hidden = new Set(nodes.filter((node) => node.hidden).map((node) => node.id));
+    return nodes.filter((node) => !node.hidden && !hidden.has(node.parentId ?? '') && node.id !== editingId);
+  }, [nodes, editingId]);
   const selected = visible.filter((node) => selectedIds.includes(node.id));
 
   const cursor = gesture?.mode === 'pan' ? 'grabbing' : space || tool === 'hand' ? 'grab' : tool;
@@ -197,14 +202,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       <defs><pattern id="canvas-dots" width={24 * camera.zoom} height={24 * camera.zoom} patternUnits="userSpaceOnUse" x={camera.x} y={camera.y}><circle cx="1" cy="1" r="0.7" className="grid-dot" /></pattern></defs>
       <rect width="100%" height="100%" fill="url(#canvas-dots)" />
       <g transform={`translate(${camera.x} ${camera.y}) scale(${camera.zoom})`}>
-        {visible.filter((node) => node.parentId === null).map((node) => node.kind === 'artboard' ? <g key={node.id}>
-          <defs><clipPath id={`board-${node.id}`}><rect x={node.x} y={node.y} width={node.width} height={node.height} rx={node.radius} /></clipPath></defs>
-          <text className="artboard-label" x={node.x} y={node.y - 14 / camera.zoom} fontSize={11 / camera.zoom} data-node-id={node.id}>{node.name}</text>
-          <g clipPath={`url(#board-${node.id})`} opacity={node.opacity}>
-            <NodeView node={{ ...node, opacity: 1 }} />
-            {visible.filter((child) => child.parentId === node.id).map((child) => <NodeView key={child.id} node={child} />)}
-          </g>
-        </g> : <NodeView key={node.id} node={node} />)}
+        <CanvasArtwork nodes={visible} zoom={camera.zoom} />
         {preview && <NodeView node={preview} />}
         {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <rect {...bounds} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
         {!placing && selected.map((node) => {
