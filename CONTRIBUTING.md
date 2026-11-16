@@ -78,7 +78,7 @@ The [PR template](.github/pull_request_template.md) prompts for the problem, vis
 
 Write direct, specific English. Do not invent personal experience, measurements, or results. Avoid em dashes, exaggerated praise, and generic filler. Read the published title, body, issue links, and image links back against the final draft.
 
-For visible UI changes, attach labeled Before/After screenshots through the [shared screenshot skill](.agents/skills/attach-screenshot-to-pr/SKILL.md). Include the entry point, comparable states and viewport sizes, and narrow views where affected. Use your own credentials as described in [contributor skill setup](docs/contributor-skills.md). Keep evidence images outside Git.
+When a visible UI change can be meaningfully shown in still images, attach labeled Before/After screenshots through the [shared screenshot skill](.agents/skills/attach-screenshot-to-pr/SKILL.md). Motion-only changes do not require screenshots that cannot show the change. Include the entry point, comparable states and viewport sizes, and narrow views where affected. Use your own credentials as described in [contributor skill setup](docs/contributor-skills.md). Keep evidence images outside Git.
 
 The [project PR-writing skill](.agents/skills/oss-pr-writing/SKILL.md) provides the same drafting workflow for supported coding agents. It adds no publication, merge, or release authorization. Follow the existing boundaries in AGENTS.md.
 
