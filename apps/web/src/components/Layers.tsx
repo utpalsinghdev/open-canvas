@@ -42,6 +42,6 @@ export function Layers() {
       {node.kind === 'artboard' && !collapsed.has(node.id) && document.nodes.filter((child) => child.parentId === node.id).reverse().map((child) => row(child, true))}
     </div>)}
     {!roots.length && <p className="panel-empty">Your layers will appear here.</p>}</div>
-    <div className="panel-footer"><span>Local workspace</span><span>v0.1</span></div>
+    <div className="panel-footer"><span>Multi-select</span><kbd>Shift + click</kbd></div>
   </aside>;
 }

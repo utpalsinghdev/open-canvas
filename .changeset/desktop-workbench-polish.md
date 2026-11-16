@@ -2,4 +2,4 @@
 "@open-cavas/web": patch
 ---
 
-Polish desktop workspace setup, Home, editor panels, menus, Help, and review controls with clearer action hierarchy, readable labels, and consistent spacing. Keep existing editing and saving behavior.
+Recompose the desktop editor around one header, a vertical drawing-tool rail, and grouped property fields. Show native active-page artwork previews in Home, keep compact project switching, and separate workspace opening from creation and recovery. Preserve existing editing, saving, and export behavior.

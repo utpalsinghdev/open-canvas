@@ -1,6 +1,21 @@
 # Verification record
 
-## Desktop interface polish
+## Desktop workbench recomposition
+
+The second desktop pass replaced the stacked command bars with one header and a vertical drawing-tool rail, introduced native active-page previews in Home, regrouped inspector fields, and split workspace setup into opening and creation columns. Verified in the same isolated feature worktree:
+
+- `pnpm run check` and `pnpm run build` passed with the pinned Node/pnpm toolchain. No application build errors; existing dependency annotation warnings remain.
+- At 1440 × 1000, the canvas starts at x=288 and y=52, immediately after the 240 px Layers panel and 48 px tool rail. With both panels collapsed, the rail moves to x=0 and canvas spans x=48 through 1440, preserving selection. Toolbar accessibility orientation is vertical on desktop and horizontal on narrow layouts.
+- Drew a 200 × 150 rectangle from the vertical rail on an empty page; undo removed it and redo restored it. Restored the empty page afterward. Edited the introductory rectangle width to 240, undid to 230, verified lock disabling, and reloaded to confirm its saved 230 px width.
+- Home previewed native artwork, then a duplicated file with independent clip IDs. Switching that copy to its empty second page produced an explicit Empty page preview while the original retained artwork. Renamed the copy and exercised search with no matches.
+- Reimported a downloaded version-2 backup as a new file with two pages and 17 introductory layers, opened it, and observed its native Home preview. Deleted only that verification file through the confirmation UI. Existing files remained.
+- Downloaded JSON, SVG, and PDF through the recomposed header. JSON retained two pages and 17 layers on the introductory page; SVG remained 1248 × 760; PDF retained its PDF 1.7 header.
+- Captured the same 13 desktop surfaces/states as the initial pass. Updated examples include extra synthetic workspace/file entries and resolved feedback created during verification. Inspected 1024 × 768 and 1920 × 1080 desktop layouts, plus a 390 × 844 chooser/editor-overlay sanity check. Tested viewport and document widths matched. Camera position intentionally stays unchanged when only viewport size changes; Fit canvas reframes it.
+- Impeccable reported no findings. Hallmark's final static scan had zero failures and one long introductory-action label warning, with explicit desktop nowrap and narrow wrapping. Its render tier remains unavailable; real Chromium captures supply visual evidence.
+
+This remains single-reviewer verification. Lazy preview mounting, visibility, clipping, and opacity follow the existing native renderer, but there was no large-library performance benchmark or exhaustive visual-fidelity comparison. No new tests, schema migration, backend/MCP contract change, main release, or service restart were added.
+
+## Initial desktop interface pass
 
 Verified with Node.js 24.22.1 and pnpm 12.21.0 in an isolated development worktree:
 

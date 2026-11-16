@@ -20,8 +20,10 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
         <h1 id="workspace-heading">Local workspaces</h1>
         <p>Open a workspace saved on the app server, start a new one, or copy saved browser data.</p>
         {error && <p className="workspace-error" role="alert">{error}</p>}
-        {!error && storageDirectory && workspaces.length === 0 && <p>No service workspaces found here. This does not mean browser-only work was deleted.</p>}
-        {workspaces.length > 0 && <section className="workspace-list" aria-label="Saved workspaces">
+        <div className="workspace-start">
+        <section className="workspace-list" aria-label="Saved workspaces">
+          <h2>Open workspace</h2>
+          {!error && storageDirectory && workspaces.length === 0 && <p>No service workspaces found here. This does not mean browser-only work was deleted.</p>}
           {workspaces.map((workspace) => (
             <button key={workspace.id} disabled={busy} onClick={() => { void openServiceWorkspace(workspace.id); }}>
               <FolderOpen size={18} />
@@ -29,7 +31,7 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
               <small>{workspace.id.slice(0, 8)}</small>
             </button>
           ))}
-        </section>}
+        </section>
         <section className="workspace-create" aria-labelledby="create-workspace-heading">
           <h2 id="create-workspace-heading">New workspace</h2>
           <label>New workspace name <input className="text-input" value={name} maxLength={160} disabled={busy} onChange={(event) => setName(event.target.value)} /></label>
@@ -39,6 +41,8 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
           </div>
           <p>Agent access starts enabled for a new workspace. Pause it persistently from the File menu.</p>
         </section>
+        </div>
+        <div className="workspace-recovery">
         <p role={browserRecovery === 'unavailable' ? 'alert' : 'status'}>
           {browserRecovery === 'loading' && 'Checking this browser for saved work.'}
           {browserRecovery === 'empty' && 'No saved browser workspace found in this profile at this address. Reopen the original profile and address to recover older work.'}
@@ -56,6 +60,7 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
             }}>Download browser backup</button>
           </div>
         </details>
+        </div>
         <div className="workspace-access-footer">
           <WorkspaceStorage />
           <button className="secondary-button" disabled={busy} onClick={() => {
