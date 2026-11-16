@@ -108,6 +108,10 @@ Home has a 240 px project rail and an adaptive grid of native page previews, fil
 
 No animation, font dependency, document capability, or alternate mobile shell is added. Below 901 px, tools return to a horizontal strip and panels remain overlays. Workspace setup keeps a stacked fallback and recovery disclosure.
 
+## Transient editor motion
+
+Review surfaces, File/Export dropdowns and dismissible notifications use shared 160 ms ease-out entrances and 100 ms ease-in exits. Closing removes interaction immediately. Dialogs and narrow panels have entrance motion with instant dismissal; desktop sidebar geometry stays instant. Reduced motion skips effects. See [editor motion](docs/editor-motion.md) for the complete transient-surface audit, native-browser fallbacks and deliberately instant interactions.
+
 ## Footer backup affordance
 
 The footer's right-hand download icon uses a 40 px wide target within the existing footer height. Its accessible name and custom hover/focus tooltip are Download editable backup (JSON). Escape dismisses the tooltip without clearing artwork selection. It invokes the same complete editable-file JSON download as File menu backup and the save shortcut; it is not SVG/PDF Export or a successful-save indicator. The tooltip stays above the footer and inside narrow viewports.

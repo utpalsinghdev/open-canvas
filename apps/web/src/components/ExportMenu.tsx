@@ -5,6 +5,7 @@ import { download } from '../editor/files';
 import { renderPdf } from '../editor/pdf';
 import { currentFile } from '@open-cavas/document/workspace';
 import { exportActivity } from '../editor/export-activity';
+import { useMenuInert } from './useMenuInert';
 
 export function ExportMenu({ onSvg }: { onSvg: () => void }) {
   const artwork = useEditor((state) => state.document);
@@ -12,7 +13,7 @@ export function ExportMenu({ onSvg }: { onSvg: () => void }) {
   const selectedBoards = artwork.nodes.filter((node) => node.kind === 'artboard' && selectedIds.includes(node.id));
   const [pending, setPending] = useState(false);
   const running = useRef(false);
-  const menu = useRef<HTMLDetailsElement>(null);
+  const menu = useMenuInert();
   const label = `PDF · ${selectedBoards.length ? 'Selected artboards' : 'Current page'}`;
   const svgLabel = `SVG · ${selectedIds.length === 1 && selectedBoards.length === 1 ? 'Selected artboard' : 'Current page'}`;
 
