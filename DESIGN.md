@@ -8,7 +8,7 @@ Opening a file exposes editable artwork between Layers and Properties. The selec
 
 ## Tokens
 
-The authoritative tokens are declared in `apps/web/src/styles.css` under `:root`.
+The shared tokens are declared in `apps/web/src/styles.css` under `:root`. `apps/web/src/desktop.css`, loaded afterward, owns desktop dimensions and menu elevation tokens.
 
 - Background and panel: `--background`, `--panel`, both `#000000`.
 - Primary text: `--foreground`, `#ffffff`.
@@ -23,7 +23,7 @@ Spacing declarations use a 4 px grid. Borders are 1 px. Compact controls have 3 
 
 ## Layout and interaction
 
-Desktop uses a 54 px header, 55 px toolbar, 27 px footer, 224 px Layers panel, and 248 px Properties panel. At narrower desktop widths panels shrink to 192 and 224 px. Persistent sidebar icons at the left and right ends of the toolbar row independently collapse or reopen desktop panels. The canvas fills each freed column without resetting the camera or selection. Hidden panels remain mounted to retain their content. At 900 px and below, panels become explicitly toggled, mutually exclusive overlays, separate from desktop visibility preferences. Visibility is session-only and resets on reload. Under 560 px, the Export action becomes an icon with an accessible label; format and scope remain visible in its dropdown.
+Desktop uses a 52 px header, 48 px toolbar, 30 px footer, 248 px Layers panel, and 280 px Properties panel. Between 901 and 1100 px, panels shrink to 216 and 260 px. Persistent sidebar icons at the left and right ends of the toolbar row independently collapse or reopen desktop panels. The canvas fills each freed column without resetting the camera or selection. Hidden panels remain mounted to retain their content. At 900 px and below, panels become explicitly toggled, mutually exclusive overlays, separate from desktop visibility preferences. Visibility is session-only and resets on reload. Under 560 px, the Export action becomes an icon with an accessible label; format and scope remain visible in its dropdown.
 
 Controls have visible instant keyboard focus. Native disabled states change ink, fill, and cursor, and preserve disabled attributes. Disabled controls are exempt from normal text contrast requirements. Fields commit on blur or Enter; drag operations commit once on release. Local-save failure is visible in the header and a persistent recovery notice. The notice takes precedence over dismissible notifications, includes expandable bounded error details, and opens Projects for workspace backup. It has no dismiss or retry action and stays until saving the current workspace succeeds or a successful reload clears it.
 
@@ -72,7 +72,7 @@ Typography uses a labeled text field with a native datalist for the five existin
 
 Introduction belongs inside the editor canvas, not in a separate welcome page or Help dialog. Start with introductory canvas creates a workspace containing two editable 600 × 760 artboards with 17 native layers. Lime and lavender artwork introduces drawing, navigation, saving, and agent access. Shapes and text are real editable examples, not HTML illustrations. Fresh browser fallback uses the same seed. Existing documents never receive seeded content; empty creation and browser copying remain explicit separate choices. The ordinary canvas fit/pan/zoom controls also apply on narrow screens.
 
-The local workspace chooser appears before mounting the editor. Existing service workspaces are explicit choices. Creating an empty workspace and copying browser data are separate actions; copying keeps original browser storage untouched. Errors stay visible. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
+The local workspace chooser appears before mounting the editor. Saved workspaces use full-width opening rows. New workspace groups its name, primary introductory-canvas action, and secondary empty-workspace action. Browser recovery actions live inside Recover browser-only work; the browser-storage status and service errors remain visible outside the disclosure. Save-destination details and Refresh workspaces follow the form. Copying keeps original browser storage untouched. File menu exposes persistent Pause/Resume and Switch local workspace. No automatic profile merge or headless connection badge is added.
 
 ## PDF export action
 
@@ -89,3 +89,11 @@ Inspector arrangement actions use visible icon-and-text controls in two columns;
 ## File and workspace context
 
 File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps its menu inside narrow viewports. The desktop footer identifies the selected workspace and page. Help distinguishes app-server saving, editable JSON backups and artwork exports.
+
+## Desktop density and action hierarchy
+
+Above 900 px, `apps/web/src/desktop.css` refines the existing layout with 13 px base UI type, 12 px inspector labels, and 11 px supporting metadata. Drawing tools have a white active state; selected layers use the existing blue selection wash and ink. Numeric fields, selects, and layer commands use consistent compact heights. Menus and review overlays have restrained offset shadows, and Help uses aligned shortcut rows with separators.
+
+Home keeps file rows rather than preview cards. Its file content has a capped 1080 px measure inside the flexible working area; editor artwork remains uncapped. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Hover and focus-within identify file rows without hiding their explicit actions. Project dialogs reuse the same library controls.
+
+The desktop pass adds no animation, font dependency, document capability, or alternate mobile shell. Below 901 px, existing editor overlays and toolbar sizing stay in place. Workspace setup keeps a stacked fallback for the new groups and recovery disclosure.

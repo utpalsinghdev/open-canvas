@@ -1,5 +1,24 @@
 # Verification record
 
+## Desktop interface polish
+
+Verified with Node.js 24.22.1 and pnpm 12.21.0 in an isolated development worktree:
+
+- `pnpm run check` and `pnpm run build` passed. Build retained the existing dependency annotation warnings.
+- Impeccable's detector reported no findings on the changed UI targets. Hallmark's static scan reported zero failures and one long-label warning. The introductory action has explicit desktop nowrap styling and wraps on narrow screens. Hallmark's render tier did not run because puppeteer-core was unavailable; real Chromium screenshots supplied visual evidence instead.
+- Captured matching 1440 × 1000 Before/After states for workspace selection, Home, file creation, Projects, editor with no selection, empty page, shape inspector, typography, File menu, Export menu, Help, review list, and comment composition. The base and updated editor auto-fit the same artwork at different zoom levels because panel widths changed.
+- Desktop checks at 1024 × 768 and 1920 × 1080 had no document-width overflow. At 1024 px, drawing tools stayed between the side regions. At 390 × 844, workspace setup fit without document-width overflow and the existing Properties overlay remained accessible. This was a narrow-layout sanity check, not a mobile redesign.
+- Opened a saved workspace, created an introductory workspace with 17 native layers, and created an empty workspace. The latter retained its Home-first behavior and opened an empty Untitled file.
+- Empty workspace-name input disabled both creation actions. Browser copy/backup remained disabled without recoverable browser data and were accessible through the recovery disclosure.
+- Home search showed No matching files for an unmatched query. Created a file, opened it, and confirmed its presence through a saved MCP workspace read. Exercised file deletion with its explicit confirmation and observed the row disappear.
+- Changed rectangle width from 230 to 240, verified undo to 230 and redo to 240 after reselecting the layer, then restored 230. Locking disabled the property fieldset. Both desktop sidebars collapsed and reopened; the canvas filled the freed columns.
+- Added a page, returned to the original page, reloaded the file destination, and observed both pages plus the restored 230 px rectangle width.
+- Posted a review comment, posted a reply, resolved the thread, and reopened it. Opened and dismissed Projects, Help, File, and Export surfaces.
+- Downloaded and parsed a version-2 JSON backup with both pages and 17 layers on the original page. Downloaded a 1248 × 760 SVG and a one-page PDF 1.7 through the existing export menu. These checks verified the controls and generated artifacts, not a pixel comparison or native JSON reimport.
+- An official MCP SDK client discovered the development workspace and connected canvas. `list_projects` returned the newly created file and page with persistence reported as saved. No MCP contract or document model changed.
+
+No new test files were added. Verification did not include an independent review. Browser-copy recovery with real legacy data, forced service/save failures, Safari/Firefox, and touch devices were not verified. No main release or service restart was performed.
+
 ## Pinned Node and pnpm migration
 
 Verified on Node.js 24.22.1 and pnpm 12.21.0 in the feature worktree:

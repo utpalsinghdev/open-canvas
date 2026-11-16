@@ -1,0 +1,190 @@
+/* Hallmark · genre: modern-minimal · scope: app · built: the project · redesign: polish · v2.0.0 */
+/* Critique: readable controls and distinct action hierarchy without competing with artwork. */
+/* Hallmark · waive 7b · surface: absolute; controls use contrasting ink · User requires true black editor chrome and white primary text. */
+:root {
+  --desktop-panel-width: 280px;
+  --desktop-layers-width: 248px;
+  --menu-shadow: 0 8px 28px #00000080;
+  --danger: #ffadad;
+}
+
+/* New chooser groups retain a usable stacked layout below desktop widths. */
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--foreground);
+  background: var(--control);
+}
+.workspace-screen { height: 100%; overflow-y: auto; }
+.workspace-access .brand { margin-bottom: 32px; }
+.workspace-access h1 { font-size: 24px; font-weight: 500; margin: 0; }
+.workspace-access h2 { font-size: 14px; font-weight: 500; margin: 0 0 20px; }
+.workspace-access h1, .workspace-access h2 { text-wrap: balance; }
+.secondary-button:active:not(:disabled) { background: var(--active); }
+.workspace-access > p { margin: 12px 0 24px; }
+.workspace-create { padding: 24px 0; border-block: 1px solid var(--line); }
+.workspace-create > label { display: flex; flex-direction: column; gap: 8px; color: var(--muted); }
+.workspace-create > p { margin: 16px 0 0; }
+.workspace-list { margin-bottom: 24px; }
+.workspace-list button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 16px 8px; border-bottom: 1px solid var(--line); text-align: left; border-radius: 4px; }
+.workspace-list button span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.workspace-list button small { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.workspace-list button svg { color: var(--muted); }
+.workspace-access .workspace-error { color: var(--warning); }
+.workspace-access-footer { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+.workspace-access-footer .workspace-storage { flex: 1; min-width: 160px; margin: 0; }
+.workspace-access > .workspace-storage { margin-top: 24px; }
+
+@media (width > 900px) {
+  :root { font-size: 13px; }
+  .app-shell { --layers-width: var(--desktop-layers-width); --properties-width: var(--desktop-panel-width); }
+  .app-header { height: 52px; padding-inline: 16px; gap: 16px; }
+  .brand { font-size: 13px; gap: 8px; }
+  .header-actions { gap: 16px; }
+  .home-button, .project-switcher { min-height: 34px; }
+  .home-button { color: var(--muted); }
+  .document-name { width: 224px; padding: 8px; max-width: 24vw; }
+  .document-name:focus { border-color: var(--accent); background: var(--control); }
+  .workspace-bar { height: 48px; grid-template-columns: var(--desktop-layers-width) minmax(0, 1fr) var(--desktop-panel-width); }
+  .workspace-label { min-width: 0; padding-left: 12px; font-size: 12px; gap: 8px; }
+  .workspace-label > span:last-child { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .workspace-end { padding-right: 12px; gap: 4px; }
+  .tool-strip { gap: 12px; }
+  .icon-button { width: 32px; height: 32px; }
+  .tool-strip .icon-button[aria-pressed="true"] { background: var(--foreground); color: var(--background); }
+  .tool-strip .icon-button:disabled { background: none; }
+  .tool-group { gap: 2px; }
+  .review-toggle { font-size: 12px; min-height: 32px; }
+  .export-button { min-height: 34px; }
+
+  .panel-heading { padding: 16px 16px 12px; min-height: 52px; font-size: 12px; }
+  .panel-heading > :last-child:not(:first-child) { font-size: 11px; }
+  .pages-section { padding: 8px; }
+  .pages-heading { font-size: 12px; padding-bottom: 4px; }
+  .page-select { font-size: 12px; height: 34px; }
+  .page-actions .icon-button { width: 24px; height: 28px; }
+  .page-item.current { background: var(--control); box-shadow: inset 0 0 0 1px var(--line); }
+  .layer-list { padding: 0 8px 12px; }
+  .layer-row { height: 32px; }
+  .layer-select { gap: 8px; }
+  .layer-row.selected { background: var(--selection-wash); }
+  .layer-select[aria-pressed="true"] { color: var(--accent); }
+  .layer-actions .icon-button { width: 24px; height: 28px; }
+  .panel-footer { padding: 12px 16px; font-size: 11px; }
+  .inspector-welcome { padding: 24px 16px; border-top: 1px solid var(--line); }
+  .inspector-welcome h2 { font-size: 14px; margin-bottom: 8px; }
+  .inspector-welcome p { font-size: 12px; line-height: 1.6; }
+  .selected-heading { padding: 0 16px 16px; }
+  .inspector-section { padding: 16px; }
+  .inspector-section h3 { font-size: 12px; margin-bottom: 12px; }
+  .text-input, select { min-height: 34px; font-size: 12px; }
+  .text-input:hover, select:hover, .number-field:hover, .fill-field:hover { border-color: var(--subtle); }
+  .number-field { height: 34px; font-size: 12px; gap: 8px; }
+  .number-field span { font-size: 11px; }
+  .number-field:focus-within, .fill-field:focus-within { border-color: var(--accent); }
+  .stacked-field { gap: 8px; margin-top: 12px; font-size: 12px; }
+  .fill-field { gap: 8px; min-height: 34px; padding: 4px 8px; }
+  .fill-field input:not([type="color"]) { font-size: 12px; }
+  .font-status { font-size: 11px; line-height: 1.6; }
+  .text-option { font-size: 12px; }
+  .alignment-controls { gap: 4px; }
+  .content-input { min-height: 84px; margin-top: 8px; }
+  .layer-command-grid button { font-size: 12px; min-height: 34px; }
+  .status-bar { height: 30px; font-size: 11px; }
+  .status-bar button, .canvas-caption { font-size: 11px; }
+  .canvas-caption { bottom: 24px; }
+  .zoom-controls { bottom: 16px; right: 16px; }
+  .zoom-controls button { height: 28px; }
+
+  .file-menu-items, .export-menu-items { padding: 8px; border-radius: 6px; box-shadow: var(--menu-shadow); }
+  .file-menu-items { top: calc(100% + 6px); width: 224px; }
+  .file-menu-items button, .export-menu-items button { min-height: 36px; padding: 8px 12px; font-size: 12px; }
+  .file-menu-items button:nth-child(3), .file-menu-items button:nth-child(5) { border-bottom: 1px solid var(--line); border-radius: 0; }
+  .file-menu summary { min-height: 34px; }
+  .help-dialog { width: min(640px, 90%); padding: 28px; }
+  .dialog-heading { margin-bottom: 24px; }
+  .dialog-heading h2 { font-size: 20px; }
+  .shortcut-list { gap: 0; }
+  .shortcut-list > div { min-height: 36px; font-size: 12px; border-bottom: 1px solid var(--line); }
+  .shortcut-list kbd { font-size: 11px; }
+  .help-dialog p { font-size: 12px; line-height: 1.7; }
+
+  .workspace-access { width: min(640px, calc(100% - 64px)); margin: 64px auto; padding: 0; border: 0; max-height: none; overflow: visible; }
+  .workspace-access h1 { font-size: 28px; line-height: 1.2; }
+  .workspace-access .brand { color: var(--muted); }
+  .workspace-access .workspace-storage { font-size: 12px; }
+  .workspace-access .workspace-storage summary { padding-block: 4px; }
+  .workspace-access .text-input { max-width: 400px; }
+  .workspace-access .workspace-choices { margin: 16px 0 0; }
+  .workspace-access .export-button { white-space: nowrap; }
+
+  .projects-heading { min-height: 76px; padding: 20px 28px; }
+  .projects-heading h1 { font-size: 22px; }
+  .projects-heading h2 { font-size: 18px; }
+  .projects-heading > div > button:not(.icon-button) { min-height: 34px; font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding-inline: 12px; }
+  .projects-layout { grid-template-columns: var(--desktop-layers-width) minmax(0, 1fr); }
+  .project-list { padding: 20px 12px; }
+  .project-list > button { min-height: 40px; padding: 12px; gap: 8px; }
+  .project-list > button[aria-pressed="true"] { background: var(--control); box-shadow: inset 0 0 0 1px var(--line); }
+  .project-list .new-project-button { margin-bottom: 20px; border: 1px solid var(--line); }
+  .project-files { padding: 28px; }
+  .project-title { gap: 4px; }
+  .project-title h3 { font-size: 20px; }
+  .files-toolbar { margin: 24px 0 16px; gap: 12px; }
+  .files-toolbar input { max-width: 400px; min-height: 36px; padding-inline: 12px; }
+  .files-toolbar > button { margin-left: auto; min-height: 36px; padding-inline: 12px; }
+  .file-row { padding: 8px; gap: 16px; border-radius: 4px; min-height: 76px; }
+  .file-row:hover, .file-row:focus-within { background: var(--control); }
+  .file-open { padding: 8px 0; gap: 16px; }
+  .file-open > svg { color: var(--muted); }
+  .file-open strong { font-size: 13px; }
+  .file-open small { font-size: 11px; }
+  .file-actions { gap: 4px; }
+  .file-actions .icon-button { width: 32px; height: 32px; }
+  .library-name-form { padding: 16px 0; align-items: flex-end; }
+  .library-name-form label { font-size: 12px; max-width: 400px; }
+  .library-name-form input { min-height: 36px; padding-inline: 12px; border-radius: 4px; }
+  .library-name-form > button, .library-removal button { min-height: 36px; border-radius: 4px; }
+  .library-name-form > button[type="submit"]:not(:disabled) { background: var(--foreground); color: var(--background); }
+  .library-removal { padding: 16px 0; font-size: 12px; }
+  .library-removal button:first-of-type:not(:disabled) { color: var(--danger); }
+  .home-library > footer, .projects-dialog > footer { padding: 16px 28px; font-size: 11px; }
+  .home-library > footer .workspace-storage, .projects-dialog > footer .workspace-storage { font-size: 11px; margin: 0 0 8px; }
+  .home-library .project-files > * { width: 100%; max-width: 1080px; margin-inline: auto; }
+  .home-library .project-files { padding: 40px clamp(28px, 4vw, 72px); }
+  .home-library .files-toolbar { margin-block: 28px 16px; }
+  .projects-dialog { width: min(960px, 90%); height: min(680px, 90dvh); border-radius: 8px; }
+  .projects-dialog .projects-layout { grid-template-columns: 216px minmax(0, 1fr); }
+  .projects-dialog .project-title h3 { font-size: 18px; }
+
+  .review-panel { border-radius: 6px; box-shadow: var(--menu-shadow); }
+  .review-heading { min-height: 44px; padding: 8px 12px; }
+  .review-heading h2 { font-size: 13px; }
+  .review-filter { font-size: 12px; padding: 12px; }
+  .review-create { padding: 8px; gap: 4px; }
+  .review-create .text-button { text-decoration: none; min-height: 34px; border-radius: 4px; }
+  .review-row span, .review-hint, .review-messages time { font-size: 12px; }
+  .review-hint { padding: 16px 12px; }
+  .review-popover { box-shadow: var(--menu-shadow); }
+  .review-popover .review-composer textarea { min-height: 88px; }
+  .review-composer textarea { font-size: 12px; }
+}
+
+@media (900px < width <= 1100px) {
+  :root { --desktop-panel-width: 260px; --desktop-layers-width: 216px; }
+  .app-header { gap: 8px; }
+  .document-name { width: 180px; }
+  .workspace-label { gap: 8px; }
+  .tool-strip { gap: 8px; }
+  .tool-group { gap: 0; }
+  .workspace-end { padding-right: 8px; gap: 0; }
+  .number-field { padding-inline: 8px; gap: 8px; }
+  .canvas-caption { bottom: 56px; }
+  .project-files { padding: 24px; }
+}
