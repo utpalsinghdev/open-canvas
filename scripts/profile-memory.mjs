@@ -1,9 +1,9 @@
 // State-only allocation profile, not browser or GPU memory accounting.
 // Run with: node --expose-gc --import tsx scripts/profile-memory.mjs
-import { createWorkspaceActions } from '../src/workspace/actions.ts';
-import { workspaceSchema, firstLocation } from '../src/workspace/model.ts';
-import { viewPatch } from '../src/workspace/state.ts';
-import { createNode } from '../src/editor/model.ts';
+import { createWorkspaceActions } from '@open-cavas/engine/workspace/actions';
+import { workspaceSchema, firstLocation } from '@open-cavas/document/workspace';
+import { viewPatch } from '@open-cavas/engine/workspace/state';
+import { createNode } from '@open-cavas/document/model';
 
 const workspace = workspaceSchema.parse({
   kind: 'open-cavas-workspace',

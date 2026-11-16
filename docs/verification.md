@@ -620,3 +620,42 @@ Before/after screenshots contain only synthetic starter artwork and were capture
 - `npm run check`, `npm run build`, `npm run changeset:status`, `npm audit --omit=dev --audit-level=moderate`, and `git diff --check` passed. Audit reported zero vulnerabilities. Existing Zod dependency annotation warnings remain. The UI detector returned no findings before final small layout corrections. Active diagnostics did not find TypeScript errors; two auxiliary throwing-call rules and some silent-on-clean LSP results were not clean confirmations. No CI workflow or test command is configured; no test files were added.
 
 Limits: original affected browser data was not inspected, so original file deletion or recovery remains unconfirmed. No actual main release rollout, power-loss/disk-failure campaign, ticket-expiry timing, or new concurrent-save campaign was performed. Existing revision and atomic-save logic is unchanged. The final alias guard and review follow-ups were checked by the implementer, not a second independent reviewer. Browser backup download contents were not separately checked.
+
+## Shared workspace layout
+
+The structure-only migration separates `apps/web` and `apps/local-service` from
+`packages/document`, `packages/engine`, and `packages/mcp`. No document, storage,
+or tool-schema migration is included.
+
+- `pnpm install --frozen-lockfile`, `pnpm run check`, `pnpm run build`, and
+  `pnpm run changeset:status` passed with the pinned toolchain. The check command
+  includes source import boundaries and per-package TypeScript checks. Shared
+  packages compile without DOM libraries.
+- All 51 MCP tool definitions and input schemas matched the pre-move baseline.
+  Existing saved workspace IDs and document content reopened unchanged. Native
+  SVG, PNG bytes, font status, and capture metadata matched the baseline after
+  excluding the durable revision advanced by browser reopen.
+- The 1280 × 639 browser composition matched the baseline pixel-for-pixel after
+  aligning viewport, camera, and pointer state. Browser text editing, undo,
+  redo, acknowledged saving and reload retained the expected content. At
+  390 × 844, Layers remained accessible and document width stayed 390 pixels.
+- Live SDK calls exercised browser PNG and two-artboard PDF output, headless
+  project/file/page creation, inert HTML import, text edits, stale-revision
+  rejection, undo/redo, complete-file JSON round trip, page duplication/deletion,
+  and undo restoration. Closing the browser and restarting the broker preserved
+  the complete workspace backup byte-for-byte; native PNG and SVG remained
+  available without a frontend.
+- Direct and symlink-aliased `.cavas` requests returned 403. Wrong-Origin browser
+  registration returned 403. A public symlink to private state caused the build
+  to fail, then the alias was removed. Main ports remained reserved.
+- A separately installed snapshot under `.cavas/releases` passed the check/build
+  commands and served production HTML, assets, fonts and runtime metadata through
+  an isolated preview. Its private-path request returned 403. Generated dev MCP
+  configuration matched the baseline. Missing-release and feature-branch release
+  attempts failed safely. Stable main processes and release pointer were not
+  changed.
+
+Verification used Chromium on Linux with synthetic local workspaces. No new test
+files were added. Full main publication/restart, desktop packaging, hosted web,
+and other browsers were not exercised. The existing snapshot layout remains an
+explicit launcher compatibility path, not a claim that a main rollout occurred.

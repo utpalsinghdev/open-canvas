@@ -1,0 +1,27 @@
+{
+  "name": "@open-cavas/mcp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./html-parser": "./src/html-parser.ts",
+    "./html": "./src/html.ts",
+    "./mutations": "./src/mutations.ts",
+    "./reads": "./src/reads.ts",
+    "./review-commands": "./src/review-commands.ts",
+    "./review-tools": "./src/review-tools.ts",
+    "./service-schema": "./src/service-schema.ts",
+    "./target": "./src/target.ts",
+    "./tools": "./src/tools.ts",
+    "./workspace-commands": "./src/workspace-commands.ts",
+    "./workspace-tools": "./src/workspace-tools.ts"
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@open-cavas/document": "workspace:*",
+    "@open-cavas/engine": "workspace:*",
+    "zod": "^4.0.0"
+  }
+}

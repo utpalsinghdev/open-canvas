@@ -15,7 +15,7 @@ Every heading, paragraph, shape, and artboard is editable. Select layers from th
 
 ## Creation and persistence
 
-The seed lives in `src/editor/seed.ts`. It replaces the old synthetic poster study used as the fresh-browser fallback. The chooser also offers explicit seeded service-workspace creation, so starting with the introduction does not require copying browser storage. Each creation generates fresh layer, file, page, project, and workspace IDs.
+The seed lives in `packages/engine/src/seed.ts`. It replaces the old synthetic poster study used as the fresh-browser fallback. The chooser also offers explicit seeded service-workspace creation, so starting with the introduction does not require copying browser storage. Each creation generates fresh layer, file, page, project, and workspace IDs.
 
 **Create empty workspace** remains empty. **Copy browser workspace** preserves existing browser content and identity. Opening an existing service workspace or direct file link never inserts introductory artwork. The introduction is not automatically added to new files or to workspaces created through MCP.
 

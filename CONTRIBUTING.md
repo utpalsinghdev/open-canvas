@@ -10,9 +10,9 @@ Read [AGENTS.md](AGENTS.md), [product scope](PRODUCT.md), and the [design rules]
 
 | Contribution | Where to start |
 | --- | --- |
-| Editor behavior, controls, or accessibility | [Editor code](src/editor) and [design rules](DESIGN.md) |
-| Documents, project navigation, or saving | [Workspace code](src/workspace), [workspace contracts](docs/workspace.md), and [document format](docs/document-format.md) |
-| MCP tools or service behavior | [MCP code](src/mcp), [local service](server), and [capabilities](docs/mcp-capabilities.md) |
+| Editor behavior, controls, or accessibility | [Web editor](apps/web/src), [shared engine](packages/engine/src), and [design rules](DESIGN.md) |
+| Documents, project navigation, or saving | [Workspace schemas](packages/document/src/workspace.ts) and [browser persistence](apps/web/src/workspace), [workspace contracts](docs/workspace.md), and [document format](docs/document-format.md) |
+| MCP tools or service behavior | [MCP code](packages/mcp/src), [local service](apps/local-service/src), and [capabilities](docs/mcp-capabilities.md) |
 | Setup, versioning, or runtime tooling | [Scripts](scripts) and [runtime guide](docs/runtime.md) |
 | Shared contribution skills | [Project skills](.agents/skills) and [skill setup](docs/contributor-skills.md) |
 | Docs, examples, or reproduction details | [README](README.md), [project docs](docs), and existing issues |
@@ -59,7 +59,7 @@ corepack pnpm run check
 corepack pnpm run build
 ```
 
-Exercise relevant browser and MCP journeys as well. For documentation-only changes, check the diff and links unless CI requires more. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
+The [workspace checks workflow](.github/workflows/check.yml) runs on pull requests and pushes to main. It installs the frozen lockfile with the pinned toolchain, then runs `corepack pnpm run check`, `corepack pnpm run build`, and `corepack pnpm run changeset:status --since=origin/main`. The checkout includes history so the release-plan comparison has a base ref. These checks need no service credentials. CI does not replace relevant browser and MCP journeys. For documentation-only changes, check the diff and links locally; CI still runs the workspace checks. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
 
 For features or fixes that affect the shipped product, add a Changeset with `corepack pnpm run changeset`. Describe the user-visible result. A Changeset records a future version change; it does not authorize deployment. See [versioning](docs/versioning.md).
 

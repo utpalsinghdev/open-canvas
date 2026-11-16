@@ -1,0 +1,35 @@
+name: Workspace checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workspace-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Enable pinned package manager
+        run: corepack enable
+      - name: Install locked workspace
+        run: corepack pnpm install --frozen-lockfile
+      - name: Check package boundaries and TypeScript
+        run: corepack pnpm run check
+      - name: Build web application
+        run: corepack pnpm run build
+      - name: Check release plan
+        run: corepack pnpm run changeset:status --since=origin/main

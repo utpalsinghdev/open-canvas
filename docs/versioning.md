@@ -10,7 +10,7 @@ On the feature branch/worktree, after implementing a meaningful user-visible cha
 pnpm run changeset
 ```
 
-Select `open-cavas`, choose patch/minor/major, and write a short user-facing summary. Commit the generated `.changeset/*.md` entry with the feature. Multiple entries can accumulate before one release. Documentation-only changes do not need an entry unless they materially affect the shipped product.
+Select `@open-cavas/web`, choose patch/minor/major, and write a short user-facing summary. Commit the generated `.changeset/*.md` entry with the feature. Multiple entries can accumulate before one release. Documentation-only changes do not need an entry unless they materially affect the shipped product.
 
 ```sh
 pnpm run changeset:status
@@ -26,7 +26,7 @@ After approved features are merged, and when a version bump is authorized:
 pnpm run version:apply
 ```
 
-Changesets consumes pending entries, updates package.json, and generates or extends CHANGELOG.md. The script also refreshes pnpm-lock.yaml in lockfile-only mode with install scripts disabled. Review the diff and commit package.json, pnpm-lock.yaml, CHANGELOG.md, and consumed Changeset deletions as one version change.
+Changesets consumes pending entries, updates `apps/web/package.json`, and generates or extends `apps/web/CHANGELOG.md`. The script also refreshes pnpm-lock.yaml in lockfile-only mode with install scripts disabled. Review the diff and commit the affected package manifests, pnpm-lock.yaml, apps/web/CHANGELOG.md, and consumed Changeset deletions as one version change.
 
 Then use the existing deployment workflow:
 
@@ -38,10 +38,10 @@ This requires clean committed main and prepares its frozen snapshot. Deliberatel
 
 ## Policy
 
-- Current package is private. `privatePackages.version` is true so Changesets includes it.
+- The app version and existing changelog belong to `@open-cavas/web`. The root is a private, unversioned command workspace. Internal packages remain private source dependencies. All workspace packages are private. `privatePackages.version` is true so Changesets includes it.
 - `privatePackages.tag` is false. No automatic Git tags or npm publishing are configured.
 - `commit` is false. Review and create the version commit deliberately.
-- Base branch is main. Access is restricted; package.json remains `private: true`.
+- Base branch is main. Access is restricted; every package remains `private: true`.
 - Semantic version guidance: patch for compatible fixes; minor for features; major for breaking consumer-facing interfaces. While the app is 0.x, use a minor release to communicate intentional breaking changes and explain them in the notes. Changesets applies the explicitly selected bump; it does not infer API compatibility.
 - No GitHub Actions release bot, publication token, or public release automation was added.
 - Installing this tooling does not retroactively invent a changelog for earlier work. The first pending patch entry covers this setup; package version stays unchanged until version:apply is requested.
