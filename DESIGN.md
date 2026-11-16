@@ -27,7 +27,7 @@ Desktop uses one 52 px header, a 48 px vertical tool rail beside the canvas, a 3
 
 Controls have visible instant keyboard focus. Native disabled states change ink, fill, and cursor, and preserve disabled attributes. Disabled controls are exempt from normal text contrast requirements. Fields commit on blur or Enter; drag operations commit once on release. Local-save failure is visible in the header and a persistent recovery notice. The notice takes precedence over dismissible notifications, includes expandable bounded error details, and opens Projects for workspace backup. It has no dismiss or retry action and stays until saving the current workspace succeeds or a successful reload clears it.
 
-A dotted world grid provides position context without repainting animation. Artboard titles stay the same screen size while zoom changes. Selection outlines scale inversely with zoom. Text edits use a focused textarea over the artwork; text content never becomes executable HTML.
+A dotted world grid provides position context without repainting animation. Artboard titles stay the same screen size while zoom changes. Selection outlines scale inversely with zoom. Select previews the unlocked painted target with a dashed blue outline, without handles or a tooltip. Already-selected targets retain only their existing selection controls. Hover clears on empty canvas, pointer exit, window blur, and interaction start; panning, gestures, and inline text editing suppress it. Comment retains its solid target outline and hint, including on locked artwork. These pointer-transparent overlays remain outside artwork and exports. Text edits use a focused textarea over the artwork; text content never becomes executable HTML.
 
 ## Review threads
 

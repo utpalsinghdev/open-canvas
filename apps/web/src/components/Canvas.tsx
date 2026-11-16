@@ -9,7 +9,8 @@ import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
 import { AgentActivity } from './AgentActivity';
-import { CommentTargetPreview } from './CommentTargetPreview';
+import { CanvasTargetPreview } from './CanvasTargetPreview';
+import { selectableCanvasNode } from '../editor/canvas-target';
 import { textNodeBounds, textContentBounds } from '@open-cavas/engine/typography';
 
 type Point = { x: number; y: number };
@@ -105,9 +106,8 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       setGesture({ mode: 'resize', start: point, delta: { x: 0, y: 0 }, node: selected.kind === 'text' ? { ...selected, ...textNodeBounds(selected) } : selected, corner: handle });
       return;
     }
-    const id = target?.closest('[data-node-id]')?.getAttribute('data-node-id');
-    const node = document.nodes.find((candidate) => candidate.id === id);
-    if (node && !isLocked(node, document.nodes)) {
+    const node = selectableCanvasNode(target, document.nodes);
+    if (node) {
       const ids = event.shiftKey ? selectedIds.includes(node.id) ? selectedIds.filter((item) => item !== node.id) : [...selectedIds, node.id] : selectedIds.includes(node.id) ? selectedIds : [node.id];
       select(ids);
       const movable = ids.filter((item) => document.nodes.some((candidate) => candidate.id === item && !isLocked(candidate, document.nodes)));
@@ -220,7 +220,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
         {gesture?.mode === 'marquee' && <rect className="marquee" x={Math.min(gesture.start.x, gesture.current.x)} y={Math.min(gesture.start.y, gesture.current.y)} width={Math.abs(gesture.current.x - gesture.start.x)} height={Math.abs(gesture.current.y - gesture.start.y)} strokeWidth={1 / camera.zoom} />}
       </g>
     </svg>
-    {placing && !space && !gesture && <CommentTargetPreview controls={controls} nodes={visible} />}
+    {(tool === 'select' || tool === 'comment') && !space && !gesture && !editingId && <CanvasTargetPreview key={tool} controls={controls} nodes={visible} tool={tool} selectedIds={selectedIds} />}
     {editingNode && <CanvasTextEditor key={editingNode.id} node={editingNode} camera={camera}
       commit={(text) => { if (text !== editingNode.text) patch(editingNode.id, { text }); setEditingId(null); }}
       cancel={() => setEditingId(null)} />}
