@@ -671,3 +671,7 @@ explicit launcher compatibility path, not a claim that a main rollout occurred.
 ## Inspector action clarity (2026-11-16)
 
 The labeled Duplicate, To front and Delete actions were exercised in Chromium with synthetic artwork. Duplication increased 17 layers to 18; undo restored 17. To front moved the chosen rectangle to the end of drawing order, and undo restored the prior order. Deletion reduced 17 layers to 16; undo restored 17. The shared commands and document format are unchanged. Type checking and production build passed with the complete editor change.
+
+## File and workspace context (2026-11-16)
+
+File-menu Escape closed the menu and returned focus to its summary. Clicking outside closed it; focus leaving the menu also uses the same close path. Narrow menu layout, updated storage/backup Help copy and desktop workspace/page identity were inspected in Chromium. Existing save, export and agent-access actions were preserved. `pnpm run check`, `pnpm run build` and `pnpm run changeset:status` passed for the complete change.

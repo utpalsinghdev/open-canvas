@@ -76,7 +76,7 @@ button svg, summary svg { flex: none; }
 .export-menu-items button { display: block; width: 100%; padding: 10px 8px; text-align: left; border-radius: 3px; }
 .export-menu-items button:not(:disabled):hover { background: var(--active); }
 .file-menu { position: relative; }
-.file-menu summary { list-style: none; display: grid; place-items: center; padding: 8px; border-radius: 3px; }
+.file-menu summary { list-style: none; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 3px; }
 .file-menu summary::-webkit-details-marker { display: none; }
 .file-menu-items { position: absolute; top: 33px; left: 0; width: 190px; border: 1px solid var(--line); background: var(--control); padding: 4px; z-index: 30; border-radius: 5px; }
 .file-menu-items button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; text-align: left; border-radius: 3px; }
@@ -379,10 +379,15 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .layer-command-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
 .layer-command-grid button { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 8px; text-align: left; border: 1px solid var(--line); border-radius: 4px; }
 .layer-command-grid svg { flex: none; color: var(--muted); }
+.workspace-context { min-width: 0; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 900px) {
   .review-toggle.desktop-panel-control { display: none; }
   .mobile-panel-controls { min-height: 44px; }
   .mobile-panel-controls > button { min-height: 40px; }
+}
+@media (max-width: 560px) {
+  .file-menu summary span { display: none; }
+  .file-menu-items { left: auto; right: 0; }
 }
 .review-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; flex: none; }
 .review-heading h2 { font-size: 13px; font-weight: 500; margin: 0; }

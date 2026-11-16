@@ -85,3 +85,7 @@ The workspace chooser and Home/Projects footer use compact disclosures for the a
 ## Inspector and layer navigation
 
 Inspector arrangement actions use visible icon-and-text controls in two columns; an unselected inspector gives one concise next step. Layers scroll independently below Pages with 12 px names.
+
+## File and workspace context
+
+File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps its menu inside narrow viewports. The desktop footer identifies the selected workspace and page. Help distinguishes app-server saving, editable JSON backups and artwork exports.

@@ -38,6 +38,7 @@ import {
 import { currentFile } from '@open-cavas/document/workspace';
 import { createNode, newId } from '@open-cavas/document/model';
 import { usePageReview } from './review/drafts';
+import { useWorkspaceService } from './workspace/persistence';
 
 export function EditorApp({ onHome, onProjects, onImport }: {
   onHome: () => void;
@@ -72,6 +73,26 @@ export function EditorApp({ onHome, onProjects, onImport }: {
     (project) => project.id === location.projectId
   );
   const file = currentFile(workspace, location);
+  const workspaceName = useWorkspaceService((state) => state.record?.name);
+  const fileMenu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    function outside(event: PointerEvent) {
+      if (event.target instanceof Node && fileMenu.current && !fileMenu.current.contains(event.target)) fileMenu.current.open = false;
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key !== 'Escape' || !fileMenu.current?.open) return;
+      event.preventDefault();
+      event.stopPropagation();
+      fileMenu.current.open = false;
+      fileMenu.current.querySelector('summary')?.focus();
+    }
+    window.document.addEventListener('pointerdown', outside);
+    window.document.addEventListener('keydown', escape, true);
+    return () => {
+      window.document.removeEventListener('pointerdown', outside);
+      window.document.removeEventListener('keydown', escape, true);
+    };
+  }, []);
   const activePage = file.document.pages.find(
     (page) => page.id === location.pageId
   );
@@ -193,6 +214,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           <button
             className="project-switcher"
             aria-label="Open projects"
+            title={`Project: ${project?.name ?? ''}`}
             onClick={() => onProjects()}
           >
             <FolderOpen size={15} />
@@ -216,8 +238,11 @@ export function EditorApp({ onHome, onProjects, onImport }: {
               if (event.key === 'Enter') event.currentTarget.blur();
             }}
           />
-          <details className="file-menu">
+          <details ref={fileMenu} className="file-menu" onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+          }}>
             <summary aria-label="File menu">
+              <span>File</span>
               <ChevronDown size={14} />
             </summary>
             <div className="file-menu-items">
@@ -347,7 +372,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
             ? `${selectedIds.length} selected`
             : 'Local-first design editor'}
         </span>
-        <span>Open Cavas / Web preview</span>
+        <span className="workspace-context" title={`Workspace: ${workspaceName ?? ''} / Page: ${activePage?.name ?? ''}`}>Workspace: {workspaceName} / {activePage?.name}</span>
         <button onClick={save}>Download backup</button>
       </footer>
       <input
