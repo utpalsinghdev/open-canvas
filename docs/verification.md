@@ -8,6 +8,8 @@ Verified on Node.js 24.22.1 and pnpm 12.21.0 in the feature worktree:
 - The imported pnpm lockfile preserves direct dependency versions except for aligning `@types/node` with Node 24. A frozen install with Node 22.23.4 was rejected by strict engine validation.
 - `corepack pnpm run changeset:status` reported the migration's pending patch without applying a version change.
 - The isolated development launcher returned HTTP 200 through localmachine. `corepack pnpm --silent run mcp:config:dev` produced parseable JSON, and an official SDK stdio client completed `list_workspaces` against its isolated broker.
+- A clean disposable clone passed `corepack pnpm install --frozen-lockfile` with the explicit esbuild build policy. `corepack pnpm run release:main` prepared and built only that clone's archived snapshot. Vite, tsx, sharp, and canvas resolved inside the snapshot; native canvas and sharp produced PNG output.
+- `corepack pnpm run version:apply` succeeded only in the disposable clone, consumed the pending patch, and refreshed the pnpm lockfile. The real feature branch's app version was not bumped.
 
 Historical npm commands below describe checks actually run before this migration. They are not current setup instructions. No new test files or editor UI changes accompany the migration. No main service restart or global toolchain-default change was performed.
 
