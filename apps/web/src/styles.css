@@ -1,30 +1,38 @@
-/* Hallmark: Open Cavas, app scope, user-pinned black editor, original editable artwork. */
+/* Open Cavas: Navy/Cream/Coral light workbench; artwork retains document colors. */
 /* Critique: workbench layout prioritizes canvas area and direct manipulation over decorative chrome. */
 /* Waiver: full-viewport editor cannot use a capped marketing-page container. */
-/* Hallmark · waive 7b · surface: absolute; editor contrast verified · User requires true black editor chrome and white primary text. */
 @import "tailwindcss" source("./");
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-  --panel: #000000;
-  --control: #101010;
-  --hover: #1a1a1a;
-  --active: #242424;
-  --line: #252525;
-  --muted: #a0a0a0;
-  --subtle: #777777;
-  --accent: #a6c7ff;
-  --selection: #8cb7ff;
-  --agent-activity: #4c8ef7;
-  --selection-wash: #8cb7ff20;
-  --grid: #272727;
-  --warning: #ffc486;
-  --backdrop: #000000bb;
-  --text-edit-background: #00000020;
+  --navy: #14213d;
+  --cream: #f4ede0;
+  --coral: #ff6b5b;
+  --background: var(--cream);
+  --foreground: var(--navy);
+  --panel: var(--cream);
+  --control: var(--cream);
+  --hover: var(--navy);
+  --active: var(--navy);
+  --on-active: var(--cream);
+  --primary: var(--coral);
+  --on-primary: var(--navy);
+  --line: var(--navy);
+  --muted: var(--navy);
+  --subtle: var(--navy);
+  --accent: var(--navy);
+  --selection: var(--navy);
+  --agent-activity: var(--navy);
+  --selection-wash: color-mix(in srgb, var(--navy) 12%, transparent);
+  --grid: color-mix(in srgb, var(--navy) 24%, transparent);
+  --warning: var(--navy);
+  --danger: var(--navy);
+  --backdrop: color-mix(in srgb, var(--navy) 65%, transparent);
+  --text-edit-background: transparent;
+  --preview-background: var(--cream);
+  --menu-shadow: 0 12px 40px color-mix(in srgb, var(--navy) 24%, transparent);
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, monospace;
-  color-scheme: dark;
+  color-scheme: light;
   font-family: var(--font-ui);
   color: var(--foreground);
   background: var(--background);
@@ -39,17 +47,17 @@ body { background: var(--background); }
 button, input, textarea, select { font: inherit; }
 button, summary { cursor: pointer; }
 button { color: inherit; background: none; border: 0; }
-button:disabled { color: var(--subtle); background: var(--control); border-color: var(--line); cursor: not-allowed; }
+button:disabled { opacity: 0.45; color: var(--subtle); background: var(--control); border-color: var(--line); cursor: not-allowed; }
 fieldset:disabled { color: var(--subtle); }
 fieldset:disabled input, fieldset:disabled select, fieldset:disabled textarea { color: var(--subtle); background: var(--background); cursor: not-allowed; }
-button:not(:disabled):hover, summary:hover { background: var(--hover); }
-button:active:not(:disabled) { background: var(--active); }
+button:not(:disabled):hover, summary:hover { background: var(--hover); color: var(--on-active); }
+button:active:not(:disabled) { background: var(--active); color: var(--on-active); }
 button:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
-  outline: 2px solid var(--accent); outline-offset: 2px;
+  outline: 2px solid var(--accent); outline-offset: 2px; box-shadow: 0 0 0 2px var(--background);
 }
-::selection { color: var(--foreground); background: var(--active); }
+::selection { color: var(--on-active); background: var(--active); }
 input, textarea { caret-color: var(--accent); }
-* { scrollbar-width: thin; scrollbar-color: var(--line) var(--background); }
+* { scrollbar-width: thin; scrollbar-color: var(--foreground) var(--background); }
 input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input::placeholder, textarea::placeholder { color: var(--muted); }
@@ -67,8 +75,8 @@ button svg, summary svg { flex: none; }
 .header-actions { display: flex; gap: 24px; align-items: center; margin-left: auto; }
 .save-status { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; white-space: nowrap; }
 .save-failed { color: var(--warning); }
-.export-button { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--foreground); color: var(--background); border: 1px solid var(--foreground); border-radius: 4px; font-weight: 500; }
-.export-button:not(:disabled):hover { background: var(--muted); border-color: var(--muted); }
+.export-button { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--primary); color: var(--on-primary); border: 1px solid var(--on-primary); border-radius: 4px; font-weight: 500; }
+.export-button:not(:disabled):hover { background: var(--hover); color: var(--on-active); }
 .export-menu { position: relative; }
 .export-menu > summary { list-style: none; }
 .export-menu > summary::-webkit-details-marker { display: none; }
@@ -84,8 +92,8 @@ button svg, summary svg { flex: none; }
 .tool-strip { display: flex; align-items: center; justify-self: center; gap: 12px; }
 .tool-group { display: flex; align-items: center; gap: 4px; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 4px; flex: none; color: var(--muted); }
-.icon-button:not(:disabled):hover { color: var(--foreground); }
-.icon-button[aria-pressed="true"] { color: var(--foreground); background: var(--active); }
+.icon-button:not(:disabled):hover { color: var(--on-active); }
+.icon-button[aria-pressed="true"] { color: var(--on-active); background: var(--active); }
 .control-divider { width: 1px; height: 17px; background: var(--line); flex: none; }
 .app-shell { --layers-width: 224px; --properties-width: 248px; }
 .editor-workspace { display: grid; grid-template-columns: var(--layers-width) minmax(0, 1fr) var(--properties-width); flex: 1; min-height: 0; }
@@ -108,7 +116,7 @@ button svg, summary svg { flex: none; }
 .layer-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px; }
 .layer-row { display: flex; align-items: center; height: 34px; min-width: 0; border-radius: 3px; }
 .layer-row:hover { background: var(--control); }
-.layer-row.selected { background: var(--active); }
+.layer-row.selected { background: var(--selection-wash); }
 .layer-row.layer-hidden .layer-select { color: var(--subtle); }
 .layer-select { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; height: 100%; text-align: left; font-size: 12px; color: var(--muted); }
 .layer-select span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -150,7 +158,7 @@ button svg, summary svg { flex: none; }
   to { opacity: 1; }
 }
 .selection-outline { stroke: var(--selection); fill: none; }
-.resize-handle { fill: var(--foreground); stroke: var(--selection); }
+.resize-handle { fill: var(--background); stroke: var(--selection); }
 .design-canvas[data-cursor="select"] :is(.resize-handle.nw, .resize-handle.se) { cursor: url('./assets/cursors/resize-nwse.svg') 16 16, nwse-resize; }
 .design-canvas[data-cursor="select"] :is(.resize-handle.ne, .resize-handle.sw) { cursor: url('./assets/cursors/resize-nesw.svg') 16 16, nesw-resize; }
 .design-canvas[data-cursor="select"] :is(.resize-handle.n, .resize-handle.s) { cursor: url('./assets/cursors/resize-ns.svg') 16 16, ns-resize; }
@@ -249,7 +257,7 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
   .show-properties .inspector-panel { right: 0; }
   .mobile-panel-controls { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; flex: none; border-bottom: 1px solid var(--line); }
   .mobile-panel-controls > button { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); padding: 8px; border-radius: 3px; }
-  .mobile-panel-controls > button[aria-pressed="true"] { background: var(--active); color: var(--foreground); }
+  .mobile-panel-controls > button[aria-pressed="true"] { background: var(--active); color: var(--on-active); }
   .mobile-panel-controls > :last-child:not(:nth-child(2)) { margin-left: auto; }
   .canvas-caption { bottom: 22px; }
 }
@@ -290,7 +298,8 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .page-item.current { background: var(--active); }
 .page-select { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; height: 32px; padding: 0 8px; font-size: 11px; color: var(--muted); text-align: left; }
 .page-select span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.page-select[aria-pressed="true"] { color: var(--foreground); }
+.page-select[aria-pressed="true"], .page-item.current .icon-button { color: var(--on-active); }
+.page-item.current .icon-button:disabled { background: none; }
 .page-actions { display: flex; visibility: hidden; }
 .page-item:hover .page-actions, .page-item.current .page-actions, .page-item:focus-within .page-actions { visibility: visible; }
 .page-actions .icon-button { width: 22px; height: 26px; }
@@ -317,15 +326,15 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .project-list { border-right: 1px solid var(--line); overflow: auto; padding: 12px 8px; }
 .project-list > button { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; padding: 12px 8px; border-radius: 3px; color: var(--muted); text-align: left; }
 .project-list > button span:first-of-type { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.project-list > button[aria-pressed="true"] { background: var(--active); color: var(--foreground); }
+.project-list > button[aria-pressed="true"] { background: var(--active); color: var(--on-active); }
 .project-list .new-project-button { margin-bottom: 12px; color: var(--foreground); }
 .project-files { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 16px 20px; }
 .project-title { display: flex; align-items: center; gap: 4px; flex: none; }
 .project-title h3 { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; font-size: 16px; font-weight: 500; }
 .files-toolbar { display: flex; gap: 12px; margin: 20px 0 12px; flex: none; }
 .files-toolbar input { flex: 1; width: 0; background: var(--control); color: var(--foreground); padding: 8px; border: 1px solid var(--line); border-radius: 3px; }
-.files-toolbar button { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--foreground); color: var(--background); border-radius: 3px; }
-.files-toolbar button:hover { background: var(--muted); }
+.files-toolbar button { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--primary); color: var(--on-primary); border: 1px solid var(--on-primary); border-radius: 3px; }
+.files-toolbar button:not(:disabled):hover { background: var(--hover); color: var(--on-active); }
 .file-list { flex: 1; min-height: 0; overflow: auto; }
 .file-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .file-open { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; text-align: left; padding: 4px; }
@@ -337,6 +346,8 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .library-name-form label { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 100px; color: var(--muted); font-size: 11px; }
 .library-name-form input { background: var(--control); color: var(--foreground); border: 1px solid var(--line); padding: 8px; }
 .library-name-form > button, .library-removal button { padding: 8px 12px; background: var(--control); border: 1px solid var(--line); }
+.library-name-form > button[type="submit"]:not(:disabled) { background: var(--primary); color: var(--on-primary); }
+.library-name-form > button[type="submit"]:not(:disabled):hover { background: var(--hover); color: var(--on-active); }
 .library-removal { padding: 12px 0; font-size: 11px; flex: none; }
 .library-removal p { line-height: 1.6; color: var(--warning); margin: 0 0 12px; }
 .library-removal button { margin-right: 8px; }
@@ -363,7 +374,7 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .review-pin.selected, .review-pin.draft { border-color: var(--selection); color: var(--selection); }
 .review-pin.draft { pointer-events: none; }
 .review-panel { position: absolute; z-index: 4; top: 12px; right: 12px; bottom: 56px; width: min(320px, calc(100% - 24px)); display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--line); background: var(--panel); font-size: 12px; }
-.review-popover { position: absolute; z-index: 5; width: min(288px, calc(100% - 24px)); max-height: min(400px, calc(100% - 68px)); display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); box-shadow: 0 8px 24px #0009; font-size: 12px; overflow-y: auto; overscroll-behavior: contain; }
+.review-popover { position: absolute; z-index: 5; width: min(288px, calc(100% - 24px)); max-height: min(400px, calc(100% - 68px)); display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); box-shadow: var(--menu-shadow); font-size: 12px; overflow-y: auto; overscroll-behavior: contain; }
 .review-popover > .review-heading { border-bottom: 1px solid var(--line); }
 .review-popover .review-composer { gap: 8px; overflow: visible; flex: none; }
 .review-popover .review-composer label { overflow-wrap: anywhere; color: var(--muted); }
@@ -372,7 +383,7 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .review-popover .review-actions { justify-content: flex-end; }
 .review-popover .review-actions .export-button { order: 1; }
 .review-toggle { display: inline-flex; gap: 8px; align-items: center; padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 4px; }
-.review-toggle[aria-expanded="true"] { background: var(--active); color: var(--foreground); }
+.review-toggle[aria-expanded="true"] { background: var(--active); color: var(--on-active); }
 .layer-command-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
 .layer-command-grid button { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 8px; text-align: left; border: 1px solid var(--line); border-radius: 4px; }
 .layer-command-grid svg { flex: none; color: var(--muted); }
@@ -420,3 +431,12 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .workspace-storage code { white-space: normal; overflow-wrap: anywhere; }
 .workspace-storage p, .workspace-access .workspace-storage p { margin: 8px 0; }
 .home-library > footer .workspace-storage, .projects-dialog > footer .workspace-storage { max-height: min(180px, 25dvh); overflow-y: auto; }
+
+/* Keep explicit secondary ink readable when a control inverts on hover. */
+.workspace-list button:not(:disabled):hover :is(small, svg),
+.layer-command-grid button:not(:disabled):hover svg,
+.review-row:not(:disabled):hover span,
+.workspace-choice:not(:disabled):hover > span:last-child { color: var(--on-active); }
+.zoom-controls button:not(:disabled):hover,
+.mobile-panel-controls > button:not(:disabled):hover { color: var(--on-active); }
+.file-open:not(:disabled):hover :is(small, svg) { color: inherit; }

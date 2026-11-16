@@ -1,5 +1,19 @@
 # Verification record
 
+## Navy/Cream/Coral light theme
+
+Applied the supplied light palette to app chrome, including workspace setup, Home, editor panels, menus, dialogs, review controls, browser theme color and favicon. Artwork and the contrast-rim cursor assets retain their own colors.
+
+- `pnpm install --frozen-lockfile`, `pnpm run check` and `pnpm run build` passed with Node.js 24.22.1 and pnpm 12.21.0. The production build retained the existing Zod comment-annotation warnings.
+- Inspected workspace setup, Home, file-name creation, Projects, the editor and shape inspector, File/Export menus, Help, review list and comment composition at 1440 × 1000. Blank file names disabled Create. Posted a plain-text review comment through the themed composer.
+- At 390 × 844, inspected workspace setup, Home, canvas and mutually exclusive Layers/Properties overlays. Document width matched viewport width at 390, 1024, 1440 and 1920 px. This is responsive access verification, not a new mobile editing workflow.
+- Computed Navy/Cream contrast is 13.72:1 and Navy/Coral is 5.71:1. Primary-action hover used Navy fill and Cream ink. Keyboard focus showed a 2 px Navy outline, 2 px offset and Cream separation. Arrange icons and file metadata retained readable hover ink. The disabled current-page Delete action kept its native disabled state and visible Cream icon on Navy.
+- Edited rectangle width from 230 to 240. With focus outside text inputs, undo restored 230 and redo restored 240. Restored 230, reloaded and observed 230 again. Locking the layer disabled its property fieldset.
+- Downloaded a version-2 JSON file containing one page and 17 layers, a 1248 × 760 SVG retaining the introductory artwork fills, and a PDF 1.7 file. The lime, lavender, ink and purple artwork colors remained unchanged. This does not establish pixel-equivalent PDF rendering or native backup reimport.
+- Impeccable's detector returned no findings during theme verification. After-only screenshots document workspace setup, Home, desktop inspector and narrow Properties, as requested.
+
+This was single-agent Chromium verification. Firefox, Safari, forced save failures and exhaustive assistive-technology checks were not run. No document schema, history implementation, storage protocol, MCP contract or export renderer changed. No new tests, main release or service restart were added.
+
 ## Canvas drag rendering
 
 Verified with Node.js 24.22.1, pnpm 12.21.0, and headless Brave 151.1.93.136 on Fedora 44 using isolated synthetic artwork. The representative page contained 20 artboards and 800 rectangle swatches, with expanded Layers, a 1280 × 639 viewport, DPR 1, and 16% fit zoom.
