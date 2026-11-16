@@ -59,7 +59,7 @@ corepack pnpm run check
 corepack pnpm run build
 ```
 
-Exercise relevant browser and MCP journeys as well. For documentation-only changes, check the diff and links unless CI requires more. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
+The [workspace checks workflow](.github/workflows/check.yml) runs on pull requests and pushes to main. It installs the frozen lockfile with the pinned toolchain, then runs `corepack pnpm run check`, `corepack pnpm run build`, and `corepack pnpm run changeset:status`. These checks need no service credentials. CI does not replace relevant browser and MCP journeys. For documentation-only changes, check the diff and links locally; CI still runs the workspace checks. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
 
 For features or fixes that affect the shipped product, add a Changeset with `corepack pnpm run changeset`. Describe the user-visible result. A Changeset records a future version change; it does not authorize deployment. See [versioning](docs/versioning.md).
 
