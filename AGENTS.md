@@ -49,17 +49,25 @@
 - Write a concise, concrete commit subject describing the resulting change. Follow the repository's convention, using Conventional Commits when none is specified. Avoid vague subjects such as "update files" or "fix stuff".
 - Apply these rules whenever commits are authorized. They do not grant permission to commit, push, rewrite history, merge, or release, and they do not require extra commits when one coherent commit is sufficient.
 
-## Git
+## Git commit policy
 - Use Conventional Commits for commit titles: `type: description` or `type(scope): description`. Use a lowercase type such as `feat`, `fix`, `docs`, `refactor`, `test`, or `chore`, an imperative description, and no trailing period.
 - User authorizes atomic local commits during this implementation without further confirmation. Keep each commit coherent and verify staged files.
-- Do not add Co-authored-by, agent Signed-off-by, or other agent attribution. Do not change author identity.
+- Do not add Co-authored-by trailers, other co-author metadata, agent Signed-off-by, or other agent attribution. Do not change author identity.
 - Do not publish, push, force-push, rewrite published history, or open a PR without explicit authorization for that action.
 - Preserve unrelated user work. Never stop another project's services.
 
-## GitHub issues and pull requests
-- Follow [contribution guidance](CONTRIBUTING.md) and the repository PR/issue templates. Use the project [oss-pr-writing skill](.agents/skills/oss-pr-writing/SKILL.md) for public drafts; keep sections relevant to the change.
+## GitHub issues
+- Follow [contribution guidance](CONTRIBUTING.md) and the repository issue templates. Use the project [oss-pr-writing skill](.agents/skills/oss-pr-writing/SKILL.md) for public drafts.
 - Prefix issue titles with a bracketed type, such as `[Bug]` or `[Feature Request]`, followed by a specific description.
+
+## Pull request expectations
+- Use [the PR template](.github/pull_request_template.md) and follow [contribution guidance](CONTRIBUTING.md). Fill every applicable section and remove unused prompts. Keep the explanation proportional to the change.
 - Use Conventional Commits for PR titles with a required scope: `type(scope): description`. Use a lowercase type, a meaningful scope, and a concise imperative description without a trailing period.
+- The Summary must explain the concrete use case, the problem that prompted the change, and how the change addresses it. A restatement of the title is insufficient.
+- Describe what users will see from their perspective: where they find an action, what they do, and which behavior, default, or shortcut changes. State when a change is internal and has no editor UI effect.
+- Mark every applicable Affected areas item based on the actual change, including UI, document/schema, commands/history, MCP, saving/recovery, import/export, runtime/dependencies, and contributor tooling. Explain omitted UI or MCP paths when a capability affects both. These checkboxes describe scope, not passing verification.
+- For visible UI changes, follow the screenshot requirements above. Show the entry point as well as the result, with labeled Before/After images and affected viewport sizes.
+- For bug fixes, provide a minimal reproduction, expected versus actual behavior before the fix, and the observed result afterward. Link relevant existing checks when available. Do not claim a failing-before/passing-after result unless both were run, and do not add new test files without an explicit request.
 - Write PR descriptions in direct, specific, conversational English. Scale the structure to the change; use Summary, Linked issue, Reproduction, Verification, and Docs sections when useful. Explain the problem, the change, preserved behavior, and relevant limitations. Use `Closes #N` only when the PR resolves that issue.
 - Report exact relevant verification commands and observed outcomes. Never claim unrun or failed checks passed. Keep incidental local environment details and the complete validation ledger private; disclose limitations that affect confidence or required checks.
 - Do not invent experience, results, or measurements. Avoid em dashes, inflated praise, generic chatbot phrases, and unrequested tool attribution. Follow repository disclosure requirements honestly.
