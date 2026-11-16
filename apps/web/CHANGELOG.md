@@ -1,5 +1,15 @@
 # open-cavas
 
+## 0.7.0
+
+### Minor Changes
+
+- c0092fc: Separate the web editor and local service into workspace applications with shared document, engine, and MCP packages. Preserve existing documents, local saves, tool contracts, and runtime commands.
+
+### Patch Changes
+
+- 4a55bb2: Pin Node.js 24.22.1 and pnpm 12.21.0 for reproducible installs, builds, and release snapshots. Use the pnpm lockfile and updated setup commands.
+
 ## 0.6.1
 
 ### Patch Changes
