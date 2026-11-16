@@ -37,7 +37,6 @@ The app was opened through `http://localmachine:5178`, not loopback. A dedicated
 
 No independent review, full automated suite, touch-device run, or Safari/Firefox run. Rotated resizing uses local-axis geometry but only an unrotated pointer resize was exercised manually. Storage-quota failure is handled in code but was not forced during this session. No deployment, authentication, third-party editable design document compatibility, multiplayer, or cloud sync is claimed.
 
-
 ## MCP branch verification
 
 Implementation branch: `feat/mcp-server`, in its own T3 worktree, based on `de8046e`. The original main checkout was checked and remained clean. No external documents, global MCP configuration, SSH configuration, or existing main application service was changed.
@@ -213,7 +212,7 @@ Implementation branch `t3/mcp-typography-fidelity` in `/home/utpal/.t3/worktrees
 - An actual official MCP SDK stdio client connected to the isolated browser. `get_fonts` reported both bundled variable fonts available at Inter 100–900 and Bricolage 300–800. It created the editable typography and color/component artboards, then `get_node` read Bricolage Grotesque weight 620 and measured layout. A deliberately narrow fixed text layer reported overflow. Full JSON, SVG, and artboard PNG output came through MCP.
 - Reloaded the browser and read back all 46 layers in the persisted version-2 file; persistence reported `saved`. SVG export is 840×620, contains embedded bundled font data, has text overflow attributes, and passes `xmllint --noout`. JSON export parses as a one-page version-2 document.
 - Real browser inspection showed the font availability state, Bricolage weight bounds (300–800), line-height/tracking inputs, auto-height mode, and disabled height control. Reloaded screenshot and artboard captures are in `.audit/typography-editor-reloaded.png`, `.audit/typography-inspector.png`, `.audit/typography-specimen.png`, and `.audit/color-components.png`. Locally generated SVG/JSON export evidence is in `.audit/typography-specimen.svg` and `.audit/typography-file-export.json`.
-- System fonts are intentionally marked `system`: browser APIs cannot prove whether a local system family resolved without substitution. The actual Arial/Georgia/Courier New substitution path, a failed bundled-font fetch, Safari/Firefox were not verified.
+- System fonts are intentionally marked `system`: browser APIs cannot prove whether a local system family resolved without substitution. The actual Arial/Georgia/Courier New substitution path, a failed bundled-font fetch, and Safari/Firefox were not verified.
 
 ### Parent review corrections
 

@@ -31,7 +31,7 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 
 ## Not implemented
 
-third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless PDF rendering, hosted HTTP MCP are unsupported. Rich-text runs, font uploads/per-document font source registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
+Third-party editable design document compatibility, auto layout, arbitrary vector paths, responsive web-layout semantics, dynamic theme tokens, multiplayer conflict merging, headless PDF rendering, and hosted HTTP MCP are unsupported. Rich-text runs, font uploads/per-document font source registration, and embedding of third-party or system fonts are unsupported. The font registry is application-defined, not serialized per document.
 
 No placeholder tools claim those capabilities. `get_tree` reports the active-page layer tree and the actual file page index. Adding a transport does not create editor features that the document model cannot represent.
 

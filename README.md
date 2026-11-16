@@ -93,7 +93,7 @@ File/project/workspace JSON backups and append-only imports remain available thr
 ## Project docs
 
 - [Product scope](PRODUCT.md)
-- [Engineering rules](AGENTS.md) and [agent.md alias](agent.md)
+- [Engineering rules](AGENTS.md) and [CLAUDE.md alias](CLAUDE.md)
 - [Runtime profiles and main releases](docs/runtime.md)
 - [Architecture and state flow](docs/architecture.md)
 - [Projects, files, and persistence](docs/workspace.md)

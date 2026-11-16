@@ -12,7 +12,7 @@ React, TypeScript, Vite, Tailwind, npm. Delegated implementation choice follows 
 
 ## Purpose
 
-A local-first, visual editor. Create artboards and compose text, shapes, and images, then save an editable file or export SVG/PDF. No account or cloud service is required.
+A local-first visual editor. Create artboards and compose text, shapes, and images, then save an editable file or export SVG/PDF. No account or cloud service is required.
 
 ## Users
 

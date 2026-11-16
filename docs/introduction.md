@@ -21,6 +21,4 @@ The seed lives in `src/editor/seed.ts`. It replaces the old synthetic poster stu
 
 After creation, the file uses ordinary local service persistence and JSON backups. Deleting or editing its layers is permanent after saving unless undone within the current file session. Reloading does not recreate the seed or restore deleted introduction layers. There is no dismissal preference, separate onboarding screen, or Help introduction section.
 
-## Reference
-
 Copy and artwork are original and describe supported Open Cavas behavior.
