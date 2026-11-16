@@ -1,5 +1,14 @@
 # Verification record
 
+## Compact desktop controls
+
+The follow-up uses an accessible Collapse all icon, removes toolbar undo/redo buttons while preserving shortcuts, and reduces the new-comment composer to a text area with Cancel/Save. Verified at 1440 × 1000 in the isolated development browser:
+
+- Collapse all folded the layer list from 17 rows to two artboard rows and disabled the icon. Its accessible name and tooltip remained Collapse all. Individual artboards reopened normally.
+- No undo/redo buttons remained. After changing rectangle width from 230 to 240, Ctrl+Z restored 230 and Ctrl+Shift+Z restored 240. Restored 230 afterward.
+- With the same draft text, the 288 px-wide comment box measured 134 px high rather than the previous 233 px. Textarea focus remained visible, target context remained in its accessible description, and an empty draft disabled Save.
+- Escape hid the draft; reopening Review retained its text. Cancel discarded it. Ctrl+Enter saved a nonempty comment and opened the existing conversation view.
+
 ## Desktop workbench recomposition
 
 The second desktop pass replaced the stacked command bars with one header and a vertical drawing-tool rail, introduced native active-page previews in Home, regrouped inspector fields, and split workspace setup into opening and creation columns. Verified in the same isolated feature worktree:

@@ -31,7 +31,7 @@ A dotted world grid provides position context without repainting animation. Artb
 
 ## Review threads
 
-Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height black box beside the target, clamped within the canvas as the camera changes. Save comment commits feedback; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
+Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height black box beside the target, clamped within the canvas as the camera changes. New-comment composition uses a single borderless text area with Cancel and a blue Save action, without a visible title or target-label row. The target remains in the accessible description. Save commits nonempty feedback; Cancel discards the draft; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
 
 ## Review
 
@@ -84,7 +84,7 @@ The workspace chooser and Home/Projects footer use compact disclosures for the a
 
 ## Inspector and layer navigation
 
-Inspector fields are grouped into Position, Dimensions, Typography for text, Appearance, and Arrange. Desktop field labels sit above their values so long property names do not squeeze numeric input. Arrangement actions use visible icon-and-text controls in two columns. With no selection, the inspector shows the current page's artboard/layer counts and a concise selection prompt. Layers scroll independently below Pages with 12 px names; their footer shows the Shift-click multi-select shortcut.
+Inspector fields are grouped into Position, Dimensions, Typography for text, Appearance, and Arrange. Desktop field labels sit above their values so long property names do not squeeze numeric input. Arrangement actions use visible icon-and-text controls in two columns. With no selection, the inspector shows the current page's artboard/layer counts and a concise selection prompt. Layers scroll independently below Pages with 12 px names; their footer shows the Shift-click multi-select shortcut. Collapse all is an inward-chevron icon with an accessible name and tooltip; it disables when all artboards are folded.
 
 ## File and workspace context
 
@@ -92,7 +92,7 @@ File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps
 
 ## Desktop density and action hierarchy
 
-Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a white active state and a separate undo/redo group. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use the existing blue selection wash and ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
+Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a white active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use the existing blue selection wash and ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
 
 Home has a 240 px project rail and an adaptive grid of native page previews, file names, metadata, and explicit actions. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Previews are read-only and mounted only near the visible library area; they are neither saved snapshots nor exports. Project dialogs keep compact rows. Artwork in the editor remains uncapped.
 

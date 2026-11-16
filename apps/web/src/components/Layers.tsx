@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
+import { ChevronDown, ChevronRight, ChevronsDownUp, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
 import type { DesignNode } from '@open-cavas/document/model';
 import { useEditor } from '../editor/store';
 import { Pages } from './Pages';
@@ -30,12 +30,11 @@ export function Layers() {
     <Pages />
     <div className="panel-heading">
       <span>Layers <span className="muted tabular-nums">{document.nodes.length}</span></span>
-      <button
-        type="button"
-        className="collapse-all-button"
+      <IconButton
+        label="Collapse all"
         disabled={!artboards.some((node) => !collapsed.has(node.id))}
         onClick={() => setCollapsed((previous) => new Set([...previous, ...artboards.map((node) => node.id)]))}
-      >Collapse all</button>
+      ><ChevronsDownUp size={16} /></IconButton>
     </div>
     <div className="layer-list">{roots.map((node) => <div key={node.id}>
       {row(node)}

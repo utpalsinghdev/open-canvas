@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { CameraControls } from '../editor/useCamera';
 
-export function ReviewSurface({ controls, point, compact, onClose, children }: {
+export function ReviewSurface({ controls, point, compact, composing, onClose, children }: {
   controls: CameraControls;
   point: { x: number; y: number } | null;
   compact: boolean;
+  composing: boolean;
   onClose: () => void;
   children: ReactNode;
 }) {
@@ -43,8 +44,8 @@ export function ReviewSurface({ controls, point, compact, onClose, children }: {
     };
   }, []);
 
-  return <aside ref={ref} className={compact ? 'review-popover' : 'review-panel'}
-    style={compact ? position : undefined} aria-label={compact ? 'Comment' : 'Review threads'}
+  return <aside ref={ref} className={`${compact ? 'review-popover' : 'review-panel'}${composing ? ' review-draft' : ''}`}
+    style={compact ? position : undefined} aria-label={composing ? 'New comment' : compact ? 'Comment' : 'Review threads'}
     onKeyDown={(event) => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onClose(); }
       if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && event.target instanceof HTMLTextAreaElement) {

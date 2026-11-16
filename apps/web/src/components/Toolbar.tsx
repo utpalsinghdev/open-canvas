@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { Circle, Frame, Hand, ImagePlus, MousePointer2, RectangleHorizontal, Type, Undo2, Redo2, MessageSquarePlus } from 'lucide-react';
+import { Circle, Frame, Hand, ImagePlus, MousePointer2, RectangleHorizontal, Type, MessageSquarePlus } from 'lucide-react';
 import type { Tool } from '@open-cavas/document/model';
 import { useEditor } from '../editor/store';
 import { IconButton } from './Button';
@@ -22,7 +22,7 @@ const subscribeLayout = (listener: () => void) => {
 const isDesktop = () => desktop.matches;
 
 export function Toolbar({ onImage, onComment }: { onImage: () => void; onComment: () => void }) {
-  const { tool, setTool, undo, redo, past, future, location, notify } = useEditor();
+  const { tool, setTool, location, notify } = useEditor();
   const { update } = usePageReview(location);
   const vertical = useSyncExternalStore(subscribeLayout, isDesktop);
   return <div className="tool-strip" role="toolbar" aria-label="Drawing tools" aria-orientation={vertical ? 'vertical' : 'horizontal'}>
@@ -35,11 +35,6 @@ export function Toolbar({ onImage, onComment }: { onImage: () => void; onComment
         update({ threadId: null, anchor: null });
         setTool('comment');
       }}><MessageSquarePlus size={18} strokeWidth={1.6} /></IconButton>
-    </div>
-    <span className="control-divider" />
-    <div className="tool-group">
-      <IconButton label="Undo (Ctrl/Cmd+Z)" onClick={undo} disabled={!past.length}><Undo2 size={17} /></IconButton>
-      <IconButton label="Redo (Ctrl/Cmd+Shift+Z)" onClick={redo} disabled={!future.length}><Redo2 size={17} /></IconButton>
     </div>
   </div>;
 }

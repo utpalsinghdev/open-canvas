@@ -73,7 +73,7 @@ Run `pnpm run check` and `pnpm run build` at the root. See [repository layout an
 - **History:** undo and redo belong to each file, including all its pages. Switching files preserves separate histories during this session. A completed drag is one history entry. Camera and page navigation are not undo steps.
 - **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. The header's Export dropdown contains SVG and PDF with explicit scope labels. SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page. PDF · Selected artboards puts selected artboards into one PDF in document order, one artboard per page. With no artboards selected, PDF · Current page explicitly exports the active page as one page. See [PDF export](docs/pdf-export.md) for dimensions and limits.
 
-Click the help button for the complete shortcut list. On desktop, drawing tools sit in a vertical rail beside the canvas. Use the sidebar icons in the header to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
+Click the help button for the complete shortcut list. Undo/redo stay available through keyboard shortcuts; their toolbar buttons are hidden. On desktop, drawing tools sit in a vertical rail beside the canvas. Use the sidebar icons in the header to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
 
 ## Projects, files, and pages
 
@@ -85,7 +85,7 @@ The first upgrade migrates the old single canvas into a **Personal** project, on
 
 ## Review feedback
 
-Choose **Add comment** beside the drawing tools, click a layer or canvas position, then write in the compact anchored box and choose **Save comment**. Open **Review** to browse page-aware threads. Read and reply to threads, navigate to their targets across pages, and resolve or reopen them. Posted feedback stays in the selected local service workspace and complete JSON backups. MCP can list/read threads and change their status with explicit page context and revision checks. See [review threads](docs/review-threads.md) for controls, draft behavior, limits, and missing-anchor rules.
+Choose **Add comment** beside the drawing tools, click a layer or canvas position, then write in the compact anchored box and choose **Save**. Open **Review** to browse page-aware threads. Read and reply to threads, navigate to their targets across pages, and resolve or reopen them. Posted feedback stays in the selected local service workspace and complete JSON backups. MCP can list/read threads and change their status with explicit page context and revision checks. See [review threads](docs/review-threads.md) for controls, draft behavior, limits, and missing-anchor rules.
 
 ## Keep your work
 
