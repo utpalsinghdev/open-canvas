@@ -7,6 +7,7 @@ import {
 import {
   AlertTriangle,
   ChevronDown,
+  Download,
   FolderOpen,
   House,
   Frame,
@@ -26,7 +27,7 @@ import { Toolbar } from './components/Toolbar';
 import { AgentConnection } from './components/AgentConnection';
 import { Help } from './components/Help';
 import { ExportMenu } from './components/ExportMenu';
-import { IconButton } from './components/Button';
+import { IconButton, TooltipIconButton } from './components/Button';
 import { useEditor } from './editor/store';
 import { useCamera } from './editor/useCamera';
 import { useShortcuts } from './editor/useShortcuts';
@@ -364,7 +365,9 @@ export function EditorApp({ onHome, onProjects, onImport }: {
             : 'Local-first design editor'}
         </span>
         <span className="workspace-context" title={`Workspace: ${workspaceName ?? ''} / Page: ${activePage?.name ?? ''}`}>Workspace: {workspaceName} / {activePage?.name}</span>
-        <button onClick={save}>Download backup</button>
+        <TooltipIconButton className="icon-button footer-backup" label="Download editable backup (JSON)" onClick={save}>
+          <Download size={15} />
+        </TooltipIconButton>
       </footer>
       <input
         ref={imageInput}

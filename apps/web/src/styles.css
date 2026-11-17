@@ -452,3 +452,8 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 /* Invalid fields retain an explicit error message as well as a colored edge. */
 input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--danger); }
 .font-status[role="alert"] { color: var(--danger); }
+
+.tooltip-anchor { position: relative; display: inline-flex; flex: none; align-items: center; }
+.control-tooltip { position: absolute; z-index: 60; right: 0; bottom: 100%; width: max-content; max-width: min(260px, calc(100vw - 32px)); padding: 8px; border: 1px solid var(--control-edge); border-radius: 4px; color: var(--foreground); background: var(--panel); font-size: 11px; line-height: 1.4; white-space: normal; }
+.status-bar > .tooltip-anchor { align-self: stretch; }
+.status-bar .footer-backup { width: 40px; height: 100%; min-height: 24px; padding: 0; }

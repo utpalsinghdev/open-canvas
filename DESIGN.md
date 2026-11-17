@@ -107,3 +107,7 @@ Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 
 Home has a 240 px project rail and an adaptive grid of native page previews, file names, metadata, and explicit actions. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Previews are read-only and mounted only near the visible library area; they are neither saved snapshots nor exports. Project dialogs keep compact rows. Artwork in the editor remains uncapped.
 
 No animation, font dependency, document capability, or alternate mobile shell is added. Below 901 px, tools return to a horizontal strip and panels remain overlays. Workspace setup keeps a stacked fallback and recovery disclosure.
+
+## Footer backup affordance
+
+The footer's right-hand download icon uses a 40 px wide target within the existing footer height. Its accessible name and custom hover/focus tooltip are Download editable backup (JSON). Escape dismisses the tooltip without clearing artwork selection. It invokes the same complete editable-file JSON download as File menu backup and the save shortcut; it is not SVG/PDF Export or a successful-save indicator. The tooltip stays above the footer and inside narrow viewports.
