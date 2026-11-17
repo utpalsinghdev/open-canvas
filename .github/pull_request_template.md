@@ -47,14 +47,16 @@
 
 ## Screenshots
 
-<!-- Required for visible UI changes. Use the repository screenshot skill at
+<!-- Required when a visible UI change can be meaningfully shown in still images.
+     Motion-only changes do not require screenshots that cannot show the change.
+     Use the repository screenshot skill at
      .agents/skills/attach-screenshot-to-pr/SKILL.md with your own credentials
      as described in docs/contributor-skills.md. Include the entry point and
      labeled Before/After images with descriptive alt text. Compare the same
      content, state, and viewport; include narrow views where affected. Keep
      evidence images outside Git and inspect for sensitive data. Verify the
      published image URLs. Report missing evidence or upload blockers.
-     Remove this section or mark it not applicable for nonvisual changes. -->
+     Remove this section or mark it not applicable when screenshots do not apply. -->
 
 ## Verification
 
