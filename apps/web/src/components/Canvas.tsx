@@ -25,6 +25,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
   const { document, selectedIds, tool, select, setTool, edit, patch } = useEditor();
   const [gesture, setGesture] = useState<Gesture | null>(null);
   const [space, setSpace] = useState(false);
+  const [pointerFocus, setPointerFocus] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const placing = tool === 'comment';
   const setPlacing = (placing: boolean) => setTool(placing ? 'comment' : 'select');
@@ -64,6 +65,8 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
   function down(event: PointerEvent<SVGSVGElement>) {
     if (event.button !== 0 && event.button !== 1) return;
     if (editingId) return;
+    // Scripted focus can inherit :focus-visible from a text field after a click.
+    setPointerFocus(true);
     // preventDefault keeps form focus unless the canvas explicitly takes it.
     event.currentTarget.focus({ preventScroll: true });
     event.preventDefault();
@@ -188,7 +191,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
 
   return <div ref={bindViewport} className="canvas-viewport">
     <AgentActivity camera={camera} />
-    <svg className="design-canvas" data-cursor={cursor} aria-label="Design canvas" tabIndex={-1} onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
+    <svg className="design-canvas" data-cursor={cursor} data-pointer-focus={pointerFocus || undefined} aria-label="Design canvas" tabIndex={0} onKeyDown={() => setPointerFocus(false)} onBlur={() => setPointerFocus(false)} onPointerDown={down} onPointerMove={move} onPointerUp={finish} onPointerCancel={() => setGesture(null)} onContextMenu={(event) => event.preventDefault()} onDoubleClick={(event) => {
       // Pointer capture retargets dblclick to the SVG; hit-test the artwork instead.
       const target = event.currentTarget.ownerDocument.elementFromPoint(event.clientX, event.clientY)?.closest('[data-node-id]');
       const node = nodes.find((item) => item.id === target?.getAttribute('data-node-id'));
