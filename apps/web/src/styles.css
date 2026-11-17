@@ -457,3 +457,6 @@ input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--
 .control-tooltip { position: absolute; z-index: 60; right: 0; bottom: 100%; width: max-content; max-width: min(260px, calc(100vw - 32px)); padding: 8px; border: 1px solid var(--control-edge); border-radius: 4px; color: var(--foreground); background: var(--panel); font-size: 11px; line-height: 1.4; white-space: normal; }
 .status-bar > .tooltip-anchor { align-self: stretch; }
 .status-bar .footer-backup { width: 40px; height: 100%; min-height: 24px; padding: 0; }
+.status-bar { gap: 12px; }
+.selection-context { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.workspace-context { flex: 1; text-align: center; }

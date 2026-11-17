@@ -803,3 +803,7 @@ The integration of keyboard-only canvas focus, Select hover/marquee previews, MC
 ## Footer editable backup icon
 
 For #76, the footer icon retained the complete-file JSON callback. Local Brave measured a 40 by 29 px target in the 30 px desktop footer. Hover and focus exposed Download editable backup (JSON); Escape dismissed the custom tooltip. The footer download and File menu download were byte-identical version-2 backups with the introductory file's 17 layers. At 390 px, the icon remained available and the tooltip stayed inside the viewport. Check and production build passed with the pinned toolchain. No document, MCP, history, storage or artwork-export contract changed.
+
+## Footer editing context
+
+For #77, local Brave showed No selection · 2 artboards · 17 layers, Rectangle · Try it yourself, and 2 selected from the same active file. Duplicating a rectangle updated idle count to 18; undo returned 17. Removing its parent updated single-selection context to its own name; undo restored the parent. At 390 px the separate workspace item remained hidden, long selection context truncated with its title retained, and backup did not overlap or produce horizontal overflow. Switching to a new empty page showed 0 artboards and 0 layers; returning restored 2 and 17. The footer backup on the empty page included both pages. Check and build passed.

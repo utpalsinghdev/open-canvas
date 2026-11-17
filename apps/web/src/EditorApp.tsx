@@ -7,7 +7,6 @@ import {
 import {
   AlertTriangle,
   ChevronDown,
-  Download,
   FolderOpen,
   House,
   Frame,
@@ -27,7 +26,8 @@ import { Toolbar } from './components/Toolbar';
 import { AgentConnection } from './components/AgentConnection';
 import { Help } from './components/Help';
 import { ExportMenu } from './components/ExportMenu';
-import { IconButton, TooltipIconButton } from './components/Button';
+import { IconButton } from './components/Button';
+import { EditorFooter } from './components/EditorFooter';
 import { useEditor } from './editor/store';
 import { useCamera } from './editor/useCamera';
 import { useShortcuts } from './editor/useShortcuts';
@@ -39,7 +39,6 @@ import {
 import { currentFile } from '@open-cavas/document/workspace';
 import { createNode, newId } from '@open-cavas/document/model';
 import { usePageReview } from './review/drafts';
-import { useWorkspaceService } from './workspace/persistence';
 
 export function EditorApp({ onHome, onProjects, onImport }: {
   onHome: () => void;
@@ -50,7 +49,6 @@ export function EditorApp({ onHome, onProjects, onImport }: {
     document,
     workspace,
     location,
-    selectedIds,
     saveState,
     notify,
     edit,
@@ -73,8 +71,6 @@ export function EditorApp({ onHome, onProjects, onImport }: {
   const project = workspace.projects.find(
     (project) => project.id === location.projectId
   );
-  const file = currentFile(workspace, location);
-  const workspaceName = useWorkspaceService((state) => state.record?.name);
   const fileMenu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     function outside(event: PointerEvent) {
@@ -94,9 +90,6 @@ export function EditorApp({ onHome, onProjects, onImport }: {
       window.document.removeEventListener('keydown', escape, true);
     };
   }, []);
-  const activePage = file.document.pages.find(
-    (page) => page.id === location.pageId
-  );
   useEffect(() => {
     const frame = requestAnimationFrame(controls.fit);
     return () => cancelAnimationFrame(frame);
@@ -358,17 +351,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
         />
         <Inspector />
       </main>
-      <footer className="status-bar">
-        <span>
-          {selectedIds.length
-            ? `${selectedIds.length} selected`
-            : 'Local-first design editor'}
-        </span>
-        <span className="workspace-context" title={`Workspace: ${workspaceName ?? ''} / Page: ${activePage?.name ?? ''}`}>Workspace: {workspaceName} / {activePage?.name}</span>
-        <TooltipIconButton className="icon-button footer-backup" label="Download editable backup (JSON)" onClick={save}>
-          <Download size={15} />
-        </TooltipIconButton>
-      </footer>
+      <EditorFooter onSave={save} />
       <input
         ref={imageInput}
         className="hidden"

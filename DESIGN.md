@@ -111,3 +111,7 @@ No animation, font dependency, document capability, or alternate mobile shell is
 ## Footer backup affordance
 
 The footer's right-hand download icon uses a 40 px wide target within the existing footer height. Its accessible name and custom hover/focus tooltip are Download editable backup (JSON). Escape dismisses the tooltip without clearing artwork selection. It invokes the same complete editable-file JSON download as File menu backup and the save shortcut; it is not SVG/PDF Export or a successful-save indicator. The tooltip stays above the footer and inside narrow viewports.
+
+## Footer editing context
+
+The left footer shows No selection with current-page artboard and layer counts, a single selection's type and containing artboard, or the existing multiple-selection count. Unparented layers use their own names; unnamed roots use No artboard. Counts include hidden/locked content and update from the active page. Long context truncates with a full-text title instead of overlapping backup. Workspace/page context remains a separate centered item and keeps its existing hidden state at widths of 560 px or less. Context implies neither cloud sync nor successful saving.
