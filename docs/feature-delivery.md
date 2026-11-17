@@ -41,7 +41,7 @@ Keep a brief acceptance record in the PR. Give each criterion its observed resul
 
 ## Attach visual evidence for UI changes
 
-For visible UI changes, include labeled Before and After images in the PR description. Capture the affected workflow at comparable viewport sizes, with the same synthetic content and interaction state where possible. Include desktop and narrow views when the change affects both. Capture the baseline before editing, or use an isolated base revision. Identify a different baseline if the states cannot match.
+When a visible UI change can be meaningfully shown in still images, include labeled Before and After images in the PR description. Motion-only changes do not require screenshots that cannot show the change. Capture the affected workflow at comparable viewport sizes, with the same synthetic content and interaction state where possible. Include desktop and narrow views when the change affects both. Capture the baseline before editing, or use an isolated base revision. Identify a different baseline if the states cannot match.
 
 Use the repository's [attach-screenshot-to-pr skill](../.agents/skills/attach-screenshot-to-pr/SKILL.md), shared by Pi, Codex, and Claude Code. Follow [contributor setup](contributor-skills.md) to configure your own upload credentials. Read the skill before capturing or uploading. Inspect every image for correctness and sensitive data. Keep screenshots in a task-specific temporary directory outside the checkout and follow the skill's approved upload process. Never commit PR evidence images to obtain public image URLs.
 
