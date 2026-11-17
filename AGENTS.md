@@ -23,7 +23,7 @@
 - Follow relevant JStack workflows, but match ceremony to task size. Do not delegate ordinary one-pass work.
 
 ## Design
-- Dark mode with true black (#000) application background and white primary text.
+- Dark theme with true black (#000) application base, white primary text, and distinct dark canvas, panel and control surfaces. Keep artwork colors independent.
 - Dense editor layout, minimal copy, no decorative cards or pills, no gray subtitle lines above sections, no em dashes.
 - No continuously repainting animations, shimmer, pulse, or spinners.
 - Provide visible keyboard focus, labeled controls, useful empty/error states, and responsive access to editor panels.

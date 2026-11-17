@@ -36,7 +36,7 @@ Stable main frontend/MCP use fixed ports 5182/4781; feature work uses separate w
 
 ## Brand commitments
 
-User-specified name: Open Cavas. Black editor background, white text, dense layout, minimal decoration, no perpetual animation.
+User-specified name: Open Cavas. True-black application base, white text, distinct dark drawing stage and functional surfaces, blue focus/selection, and white primary actions with black labels. Dense layout, minimal decoration, no perpetual animation. Artwork colors remain document data.
 
 ## Evidence
 

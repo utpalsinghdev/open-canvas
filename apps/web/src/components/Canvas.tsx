@@ -6,6 +6,7 @@ import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
 import { CanvasArtwork } from './CanvasArtwork';
+import { CanvasOutline } from './CanvasOutline';
 import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
@@ -211,18 +212,18 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       <g transform={`translate(${camera.x} ${camera.y}) scale(${camera.zoom})`}>
         <CanvasArtwork nodes={visible} zoom={camera.zoom} revealing={revealing} />
         {preview && <NodeView node={preview} />}
-        {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <rect {...bounds} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
+        {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <CanvasOutline zoom={camera.zoom} {...bounds} className="selection-outline text-frame-outline" strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
         {!placing && selected.map((node) => {
           const bounds = node.kind === 'text' ? textNodeBounds(node) : node;
           const handles = node.kind !== 'text' || node.sizing === 'fixed' ? ['nw', 'ne', 'sw', 'se']
             : node.sizing === 'auto-height' ? ['w', 'e'] : ['n', 's'];
           return <g key={node.id} className={marquee ? 'marquee-target-preview' : undefined} transform={`rotate(${node.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`}>
-            <rect x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height} className="selection-outline" strokeWidth={1 / camera.zoom} strokeDasharray={node.kind === 'text' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} pointerEvents="none" />
-            {node.kind === 'text' && <rect {...textContentBounds(node)} className="selection-outline" strokeWidth={1 / camera.zoom} pointerEvents="none" />}
-            {!marquee && selected.length === 1 && !isLocked(node, nodes) && handles.map((corner) => <rect key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : corner.includes('w') ? 0 : bounds.width / 2) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : corner.includes('n') ? 0 : bounds.height / 2) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} strokeWidth={1 / camera.zoom} />)}
+            <CanvasOutline zoom={camera.zoom} x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height} className="selection-outline" strokeDasharray={node.kind === 'text' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} pointerEvents="none" />
+            {node.kind === 'text' && <CanvasOutline zoom={camera.zoom} {...textContentBounds(node)} className="selection-outline" pointerEvents="none" />}
+            {!marquee && selected.length === 1 && !isLocked(node, nodes) && handles.map((corner) => <CanvasOutline zoom={camera.zoom} key={corner} data-handle={corner} className={`resize-handle ${corner}`} x={bounds.x + (corner.includes('e') ? bounds.width : corner.includes('w') ? 0 : bounds.width / 2) - 4 / camera.zoom} y={bounds.y + (corner.includes('s') ? bounds.height : corner.includes('n') ? 0 : bounds.height / 2) - 4 / camera.zoom} width={8 / camera.zoom} height={8 / camera.zoom} />)}
           </g>;
         })}
-        {marquee && <rect className="marquee" {...marquee.box} strokeWidth={1 / camera.zoom} />}
+        {marquee && <CanvasOutline zoom={camera.zoom} className="marquee" {...marquee.box} />}
       </g>
     </svg>
     {(tool === 'select' || tool === 'comment') && !space && !gesture && !editingId && <CanvasTargetPreview key={tool} controls={controls} nodes={visible} tool={tool} selectedIds={selectedIds} />}

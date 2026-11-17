@@ -1,17 +1,32 @@
 import { memo, useState } from 'react';
-import { ChevronDown, ChevronRight, ChevronsDownUp, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
 import type { DesignNode } from '@open-cavas/document/model';
 import { useEditor } from '../editor/store';
 import { Pages } from './Pages';
-import { IconButton } from './Button';
+import { IconButton, TooltipIconButton } from './Button';
 
 const icons = { artboard: Frame, rectangle: RectangleHorizontal, ellipse: Circle, text: Type, image: Image };
 export const Layers = memo(function Layers() {
   const { document, selectedIds, select, patch } = useEditor();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [deferredActions, setDeferredActions] = useState<string | null>(null);
+  function inActionSpace(element: HTMLElement, x: number) {
+    const actions = element.querySelector<HTMLElement>('.layer-actions');
+    return actions !== null && x >= element.getBoundingClientRect().right - actions.scrollWidth;
+  }
   function row(node: DesignNode, child = false) {
     const Icon = icons[node.kind];
-    return <div className={`layer-row ${selectedIds.includes(node.id) ? 'selected' : ''} ${node.hidden ? 'layer-hidden' : ''}`} key={node.id}>
+    return <div className={`layer-row ${selectedIds.includes(node.id) ? 'selected' : ''} ${node.hidden ? 'layer-hidden' : ''} ${node.locked ? 'layer-locked' : ''} ${deferredActions === node.id ? 'defer-actions' : ''}`} key={node.id}
+      onPointerEnter={(event) => {
+        // Do not replace a selection target with Hide/Lock beneath an entering pointer.
+        if (selectedIds.includes(node.id) || node.hidden || node.locked || event.currentTarget.matches(':focus-within')) return;
+        if (inActionSpace(event.currentTarget, event.clientX)) setDeferredActions(node.id);
+      }} onPointerMove={(event) => {
+        if (deferredActions === node.id && !inActionSpace(event.currentTarget, event.clientX)) setDeferredActions(null);
+      }} onPointerLeave={() => { if (deferredActions === node.id) setDeferredActions(null); }}
+      onFocusCapture={(event) => {
+        if (deferredActions === node.id && event.target instanceof HTMLElement && event.target.matches(':focus-visible')) setDeferredActions(null);
+      }}>
       {node.kind === 'artboard' ? <button className="collapse-button" aria-label={`${collapsed.has(node.id) ? 'Expand' : 'Collapse'} ${node.name}`} aria-expanded={!collapsed.has(node.id)} onClick={() => setCollapsed((previous) => {
         const next = new Set(previous); if (next.has(node.id)) next.delete(node.id); else next.add(node.id); return next;
       })}>{collapsed.has(node.id) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}</button> : <span className={child ? 'child-indent' : 'root-indent'} />}
@@ -25,16 +40,23 @@ export const Layers = memo(function Layers() {
     </div>;
   }
   const artboards = document.nodes.filter((node) => node.kind === 'artboard');
+  const allCollapsed = artboards.length > 0 && artboards.every((node) => collapsed.has(node.id));
   const roots = document.nodes.filter((node) => node.parentId === null).reverse();
   return <aside id="layers-panel" className="layers-panel" aria-label="Layers">
     <Pages />
     <div className="panel-heading">
       <span>Layers <span className="muted tabular-nums">{document.nodes.length}</span></span>
-      <IconButton
-        label="Collapse all"
-        disabled={!artboards.some((node) => !collapsed.has(node.id))}
-        onClick={() => setCollapsed((previous) => new Set([...previous, ...artboards.map((node) => node.id)]))}
-      ><ChevronsDownUp size={16} /></IconButton>
+      <TooltipIconButton
+        label={allCollapsed ? 'Expand all' : 'Collapse all'}
+        disabled={!artboards.length}
+        onClick={() => setCollapsed((previous) => {
+          const next = new Set(previous);
+          for (const node of artboards) { if (allCollapsed) next.delete(node.id); else next.add(node.id); }
+          return next;
+        })}
+      ><svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d={allCollapsed ? 'M7 8l5-5 5 5M7 16l5 5 5-5M5 12h14' : 'M7 3l5 5 5-5M7 21l5-5 5 5M5 12h14'} />
+      </svg></TooltipIconButton>
     </div>
     <div className="layer-list">{roots.map((node) => <div key={node.id}>
       {row(node)}

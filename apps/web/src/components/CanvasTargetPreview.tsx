@@ -4,6 +4,7 @@ import type { DesignNode } from '@open-cavas/document/model';
 import { textNodeBounds } from '@open-cavas/engine/typography';
 import type { CameraControls } from '../editor/useCamera';
 import { selectableCanvasNode } from '../editor/canvas-target';
+import { CanvasOutline } from './CanvasOutline';
 
 export function CanvasTargetPreview({ controls, nodes, tool, selectedIds }: {
   controls: CameraControls;
@@ -65,9 +66,9 @@ export function CanvasTargetPreview({ controls, nodes, tool, selectedIds }: {
       <g transform={`translate(${camera.x} ${camera.y}) scale(${camera.zoom})`}>
         {board && <defs><clipPath id={clipId}><rect x={board.x} y={board.y} width={board.width} height={board.height} rx={board.radius} /></clipPath></defs>}
         <g clipPath={board ? `url(#${clipId})` : undefined}>
-          <rect x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height}
+          <CanvasOutline zoom={camera.zoom} x={bounds.x} y={bounds.y} width={bounds.width} height={bounds.height}
             transform={`rotate(${node.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`}
-            strokeWidth={1.5 / camera.zoom} strokeDasharray={tool === 'select' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} />
+            strokeWidth={1.5} strokeDasharray={tool === 'select' ? `${4 / camera.zoom} ${3 / camera.zoom}` : undefined} />
         </g>
       </g>
     </svg>}
