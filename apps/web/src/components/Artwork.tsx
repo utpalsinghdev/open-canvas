@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import type { DesignNode } from '@open-cavas/document/model';
 import { textLayout } from '@open-cavas/engine/typography';
-import { fontStatus } from '../editor/typography';
+import { fontStatus, useFontState } from '../editor/typography';
 import { fontCssFamily } from '@open-cavas/document/font-family';
 
 export function Artwork({ node }: { node: DesignNode }) {
@@ -21,10 +22,11 @@ export function Artwork({ node }: { node: DesignNode }) {
   }
 }
 
-export function NodeView({ node }: { node: DesignNode }) {
+export const NodeView = memo(function NodeView({ node }: { node: DesignNode }) {
+  useFontState();
   const bounds = node.kind === 'text' ? textLayout(node) : node;
   return <g data-node-id={node.id} opacity={node.opacity} transform={`rotate(${node.rotation} ${node.x + bounds.width / 2} ${node.y + bounds.height / 2})`}>
     <Artwork node={node} />
     {node.kind === 'text' && <rect x={node.x} y={node.y} width={bounds.width} height={bounds.height} fill="transparent" />}
   </g>;
-}
+});

@@ -1,18 +1,19 @@
-import { useEffect, useState, type PointerEvent } from 'react';
+import { useEffect, useMemo, useState, type PointerEvent } from 'react';
 import { Maximize, Minus, Plus } from 'lucide-react';
 import { createNode, isHidden, isLocked, withChildren, type DesignNode } from '@open-cavas/document/model';
 import { resized, translated } from '@open-cavas/engine/geometry';
 import type { CameraControls } from '../editor/useCamera';
 import { useEditor } from '../editor/store';
 import { NodeView } from './Artwork';
+import { CanvasArtwork } from './CanvasArtwork';
 import { CanvasTextEditor } from './CanvasTextEditor';
 import { Reviews, type ReviewControls } from './Reviews';
 import { usePageReview } from '../review/drafts';
 import { AgentActivity } from './AgentActivity';
-import { clearCreationReveals, useCreationReveal } from '../mcp/creation-reveal';
 import { CanvasTargetPreview } from './CanvasTargetPreview';
 import { selectableCanvasNode } from '../editor/canvas-target';
 import { marqueeSelection } from '../editor/marquee-selection';
+import { clearCreationReveals, useCreationReveal } from '../mcp/creation-reveal';
 import { textNodeBounds, textContentBounds } from '@open-cavas/engine/typography';
 
 type Point = { x: number; y: number };
@@ -34,9 +35,9 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
   const setPlacing = (placing: boolean) => setTool(placing ? 'comment' : 'select');
   const location = useEditor((state) => state.location);
   const batches = useCreationReveal((state) => state.batches);
-  const revealing = new Set([...batches.values()].filter(({ target }) =>
+  const revealing = useMemo(() => new Set([...batches.values()].filter(({ target }) =>
     target.projectId === location.projectId && target.fileId === location.fileId && target.pageId === location.pageId
-  ).flatMap(({ nodeIds }) => [...nodeIds]));
+  ).flatMap(({ nodeIds }) => [...nodeIds])), [batches, location]);
   const { page: reviewPage, update: updateReview } = usePageReview(location);
   const draftAnchor = reviewPage.anchor;
   const setDraftAnchor = (anchor: typeof draftAnchor) => updateReview({ anchor });
@@ -61,10 +62,11 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
     window.addEventListener('blur', blur);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); window.removeEventListener('blur', blur); };
   }, []);
+  const interactionActive = gesture !== null || editingId !== null;
   useEffect(() => {
-    useEditor.setState({ interactionActive: gesture !== null || editingId !== null });
-    return () => { useEditor.setState({ interactionActive: false }); };
-  }, [gesture, editingId]);
+    useEditor.setState({ interactionActive });
+  }, [interactionActive]);
+  useEffect(() => () => { useEditor.setState({ interactionActive: false }); }, []);
 
   function world(event: PointerEvent): Point {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -174,10 +176,10 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       }
     }
     if (marquee?.ids) select(marquee.ids);
-    useEditor.setState({ interactionActive: false });
+    // The effect releases the guard only when both gesture and text editing end.
     setGesture(null);
   }
-  const nodes = document.nodes.map((node) => {
+  const nodes = useMemo(() => document.nodes.map((node) => {
     if (gesture?.mode === 'move' && gesture.ids.has(node.id)) return translated(node, gesture.delta.x, gesture.delta.y);
     if (gesture?.mode === 'resize') {
       const next = resized(gesture.node, gesture.delta.x, gesture.delta.y, gesture.corner);
@@ -185,10 +187,13 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       if (gesture.node.kind === 'artboard' && node.parentId === gesture.node.id) return translated(node, next.x - gesture.node.x, next.y - gesture.node.y);
     }
     return node;
-  });
+  }), [document.nodes, gesture]);
   const preview = gesture?.mode === 'draw' ? drawnNode(gesture) : null;
   // Keep stored text frames distinct from the content-sized editing area.
-  const visible = nodes.filter((node) => !isHidden(node, nodes) && node.id !== editingId);
+  const visible = useMemo(() => {
+    const hidden = new Set(nodes.filter((node) => node.hidden).map((node) => node.id));
+    return nodes.filter((node) => !node.hidden && !hidden.has(node.parentId ?? '') && node.id !== editingId);
+  }, [nodes, editingId]);
   const selected = visible.filter((node) => (marquee?.ids ?? selectedIds).includes(node.id));
 
   const cursor = gesture?.mode === 'pan' ? 'grabbing' : space || tool === 'hand' ? 'grab' : tool;
@@ -204,14 +209,7 @@ export function Canvas({ controls, review }: { controls: CameraControls; review:
       <defs><pattern id="canvas-dots" width={24 * camera.zoom} height={24 * camera.zoom} patternUnits="userSpaceOnUse" x={camera.x} y={camera.y}><circle cx="1" cy="1" r="0.7" className="grid-dot" /></pattern></defs>
       <rect width="100%" height="100%" fill="url(#canvas-dots)" />
       <g transform={`translate(${camera.x} ${camera.y}) scale(${camera.zoom})`}>
-        {visible.filter((node) => node.parentId === null).map((node) => node.kind === 'artboard' ? <g key={node.id} className={revealing.has(node.id) ? 'agent-created-node' : undefined}>
-          <defs><clipPath id={`board-${node.id}`}><rect x={node.x} y={node.y} width={node.width} height={node.height} rx={node.radius} /></clipPath></defs>
-          <text className="artboard-label" x={node.x} y={node.y - 14 / camera.zoom} fontSize={11 / camera.zoom} data-node-id={node.id}>{node.name}</text>
-          <g clipPath={`url(#board-${node.id})`} opacity={node.opacity}>
-            <NodeView node={{ ...node, opacity: 1 }} />
-            {visible.filter((child) => child.parentId === node.id).map((child) => <g key={child.id} className={revealing.has(child.id) ? 'agent-created-node' : undefined}><NodeView node={child} /></g>)}
-          </g>
-        </g> : <g key={node.id} className={revealing.has(node.id) ? 'agent-created-node' : undefined}><NodeView node={node} /></g>)}
+        <CanvasArtwork nodes={visible} zoom={camera.zoom} revealing={revealing} />
         {preview && <NodeView node={preview} />}
         {editingNode && (() => { const bounds = textNodeBounds(editingNode); return <rect {...bounds} className="selection-outline text-frame-outline" strokeWidth={1 / camera.zoom} strokeDasharray={`${4 / camera.zoom} ${3 / camera.zoom}`} pointerEvents="none" transform={`rotate(${editingNode.rotation} ${bounds.x + bounds.width / 2} ${bounds.y + bounds.height / 2})`} />; })()}
         {!placing && selected.map((node) => {
