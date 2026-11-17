@@ -23,7 +23,7 @@
 - Follow relevant JStack workflows, but match ceremony to task size. Do not delegate ordinary one-pass work.
 
 ## Design
-- Navy/Cream/Coral light theme: Cream (#F4EDE0) application surfaces, Navy (#14213D) text/outlines/focus, Coral (#FF6B5B) primary-action fills with Navy labels. Keep artwork colors independent.
+- Dark theme with true black (#000) application base, white primary text, and distinct dark canvas, panel and control surfaces. Keep artwork colors independent.
 - Dense editor layout, minimal copy, no decorative cards or pills, no gray subtitle lines above sections, no em dashes.
 - No continuously repainting animations, shimmer, pulse, or spinners.
 - Provide visible keyboard focus, labeled controls, useful empty/error states, and responsive access to editor panels.

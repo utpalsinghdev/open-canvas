@@ -2,7 +2,7 @@
 
 ## Editor contract
 
-Open Cavas is a working editor, not a marketing page. The user's pinned direction is the Navy/Cream/Coral light palette: Cream surfaces, Navy content and outlines, Coral primary-action fills with Navy labels. Keep dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
+Open Cavas is a working editor, not a marketing page. The user's pinned direction is a true-black application base, white primary text, and a dark neutral surface ladder that separates the drawing stage, panels and controls. Keep dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
 
 Opening a file exposes editable artwork between Layers and Properties. The selected workspace's root destination shows Home for browsing projects and files. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
 
@@ -10,14 +10,19 @@ Opening a file exposes editable artwork between Layers and Properties. The selec
 
 The shared tokens are declared in `apps/web/src/styles.css` under `:root`. `apps/web/src/desktop.css`, loaded afterward, owns desktop dimensions.
 
-- Primitives: `--navy` `#14213d`, `--cream` `#f4ede0`, `--coral` `#ff6b5b`. No additional opaque palette shades.
-- Background, panel, controls and preview backdrop use Cream. Native form controls use `color-scheme: light`.
-- Primary and secondary text, borders, focus, selection bounds and activity marks use Navy. Type size, weight and layout carry text hierarchy rather than low-contrast ink.
-- Hover and active controls use Navy with Cream ink (`--on-active`). Selected layer/marquee washes use 12% Navy, and grid dots use 24% Navy, over the current surface.
-- Primary actions use Coral with Navy ink and a Navy boundary; hover inverts to Navy/Cream. Coral/Cream is only 2.40:1, so Coral never carries text or essential outlines on Cream.
-- Navy/Cream contrast is 13.72:1; Navy/Coral is 5.71:1. Focus uses a separated 2 px Navy outline with a Cream gap. Disabled buttons retain native disabled behavior and use reduced opacity.
-- Save/error and destructive feedback use Navy with explicit wording, not Coral as a semantic error/success color.
-- Menu elevation and dialog backdrops use transparent Navy; inline text editing stays transparent to preserve artwork colors.
+- Application base: `--background` `#000000`; primary text: `--foreground` `#ffffff`. Native form controls use `color-scheme: dark`.
+- Drawing stage: `--canvas-background` `#151719`, also used for Home's artwork-preview backdrop. This is chrome, not an artboard fill or document setting.
+- Panels: `--panel` `#0d0d0d` for Layers, Properties, tool rail, header/footer, project navigation and review/dialog surfaces. Controls: `--control` `#101111`. Hover: `--hover` `#18191a`. Selected rows and neutral pressed controls: `--active` `#202223`, with white `--on-active` ink. Selected tools use the white/black primary treatment at every width.
+- Decorative dividers: `--line` `#242728`. Essential field/button boundaries use `--control-edge`, the same approximately `#737373` as `--subtle`, mixed from 42% white and 58% panel. Dividers are not relied on to identify an editable field.
+- Supporting prose: `--body` `#cdcdcd`. Metadata and secondary labels: `--muted` `#b0b0b2`. Disabled detail: `--subtle` `#737373`; disabled buttons additionally use 45% opacity and retain native disabled attributes/cursors. Disabled ink is not used for enabled labels or placeholders.
+- Keyboard focus and selected emphasis: `--accent` `#57c1ff`. Focus uses a 2 px outline with 2 px black separation; canvas focus is inset. Text selection uses this blue with black ink; carets use blue except inline artwork editing, which uses the document text color.
+- Primary actions: `--primary` white, `--on-primary` black. Hover uses the dark hover surface with white ink, and pressed uses the selected surface. New file, workspace creation, Export and comment Save share this treatment.
+- Artwork-facing `--selection` uses the focus blue, backed by a 1 screen-pixel black `--selection-rim` on both sides. Selection, text frames, resize handles, marquee and dashed Select/solid Comment hover edges share this dual-contrast treatment. Black separates the blue from bright artwork; blue contrasts against dark artwork. Transparent artwork reveals the dark stage. No filter, blur or animation is added.
+- Marquee fill: `--selection-wash`, 16% accent with transparency, resolves near `#20323e` on the stage. Selected Layers rows use neutral `--active`, not this wash. Grid dots: `--grid`, 24% secondary ink, resolve near `#3a3c3e` on the stage. These fills are supplemental, not essential boundaries.
+- Existing failed-save/service/validation messages use `--danger` `#ff6161`, with explicit error wording. Destructive confirmations use the same red ink and named actions. Warnings, including locked-layer and impending-deletion messages, use `--warning` `#ffc533`. `--success` `#59d499` is reserved for confirmed success where feedback exists; no new success badge or save claim is introduced.
+- Agent activity retains existing timing, recent/pending semantics and reduced-motion behavior; only its blue role follows `--accent`. The base dots remain 65% blue and recent marks retain 65% group opacity. Clearing a request never signals durable saving.
+- Modal backdrops: 65% black. Menu elevation: existing 0/12/40 px geometry with 60% black. Scrollbars: control-edge thumb on panel track. Inline text-edit backgrounds remain transparent. Native browser tooltips and color-picker interiors remain browser-owned; custom cursor black ink and white contrast rims are intentionally unchanged.
+- Minimum measured contrast across the specified opaque functional surfaces: white 15.98:1, body 10.05:1, secondary 7.38:1, blue focus 7.97:1, warning 10.11:1 and error 5.43:1. White/black primary actions are 21:1. Control edges are at least 3.35:1 against control/hover/selected surfaces. Blue/black contrast rims are 10.48:1; black/white is 21:1. Pale blue alone on white is only 2.00:1, so artwork-facing edges must retain the black under-stroke. Decorative dividers, grid, washes and disabled controls are not asserted to meet essential-indicator contrast.
 - UI type: platform system sans through `--font-ui`. Artwork font is document data.
 
 Spacing declarations use a 4 px grid. Borders are 1 px. Compact controls have 3 to 5 px corner radii. Drawing handles are 8 screen pixels regardless of zoom.
@@ -32,11 +37,11 @@ A dotted world grid provides position context without repainting animation. Artb
 
 ## Review threads
 
-Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height Cream box beside the target, clamped within the canvas as the camera changes. New-comment composition uses a single borderless text area with Cancel and the shared Coral-primary Save action, without a visible title or target-label row. The target remains in the accessible description. Save commits nonempty feedback; Cancel discards the draft; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
+Add comment uses a plus-message icon to select click-to-comment mode. Clicking artwork anchors feedback to the layer; empty canvas anchors feedback to world coordinates. Creation and pin conversations use a compact, content-height panel-colored box beside the target, clamped within the canvas as the camera changes. New-comment composition uses a single borderless text area with Cancel and the shared white-primary Save action, without a visible title or target-label row. The target remains in the accessible description. Save commits nonempty feedback; Cancel discards the draft; Escape hides the box while preserving session drafts. Review uses a distinct stacked-message icon and visible label to open the file-wide list. On narrow screens Review lives beside Layers/Properties, with mutually exclusive panels. Open threads have numbered pins; resolved and missing-layer threads remain in the list without pins. Long conversations scroll inside the box. Comment content stays plain text.
 
 ## Review
 
-Verification results and browser coverage are recorded in [docs/verification.md](docs/verification.md). Theme changes use real browser captures at desktop and narrow widths, computed contrast checks, and the Impeccable detector. Review is single-agent unless explicitly noted otherwise.
+Verification results and browser coverage are recorded in [docs/verification.md](docs/verification.md). Theme changes use real browser captures at desktop and narrow widths, computed contrast checks, and source review. Current coverage and remaining limits are stated in that record.
 
 
 ## Automatic agent connection
@@ -85,7 +90,7 @@ One compact Export dropdown replaces separate SVG and PDF header buttons. Its tw
 
 ## Workspace storage and recovery clarity
 
-The workspace chooser and Home/Projects footer use compact disclosures for the actual app-server save directory. Once selected, the disclosure identifies the workspace name, full ID, and JSON file. Recovery guidance distinguishes empty browser storage from unreadable storage and explains reopening the original profile and exact app address. Browser copy and backup stay disabled without validated saved data; the introductory fallback is not presented as recovered work. The shared light theme and visible keyboard focus apply here too.
+The workspace chooser and Home/Projects footer use compact disclosures for the actual app-server save directory. Once selected, the disclosure identifies the workspace name, full ID, and JSON file. Recovery guidance distinguishes empty browser storage from unreadable storage and explains reopening the original profile and exact app address. Browser copy and backup stay disabled without validated saved data; the introductory fallback is not presented as recovered work. The shared dark theme and visible keyboard focus apply here too.
 
 ## Inspector and layer navigation
 
@@ -97,7 +102,7 @@ File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps
 
 ## Desktop density and action hierarchy
 
-Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a Navy/Cream active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use a translucent Navy selection wash and Navy ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
+Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a white/black active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use a neutral selected surface and blue ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
 
 Home has a 240 px project rail and an adaptive grid of native page previews, file names, metadata, and explicit actions. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Previews are read-only and mounted only near the visible library area; they are neither saved snapshots nor exports. Project dialogs keep compact rows. Artwork in the editor remains uncapped.
 
