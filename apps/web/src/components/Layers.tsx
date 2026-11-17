@@ -1,9 +1,9 @@
 import { memo, useState } from 'react';
-import { ChevronDown, ChevronRight, ChevronsDownUp, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Circle, Eye, EyeOff, Frame, Image, Lock, RectangleHorizontal, Type, Unlock } from 'lucide-react';
 import type { DesignNode } from '@open-cavas/document/model';
 import { useEditor } from '../editor/store';
 import { Pages } from './Pages';
-import { IconButton } from './Button';
+import { IconButton, TooltipIconButton } from './Button';
 
 const icons = { artboard: Frame, rectangle: RectangleHorizontal, ellipse: Circle, text: Type, image: Image };
 export const Layers = memo(function Layers() {
@@ -25,16 +25,23 @@ export const Layers = memo(function Layers() {
     </div>;
   }
   const artboards = document.nodes.filter((node) => node.kind === 'artboard');
+  const allCollapsed = artboards.length > 0 && artboards.every((node) => collapsed.has(node.id));
   const roots = document.nodes.filter((node) => node.parentId === null).reverse();
   return <aside id="layers-panel" className="layers-panel" aria-label="Layers">
     <Pages />
     <div className="panel-heading">
       <span>Layers <span className="muted tabular-nums">{document.nodes.length}</span></span>
-      <IconButton
-        label="Collapse all"
-        disabled={!artboards.some((node) => !collapsed.has(node.id))}
-        onClick={() => setCollapsed((previous) => new Set([...previous, ...artboards.map((node) => node.id)]))}
-      ><ChevronsDownUp size={16} /></IconButton>
+      <TooltipIconButton
+        label={allCollapsed ? 'Expand all' : 'Collapse all'}
+        disabled={!artboards.length}
+        onClick={() => setCollapsed((previous) => {
+          const next = new Set(previous);
+          for (const node of artboards) { if (allCollapsed) next.delete(node.id); else next.add(node.id); }
+          return next;
+        })}
+      ><svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d={allCollapsed ? 'M7 8l5-5 5 5M7 16l5 5 5-5M5 12h14' : 'M7 3l5 5 5-5M7 21l5-5 5 5M5 12h14'} />
+      </svg></TooltipIconButton>
     </div>
     <div className="layer-list">{roots.map((node) => <div key={node.id}>
       {row(node)}

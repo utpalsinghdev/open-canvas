@@ -94,7 +94,7 @@ The workspace chooser and Home/Projects footer use compact disclosures for the a
 
 ## Inspector and layer navigation
 
-Inspector fields are grouped into Position, Dimensions, Typography for text, Appearance, and Arrange. Desktop field labels sit above their values so long property names do not squeeze numeric input. Arrangement actions use visible icon-and-text controls in two columns. With no selection, the inspector shows the current page's artboard/layer counts and a concise selection prompt. Layers scroll independently below Pages with 12 px names; their footer shows the Shift-click multi-select shortcut. Collapse all is an inward-chevron icon with an accessible name and tooltip; it disables when all artboards are folded.
+Inspector fields are grouped into Position, Dimensions, Typography for text, Appearance, and Arrange. Desktop field labels sit above their values so long property names do not squeeze numeric input. Arrangement actions use visible icon-and-text controls in two columns. With no selection, the inspector shows the current page's artboard/layer counts and a concise selection prompt. Layers scroll independently below Pages with 12 px names; their footer shows the Shift-click multi-select shortcut. One bulk control offers Collapse all while any current-page artboard is open, then Expand all when all are folded. Separated inward/outward chevrons around a center rule, an updated accessible name and a hover/focus tooltip describe the next action. It disables only when the current page has no artboards. Individual branches remain available; bulk changes preserve other pages' branch state, selection, artwork and document history.
 
 ## File and workspace context
 

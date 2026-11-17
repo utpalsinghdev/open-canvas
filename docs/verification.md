@@ -807,3 +807,7 @@ For #76, the footer icon retained the complete-file JSON callback. Local Brave m
 ## Footer editing context
 
 For #77, local Brave showed No selection · 2 artboards · 17 layers, Rectangle · Try it yourself, and 2 selected from the same active file. Duplicating a rectangle updated idle count to 18; undo returned 17. Removing its parent updated single-selection context to its own name; undo restored the parent. At 390 px the separate workspace item remained hidden, long selection context truncated with its title retained, and backup did not overlap or produce horizontal overflow. Switching to a new empty page showed 0 artboards and 0 layers; returning restored 2 and 17. The footer backup on the empty page included both pages. Check and build passed.
+
+## Bulk Layers branch toggle
+
+For #78, local Brave collapsed two artboard branches, offered enabled Expand all, then expanded both. Enter and Space activated the same focused control; its blue focus outline, tooltip and accessible name described the next action. The no-artboard page disabled the control. Switching away and back retained the original page's collapsed state. Narrow Layers supported the same toggle. Serialized workspace, selection, past/future stacks and per-file histories were unchanged by a collapse/expand cycle. Check and build passed; this remains local tree-view state, with no new document/MCP operation.
