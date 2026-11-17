@@ -137,9 +137,9 @@ button svg, summary svg { flex: none; }
 .design-canvas[data-cursor="rectangle"] { cursor: crosshair; }
 .design-canvas[data-cursor="ellipse"] { cursor: crosshair; }
 .design-canvas[data-cursor="comment"] { cursor: crosshair; }
-.comment-target-outline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.comment-target-outline rect { fill: none; stroke: var(--selection); }
-.comment-target-outline clipPath rect { fill: white; stroke: none; }
+.comment-target-outline, .select-target-outline { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.comment-target-outline rect, .select-target-outline rect { fill: none; stroke: var(--selection); }
+.comment-target-outline clipPath rect, .select-target-outline clipPath rect { fill: white; stroke: none; }
 .comment-target-hint { position: absolute; z-index: 3; display: flex; align-items: center; gap: 8px; width: max-content; max-width: min(240px, calc(100% - 24px)); padding: 8px; background: var(--panel); color: var(--foreground); border: 1px solid var(--selection); border-radius: 4px; pointer-events: none; font-size: 12px; }
 .comment-target-hint span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .artboard-label { fill: var(--muted); }

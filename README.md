@@ -65,7 +65,7 @@ Run `pnpm run check` and `pnpm run build` at the root. See [repository layout an
 ## Editor
 
 - **Create:** choose Artboard, Rectangle, Ellipse, or Text, then click for a default size or drag to set dimensions. Add image accepts PNG, JPEG, WebP, or GIF up to 2 MB.
-- **Select:** click artwork or a layer. Shift-click adds or removes layers. Drag empty canvas for a marquee selection of non-artboard layers.
+- **Select:** hover artwork for a dashed target outline without changing selection, then click to select it. Selected layers keep their selection outline and resize handles. Locked or hidden layers do not preview. Shift-click adds or removes layers. Drag empty canvas to preview a marquee selection of non-artboard layers, then release to select the outlined set. Shift-drag adds to the existing selection; Escape cancels the drag and clears selection.
 - **Edit:** drag to move, use corner handles to resize, or enter exact values in Properties. Double-click text for on-canvas editing. Ctrl/Cmd+Enter or blur commits text; Escape cancels the on-canvas edit.
 - **Organize:** rename, hide, lock, duplicate, delete, reorder, or change a layer's parent artboard. Moving an artboard moves its children; resizing an artboard changes its clipping area, not its children's scale. Use Collapse all in Layers to fold every artboard branch on the current page without changing selection or artwork. Individual arrows reopen branches. Collapse state is session-only.
 - **Navigate:** hold Space and drag to pan, choose Hand, or drag with the middle mouse button. Scroll pans, Ctrl/Cmd+scroll zooms around the pointer. Zoom buttons and Fit canvas are at the bottom right.
