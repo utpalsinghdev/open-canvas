@@ -82,11 +82,11 @@
   .page-actions .icon-button { width: 24px; height: 28px; }
   .page-item.current { background: var(--active); }
   .layer-list { padding: 8px 8px 12px; }
-  .layer-row { height: 32px; }
+  .layer-row { --layer-action-size: 24px; height: 32px; }
   .layer-select { gap: 8px; }
   .layer-row.selected { background: var(--active); }
   .layer-select[aria-pressed="true"] { color: var(--accent); }
-  .layer-actions .icon-button { width: 24px; height: 28px; }
+  .layer-actions .icon-button { height: 28px; }
   .panel-footer { padding: 12px 16px; font-size: 11px; }
   .inspector-welcome { padding: 20px 16px; }
   .inspector-welcome h2 { font-size: 14px; margin: 0; }

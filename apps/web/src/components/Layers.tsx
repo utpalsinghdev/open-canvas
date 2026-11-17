@@ -9,9 +9,24 @@ const icons = { artboard: Frame, rectangle: RectangleHorizontal, ellipse: Circle
 export const Layers = memo(function Layers() {
   const { document, selectedIds, select, patch } = useEditor();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [deferredActions, setDeferredActions] = useState<string | null>(null);
+  function inActionSpace(element: HTMLElement, x: number) {
+    const actions = element.querySelector<HTMLElement>('.layer-actions');
+    return actions !== null && x >= element.getBoundingClientRect().right - actions.scrollWidth;
+  }
   function row(node: DesignNode, child = false) {
     const Icon = icons[node.kind];
-    return <div className={`layer-row ${selectedIds.includes(node.id) ? 'selected' : ''} ${node.hidden ? 'layer-hidden' : ''}`} key={node.id}>
+    return <div className={`layer-row ${selectedIds.includes(node.id) ? 'selected' : ''} ${node.hidden ? 'layer-hidden' : ''} ${node.locked ? 'layer-locked' : ''} ${deferredActions === node.id ? 'defer-actions' : ''}`} key={node.id}
+      onPointerEnter={(event) => {
+        // Do not replace a selection target with Hide/Lock beneath an entering pointer.
+        if (selectedIds.includes(node.id) || node.hidden || node.locked || event.currentTarget.matches(':focus-within')) return;
+        if (inActionSpace(event.currentTarget, event.clientX)) setDeferredActions(node.id);
+      }} onPointerMove={(event) => {
+        if (deferredActions === node.id && !inActionSpace(event.currentTarget, event.clientX)) setDeferredActions(null);
+      }} onPointerLeave={() => { if (deferredActions === node.id) setDeferredActions(null); }}
+      onFocusCapture={(event) => {
+        if (deferredActions === node.id && event.target instanceof HTMLElement && event.target.matches(':focus-visible')) setDeferredActions(null);
+      }}>
       {node.kind === 'artboard' ? <button className="collapse-button" aria-label={`${collapsed.has(node.id) ? 'Expand' : 'Collapse'} ${node.name}`} aria-expanded={!collapsed.has(node.id)} onClick={() => setCollapsed((previous) => {
         const next = new Set(previous); if (next.has(node.id)) next.delete(node.id); else next.add(node.id); return next;
       })}>{collapsed.has(node.id) ? <ChevronRight size={12} /> : <ChevronDown size={12} />}</button> : <span className={child ? 'child-indent' : 'root-indent'} />}

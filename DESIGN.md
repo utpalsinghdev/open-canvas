@@ -115,3 +115,7 @@ The footer's right-hand download icon uses a 40 px wide target within the existi
 ## Footer editing context
 
 The left footer shows No selection with current-page artboard and layer counts, a single selection's type and containing artboard, or the existing multiple-selection count. Unparented layers use their own names; unnamed roots use No artboard. Counts include hidden/locked content and update from the active page. Long context truncates with a full-text title instead of overlapping backup. Workspace/page context remains a separate centered item and keeps its existing hidden state at widths of 560 px or less. Context implies neither cloud sync nor successful saving.
+
+## Layer-name width
+
+The type icon occupies a fixed 14 px column with the existing 8 px name gap. Inactive unselected rows give names the space otherwise reserved by visibility/lock controls. Hover, keyboard focus, selection and directly hidden/locked rows reveal a fixed action gutter. Only the right truncation edge changes; the name's start, icon column, row height and sidebar width stay fixed. When a pointer enters from the right over reclaimed name space, newly revealed actions wait until the pointer crosses the normal name region or keyboard focus explicitly enters the row. That first click still selects instead of changing visibility/locking. Already-visible actions keep direct access. Actions do not cover the label. Names retain full-name titles, Shift-click selection and individual branch controls. Arbitrarily long names can still truncate.
