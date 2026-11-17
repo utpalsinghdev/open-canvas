@@ -92,7 +92,6 @@ function duplicate(ids: string[]) {
       })
     );
   commit({ ...state.document, nodes: [...state.document.nodes, ...nodes] });
-  state.select(ids.map((id) => mapping.get(id) ?? id));
   return { mapping: Object.fromEntries(mapping) };
 }
 const mutations: Record<string, (value: unknown) => unknown> = {
@@ -108,7 +107,6 @@ const mutations: Record<string, (value: unknown) => unknown> = {
     const node = { ...createNode('artboard', x, y), name, width, height, fill };
     const state = useEditor.getState();
     commit({ ...state.document, nodes: [...state.document.nodes, node] });
-    state.select([node.id]);
     return { createdIds: [node.id] };
   },
   create_nodes(value) {
@@ -133,7 +131,6 @@ const mutations: Record<string, (value: unknown) => unknown> = {
       return parsed;
     });
     commit({ ...state.document, nodes: [...state.document.nodes, ...nodes] });
-    state.select(nodes.map((node) => node.id));
     return { createdIds: nodes.map((node) => node.id) };
   },
   update_nodes(value) {
@@ -228,7 +225,6 @@ const mutations: Record<string, (value: unknown) => unknown> = {
       throw new Error('HTML produced no supported visible layers.');
     const state = useEditor.getState();
     commit({ ...state.document, nodes: [...state.document.nodes, ...nodes] });
-    state.select(nodes.map((node) => node.id));
     return {
       createdIds: nodes.map((node) => node.id),
       layout: 'restricted static block flow; not browser layout',

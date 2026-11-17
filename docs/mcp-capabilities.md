@@ -6,7 +6,7 @@ Open Cavas owns its document model and MCP implementation.
 
 - Official SDK stdio initialize, tools/list, tools/call, tool errors, and browser targeting. 51 tools exposed.
 - Live document/tree/node/style/selection reads with stable layer identity.
-- Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection.
+- Artboard creation, batch text/rectangle/image creation, text edits, property changes, rotation, artboard-and-child movement, duplication, deletion, reordering, and selection. MCP creation, HTML import, and duplication preserve current selection; `select_nodes` selects explicitly.
 - Undo/redo through the same document history as manual edits.
 - Restricted inert HTML import into editable layers. A background and text label were created and read back.
 - Project/file/page lifecycle, explicit file/page navigation, per-file history, complete multi-page JSON export/import, project/workspace backups, and active-context checks. New/open document tools append files instead of replacing existing work.

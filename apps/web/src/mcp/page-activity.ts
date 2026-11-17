@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { locationSchema, type Location } from '@open-cavas/document/workspace';
+import type { ActivityAnchor } from './request-anchors';
 
 const activePageReads = new Set([
   'get_document', 'get_tree', 'get_node', 'get_styles', 'get_selection',
@@ -18,25 +19,48 @@ export function activityTarget(method: string, args: Record<string, unknown>, cu
   return activePageReads.has(method) ? { ...current } : null;
 }
 
-export const usePageActivity = create<{ requests: ReadonlyMap<symbol, Location> }>(() => ({
+type PageActivity = { target: Location; anchors: ActivityAnchor[]; pending: boolean };
+const MIN_VISIBLE_MS = 600;
+
+export const usePageActivity = create<{ requests: ReadonlyMap<symbol, PageActivity> }>(() => ({
   requests: new Map(),
 }));
 
-/** Each request owns its cleanup; late completion cannot remove another call. */
-export function beginPageActivity(target: Location) {
+/** Fast calls leave a neutral receipt, never a false pending or save status.
+ * Each request owns its timers; cancellation/disconnect removes even its receipt.
+ */
+export function beginPageActivity(target: Location, anchors: ActivityAnchor[], onRemove: () => void) {
   const key = Symbol();
-  usePageActivity.setState(({ requests }) => ({ requests: new Map(requests).set(key, target) }));
-  const finish = () => {
-    clearTimeout(deadline);
+  const started = performance.now();
+  let ended = false;
+  let receipt: ReturnType<typeof setTimeout> | undefined;
+  usePageActivity.setState(({ requests }) => ({ requests: new Map(requests).set(key, { target, anchors, pending: true }) }));
+  const remove = () => {
     usePageActivity.setState(({ requests }) => {
       if (!requests.has(key)) return { requests };
       const next = new Map(requests);
       next.delete(key);
       return { requests: next };
     });
+    onRemove();
+  };
+  const finish = (immediate = false) => {
+    clearTimeout(deadline);
+    if (immediate) {
+      ended = true;
+      clearTimeout(receipt);
+      remove();
+      return;
+    }
+    if (ended) return;
+    ended = true;
+    const remaining = MIN_VISIBLE_MS - (performance.now() - started);
+    if (remaining <= 0) { remove(); return; }
+    usePageActivity.setState(({ requests }) => ({ requests: new Map(requests).set(key, { target, anchors, pending: false }) }));
+    receipt = setTimeout(remove, remaining);
   };
   // Matches the broker deadline. This clears presence, not an uncertain write.
-  const deadline = setTimeout(finish, 30_000);
+  const deadline = setTimeout(() => finish(true), 30_000);
   return finish;
 }
 
