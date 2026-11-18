@@ -10,7 +10,11 @@ Choose **Start with introductory canvas** in the workspace chooser to open an ed
 
 See the [introduction and screenshot](docs/introduction.md).
 
-## Run stable main
+## Install locally
+
+Open Cavas release archives bundle the editor, local workspace service, and Node.js. You do not need Git, npm, or pnpm to run them. See [local installation](docs/install.md) for supported platforms, how to install a release that includes archives, and how to build one from source.
+
+## Run stable main from source
 
 Use Node.js **24.22.1** and pnpm **12.21.0**, pinned in `package.json`, `.nvmrc`, and `.node-version`. Select Node with your version manager, then use `corepack pnpm` to run the pinned package manager without changing global defaults. Corepack must be installed and on PATH. Examples below use `pnpm`; use `corepack pnpm` if you have no matching pnpm shim.
 

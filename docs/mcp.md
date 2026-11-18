@@ -4,7 +4,9 @@ Open Cavas exposes 51 tools over the official MCP SDK's stdio transport. It cont
 
 ## Start and connect
 
-Use the fixed runtime profiles described in [runtime.md](runtime.md).
+**Installed app:** run `open-cavas mcp-config` and copy the generated `open-cavas` entry into your client. It uses the installed launcher and its own private broker. See [local installation](install.md) for ports and storage. Do not configure a source runtime for the installed app.
+
+For source checkouts, use the profiles described in [runtime.md](runtime.md).
 
 **Main:** frontend http://localmachine:5182, private broker 127.0.0.1:4781. Prepare a committed snapshot with `pnpm run release:main`, serve it with `pnpm start`, and generate the main agent configuration:
 

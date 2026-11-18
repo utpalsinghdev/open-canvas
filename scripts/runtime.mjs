@@ -15,19 +15,37 @@ export async function selectedRelease() {
   if (marker.commit !== pointer.commit || ![1, 2].includes(layoutVersion)) throw new Error('Unsupported main release layout. Prepare a compatible main snapshot.');
   return { directory, commit: pointer.commit, layoutVersion };
 }
-export async function launch(profile, action) {
+export async function launch(profile, action, { openBrowser = false } = {}) {
   const settings = runtimeSettings(profile);
   if (!['web', 'mcp'].includes(action)) throw new Error('Runtime action must be web or mcp.');
   if (profile === 'dev') assertDevelopmentCheckout();
+  const installed = profile === 'installed';
   const release = profile === 'main' ? await selectedRelease() : null;
   const root = release?.directory ?? checkoutRoot;
   // Already-prepared snapshots retain their original single-package layout.
   const legacy = release?.layoutVersion === 1;
   const webRoot = legacy ? root : path.join(root, 'apps/web');
   const serviceRoot = path.join(root, legacy ? 'server' : 'apps/local-service/src');
-  const env = { ...process.env, CAVAS_PROFILE: profile, CAVAS_APP_PORT: String(settings.appPort), CAVAS_MCP_PORT: String(settings.brokerPort), CAVAS_APP_ORIGIN: settings.origin, CAVAS_RUNTIME_STATE_ROOT: settings.stateDirectory, CAVAS_RELEASE_COMMIT: release?.commit ?? 'development' };
+  let commit = release?.commit ?? 'development';
+  if (installed) {
+    try {
+      const info = JSON.parse(await readFile(path.join(webRoot, 'dist/runtime.json'), 'utf8'));
+      if (info.profile !== 'installed' || typeof info.release !== 'string' || !/^(development|[a-f0-9]{40})$/.test(info.release)) throw new Error('Invalid runtime metadata.');
+      commit = info.release;
+    } catch {
+      throw new Error('Invalid installed bundle. Reinstall Open Cavas.');
+    }
+  }
+  const env = { ...process.env, CAVAS_PROFILE: profile, CAVAS_APP_PORT: String(settings.appPort), CAVAS_MCP_PORT: String(settings.brokerPort), CAVAS_APP_ORIGIN: settings.origin, CAVAS_RUNTIME_STATE_ROOT: settings.stateDirectory, CAVAS_RELEASE_COMMIT: commit };
   const args = action === 'web'
-    ? [path.join(webRoot, 'node_modules/vite/bin/vite.js'), ...(profile === 'main' ? ['preview'] : []), '--config', path.join(webRoot, 'vite.config.ts'), '--host', '0.0.0.0', '--port', String(settings.appPort), '--strictPort']
+    ? [
+        path.join(installed ? root : webRoot, 'node_modules/vite/bin/vite.js'),
+        ...(profile === 'dev' ? [] : ['preview']),
+        '--config', installed ? path.join(root, 'scripts/installed-preview.mjs') : path.join(webRoot, 'vite.config.ts'),
+        '--host', installed ? '127.0.0.1' : '0.0.0.0',
+        '--port', String(settings.appPort), '--strictPort',
+        ...(openBrowser ? ['--open'] : []),
+      ]
     : [path.join(root, 'node_modules/tsx/dist/cli.mjs'), path.join(serviceRoot, 'index.ts')];
   process.stderr.write(`Open Cavas ${profile}: ${action === 'web' ? settings.origin : `private MCP ${settings.brokerPort}`} ${release ? `release ${release.commit.slice(0, 7)}` : ''}\n`);
   let backend;

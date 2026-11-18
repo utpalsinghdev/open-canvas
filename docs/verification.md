@@ -1,5 +1,14 @@
 # Verification record
 
+## Downloadable local app
+
+- Pinned frozen install, `corepack pnpm run check`, `corepack pnpm run build`, and `corepack pnpm run package:local` passed on Linux x64. The archive and checksum verified. An isolated home with no Git, Node.js, npm, or pnpm on PATH installed and launched the archive. Reinstalling the same archive worked; a mismatched checksum left the installed command in place.
+- Created an introductory workspace in the installed editor and changed a rectangle's width from 230 to 312. Installing another build left the workspace file unchanged. After restart, the browser reopened the same file at width 312.
+- A client using `open-cavas mcp-config` found the connected canvas and durable workspace, read the saved edit from both, and received a PNG from native rendering. Both installed ports listened only on loopback. Same-origin ticket bootstrap succeeded; incorrect Origin and Host were rejected, and the frontend refused internal broker routes.
+- The source dev server still opened through `localmachine` on its own ports. Main stayed running on its original release. No document schema, editor controls, backup formats, or MCP tools changed.
+
+The release workflow and public download URL were not exercised locally. Linux ARM64 and both macOS builds remain unverified. Windows is not supported by this installer.
+
 ## Dark semantic palette
 
 The dark default supersedes the unmerged light-palette study. The application base stays true black; the drawing stage, panels, controls, hover and selected rows now use separate semantic roles. Artwork, document defaults, schema, history, persistence and export renderers are unchanged.

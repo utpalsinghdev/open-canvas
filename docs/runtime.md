@@ -1,6 +1,6 @@
 # Main releases and feature development
 
-Main is the stable application used by other threads. Feature work runs in separate worktrees and does not replace the live main release.
+Main is the stable application used by other threads. Feature work runs in separate worktrees and does not replace the live main release. The [downloadable local installation](install.md) has its own loopback ports and private data directory; the source and main workflows below do not apply to it.
 
 ## Pinned toolchain
 

@@ -43,5 +43,5 @@ This requires clean committed main and prepares its frozen snapshot. Deliberatel
 - `commit` is false. Review and create the version commit deliberately.
 - Base branch is main. Access is restricted; every package remains `private: true`.
 - Semantic version guidance: patch for compatible fixes; minor for features; major for breaking consumer-facing interfaces. While the app is 0.x, use a minor release to communicate intentional breaking changes and explain them in the notes. Changesets applies the explicitly selected bump; it does not infer API compatibility.
-- No GitHub Actions release bot, publication token, or public release automation was added.
+- The manually dispatched local archive workflow builds downloadable CI artifacts. It does not tag, attach assets to a GitHub Release, publish to npm, or restart a service. Attach matching archives and checksums only as part of an authorized release; see [local installation](install.md#prepare-release-assets).
 - Installing this tooling does not retroactively invent a changelog for earlier work. The first pending patch entry covers this setup; package version stays unchanged until version:apply is requested.
