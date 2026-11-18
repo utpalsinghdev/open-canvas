@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { checkoutRoot, runtimeSettings, assertDevelopmentCheckout } from './runtime-settings.mjs';
 
 export async function selectedRelease() {
@@ -15,12 +16,20 @@ export async function selectedRelease() {
   if (marker.commit !== pointer.commit || ![1, 2].includes(layoutVersion)) throw new Error('Unsupported main release layout. Prepare a compatible main snapshot.');
   return { directory, commit: pointer.commit, layoutVersion };
 }
+export async function mainRuntimeSettings(release) {
+  // Older snapshots enforce their original origin inside the broker.
+  const moduleUrl = pathToFileURL(path.join(release.directory, 'scripts/runtime-settings.mjs'));
+  const snapshot = await import(moduleUrl.href);
+  const settings = snapshot.runtimeSettings('main', checkoutRoot);
+  return { ...settings, bindHost: settings.bindHost ?? '0.0.0.0' };
+}
+
 export async function launch(profile, action, { openBrowser = false } = {}) {
-  const settings = runtimeSettings(profile);
   if (!['web', 'mcp'].includes(action)) throw new Error('Runtime action must be web or mcp.');
   if (profile === 'dev') assertDevelopmentCheckout();
   const installed = profile === 'installed';
   const release = profile === 'main' ? await selectedRelease() : null;
+  const settings = release ? await mainRuntimeSettings(release) : runtimeSettings(profile);
   const root = release?.directory ?? checkoutRoot;
   // Already-prepared snapshots retain their original single-package layout.
   const legacy = release?.layoutVersion === 1;
@@ -42,7 +51,7 @@ export async function launch(profile, action, { openBrowser = false } = {}) {
         path.join(installed ? root : webRoot, 'node_modules/vite/bin/vite.js'),
         ...(profile === 'dev' ? [] : ['preview']),
         '--config', installed ? path.join(root, 'scripts/installed-preview.mjs') : path.join(webRoot, 'vite.config.ts'),
-        '--host', installed ? '127.0.0.1' : '0.0.0.0',
+        '--host', settings.bindHost,
         '--port', String(settings.appPort), '--strictPort',
         ...(openBrowser ? ['--open'] : []),
       ]

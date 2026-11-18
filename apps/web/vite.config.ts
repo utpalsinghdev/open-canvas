@@ -47,18 +47,20 @@ export default defineConfig({
     },
   ],
   server: {
+    host: settings.bindHost,
     port: settings.appPort,
     strictPort: true,
-    allowedHosts: ['localmachine'],
+    allowedHosts: [settings.bindHost],
     proxy: agentProxy,
     fs: {
       deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/.cavas/**'],
     },
   },
   preview: {
+    host: settings.bindHost,
     port: settings.appPort,
     strictPort: true,
-    allowedHosts: ['localmachine'],
+    allowedHosts: [settings.bindHost],
     proxy: agentProxy,
   },
 });

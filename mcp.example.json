@@ -7,13 +7,7 @@
         "main",
         "mcp"
       ],
-      "cwd": "/absolute/open-cavas",
-      "env": {
-        "CAVAS_PROFILE": "main",
-        "CAVAS_APP_PORT": "5182",
-        "CAVAS_MCP_PORT": "4781",
-        "CAVAS_APP_ORIGIN": "http://localmachine:5182"
-      }
+      "cwd": "/absolute/open-cavas"
     }
   }
 }

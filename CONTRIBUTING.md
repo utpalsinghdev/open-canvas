@@ -44,7 +44,7 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm run dev
 ```
 
-The development frontend uses `http://localmachine:5188`; its private broker uses loopback port 4785. Check both ports before starting. If another worktree uses them, choose an available app/broker pair as described in [runtime isolation](docs/runtime.md). Never reuse main's ports or service data. A standalone fork does not need a main release to run development.
+The development frontend uses `http://127.0.0.1:5188`; its private broker uses loopback port 4785. Check both ports before starting. If another worktree uses them, choose an available app/broker pair as described in [runtime isolation](docs/runtime.md). Never reuse main's ports or service data. A standalone fork does not need a main release to run development.
 
 ## Implement and verify
 

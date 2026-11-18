@@ -18,12 +18,29 @@ Release preparation installs the entire workspace from the lockfile, checks all 
 
 | Profile | Browser app | Private MCP broker | MCP config name |
 | --- | --- | --- | --- |
-| Main | http://localmachine:5182 | 127.0.0.1:4781 | open-cavas |
-| Development | http://localmachine:5188 | 127.0.0.1:4785 | open-cavas-dev-5188 |
+| Main | http://127.0.0.1:5182 | 127.0.0.1:4781 | open-cavas |
+| Development | http://127.0.0.1:5188 | 127.0.0.1:4785 | open-cavas-dev-5188 |
 
-These profiles have separate private service workspace directories. Existing browser IndexedDB data remains origin-specific until explicitly copied. Import JSON backups to transfer work. Never use the development app to access main's saved browser data directly. Both app listeners bind 0.0.0.0; brokers remain loopback-only and require automatic browser tickets and exact Origin/Host. Keep app listeners on a trusted network, without public ingress.
+Both profiles listen on loopback by default and keep separate private service workspaces. The broker always stays on loopback and requires automatic browser tickets and exact Origin/Host validation. Never use the development app to access main's saved browser data directly.
 
-Main ports and Origin cannot be overridden. Development refuses either main port. An additional simultaneous feature worktree needs a different explicitly assigned development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when launching that app, generating its config. Development Origin defaults to `http://localmachine:<app-port>`; any explicit Origin must match that port.
+Main ports are fixed. Development refuses either main port. An additional simultaneous feature worktree needs a separate development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when starting that app and generating its MCP config.
+
+## Use a trusted-network origin
+
+Only opt in if you need the browser to reach a source runtime from another device. Set `CAVAS_APP_ORIGIN` to the exact browser URL without a trailing slash, using the app port and a hostname or IP assigned to the machine running Open Cavas. The frontend binds to that resolved address, not all interfaces. Do not use a public interface or enable public ingress; the app does not authenticate users.
+
+Use the same value when starting the frontend and generating the MCP config. For example, replace the placeholder with your trusted-network hostname:
+
+```sh
+export CAVAS_APP_ORIGIN="http://<your-host>:5188"
+pnpm run dev
+# In another shell, set the same origin before running:
+pnpm --silent run mcp:config:dev
+```
+
+For main, use port 5182 and the same override for `pnpm start` or `pnpm run service:install` and `pnpm --silent run mcp:config`. The service installer records an explicit override in the unit without restarting an existing active service. Apply it only at the coordinated restart. To revert to the loopback default, rerun the service installer and regenerate MCP config with the variable unset, then coordinate the restart. Older frozen snapshots keep their original address contract until replaced; use their original origin when rolling back.
+
+Changing the origin does not move saved service workspaces. Browser-only IndexedDB, browser settings, and saved links are origin-specific. Back up any browser-only work from the old address before switching. Use the exact configured URL to load the new origin and select the existing service workspace.
 
 ## Use main
 
@@ -78,7 +95,7 @@ Do not invoke `apps/local-service/src/index.ts` or Vite directly to work around 
 3. Review pending Changesets with `pnpm run changeset:status`. When a version release is authorized, run `pnpm run version:apply`, inspect package/lockfile/changelog changes, and commit them. Then run `pnpm run release:main` from clean main. Versioning and runtime publication are separate steps; see versioning.md.
 4. Schedule the restart. Have active users wait for Saved locally and keep JSON backups. Stop only the known main frontend and main broker owner, not unrelated services or attached client processes by broad name.
 5. Run `pnpm run service:restart` for an installed main frontend service, or `pnpm start` for manual use, and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
-6. Verify HTTP through localmachine, matching frontend/MCP release IDs, and document read-back before resuming experiments.
+6. Verify HTTP at the configured browser URL, matching frontend/MCP release IDs, and document read-back before resuming experiments.
 
 An existing main frontend can keep serving the previous release while the new release is built. Restart is the controlled update boundary, not a side effect of development. MCP owner restart disconnects browser sockets; live migration without disconnect is not implemented.
 

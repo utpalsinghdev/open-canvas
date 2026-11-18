@@ -1,11 +1,18 @@
 # Verification record
 
+## Portable source addresses
+
+- With the pinned toolchain, frozen install, `corepack pnpm run check`, and `corepack pnpm run build` passed. Development bound only to loopback by default and only to the configured trusted-network interface when explicitly overridden. Neither frontend answered on the other interface. Both brokers stayed on loopback.
+- Chromium created and reopened an introductory workspace at each address. An official SDK client used each generated MCP entry to find the browser canvas and read its saved document. Matching browser Origin was accepted; a mismatched Origin was rejected.
+- A disposable frozen main snapshot served and authenticated browser requests on its default and overridden addresses in an isolated network namespace. Generated MCP config matched each address. Config generation for an older snapshot kept that snapshot's original origin. The systemd unit preview included a supplied override and omitted it by default; no live unit was changed.
+- The Linux x64 package still installed and started on its own loopback address with the source override set. The stable main app and its saved data were not changed.
+
 ## Downloadable local app
 
 - Pinned frozen install, `corepack pnpm run check`, `corepack pnpm run build`, and `corepack pnpm run package:local` passed on Linux x64. The archive and checksum verified. An isolated home with no Git, Node.js, npm, or pnpm on PATH installed and launched the archive. Reinstalling the same archive worked; a mismatched checksum left the installed command in place.
 - Created an introductory workspace in the installed editor and changed a rectangle's width from 230 to 312. Installing another build left the workspace file unchanged. After restart, the browser reopened the same file at width 312.
 - A client using `open-cavas mcp-config` found the connected canvas and durable workspace, read the saved edit from both, and received a PNG from native rendering. Both installed ports listened only on loopback. Same-origin ticket bootstrap succeeded; incorrect Origin and Host were rejected, and the frontend refused internal broker routes.
-- The source dev server still opened through `localmachine` on its own ports. Main stayed running on its original release. No document schema, editor controls, backup formats, or MCP tools changed.
+- The source dev server still opened through the configured trusted-network address on its own ports. Main stayed running on its original release. No document schema, editor controls, backup formats, or MCP tools changed.
 
 The release workflow and public download URL were not exercised locally. Linux ARM64 and both macOS builds remain unverified. Windows is not supported by this installer.
 
@@ -89,7 +96,7 @@ Verified on Node.js 24.22.1 and pnpm 12.21.0 in the feature worktree:
 - `corepack pnpm install --frozen-lockfile`, `corepack pnpm run check`, and `corepack pnpm run build` passed. Build retained the existing Zod annotation warnings.
 - The imported pnpm lockfile preserves direct dependency versions except for aligning `@types/node` with Node 24. A frozen install with Node 22.23.4 was rejected by strict engine validation.
 - `corepack pnpm run changeset:status` reported the migration's pending patch without applying a version change.
-- The isolated development launcher returned HTTP 200 through localmachine. `corepack pnpm --silent run mcp:config:dev` produced parseable JSON, and an official SDK stdio client completed `list_workspaces` against its isolated broker.
+- The isolated development launcher returned HTTP 200 through the configured trusted-network address. `corepack pnpm --silent run mcp:config:dev` produced parseable JSON, and an official SDK stdio client completed `list_workspaces` against its isolated broker.
 - A clean disposable clone passed `corepack pnpm install --frozen-lockfile` with the explicit esbuild build policy. `corepack pnpm run release:main` prepared and built only that clone's archived snapshot. Vite, tsx, sharp, and canvas resolved inside the snapshot; native canvas and sharp produced PNG output.
 - `corepack pnpm run version:apply` succeeded only in the disposable clone, consumed the pending patch, and refreshed the pnpm lockfile. The real feature branch's app version was not bumped.
 
@@ -106,13 +113,13 @@ No test files were written. Verification uses the real browser, TypeScript, prod
 - `git diff --check`: passed.
 - Production preview on a separately checked free port returned HTTP 200. A separate real-browser session loaded the built bundle, created an empty document, drew an artboard, and drew an ellipse parented to that artboard. No browser errors were reported. The temporary preview was stopped after verification.
 - No existing CI workflows or test suite were present in the initially empty application repository.
-- `curl --fail http://localmachine:5178/`: returned the application entry point on the home server. The same request over SSH from the Mac also succeeded.
+- `curl --fail http://<configured-host>:5178/`: returned the application entry point on the home server. The same request over SSH from the Mac also succeeded.
 - Impeccable detector on application UI targets: no findings.
 - Hallmark static check after fixes: zero floor failures. Pure black/white theme warnings are explicitly waived for the user's pinned theme. One disabled-control contrast warning remains; disabled controls are exempt from WCAG text contrast requirements. The render tier did not run because puppeteer-core was unavailable. Real agent-browser captures were used instead; no render-tier pass is claimed.
 
 ## Real browser workflows
 
-The app was opened through `http://localmachine:5178`, not loopback. A dedicated browser session was used.
+The app was opened through `http://<configured-host>:5178`, not loopback. A dedicated browser session was used.
 
 - Selected a text layer and changed its X coordinate through Properties. Undo restored the original coordinate.
 - Duplicated and deleted layers. Drew a rectangle by pointer drag.
@@ -160,7 +167,7 @@ An official SDK client launched the actual stdio server and drove tools/call thr
 - Edited text manually in the real browser and read the new content through MCP with an advanced revision.
 - A stale-revision delete returned a revision conflict without deleting its target. Script-bearing HTML returned an error. A focused manual inspector edit blocked an agent mutation.
 - Production bundle was then served on the configured app port. Re-pairing, document/token read-back, rename, and a 640 by 480 artwork screenshot all succeeded against that built bundle. The document name visible in the browser matched the MCP mutation.
-- Both development and production app entry points were reached through `localmachine`, and HTTP access from the Mac over SSH was verified.
+- Both development and production app entry points were reached through the configured trusted-network address, and HTTP access from the Mac over SSH was verified.
 
 ### Security and lifecycle checks
 
@@ -189,7 +196,7 @@ Branch `feat/multi-projects` begins at the locally merged MCP commit `57fc1c8`. 
 - Downloaded a version-2 file through the UI and parsed it as JSON. It included Desktop and Mobile pages. Imported it as another file without changing existing files.
 - Imported a complete project archive and a workspace backup. After reload, a downloaded workspace contained seven synthetic projects and seventeen files with seventeen distinct file IDs. Original entries remained. Duplicate names were permitted; IDs differed.
 - Opened two actual browser tabs on the same origin. After one saved, an edit in the stale tab displayed Workspace changed in another tab and Not saved. Direct IndexedDB read confirmed the newer stored value and disk revision had not been overwritten. The stale tab's edit remained in memory until reloaded. An initial tab-switch command used unsupported integer indices; corrected to stable tab IDs before exercising the actual conflict.
-- Served the production bundle on port 5188 and confirmed HTTP 200 through localmachine and from the Mac over SSH. Existing origins and running main app were not modified.
+- Served the production bundle on port 5188 and confirmed HTTP 200 through the configured trusted-network address and from the Mac over SSH. Existing origins and running main app were not modified.
 - On the production bundle, renamed a page, duplicated it, confirmed page deletion, and restored it with Undo. Created and permanently deleted a disposable project through the explicit warning/confirmation flow.
 - Inspected Projects at desktop 1440×1000 and mobile 390×844. Mobile document width was 390; dialog and file-list bounds stayed inside the viewport. Pages were accessible through Layers overlay. No browser errors were reported.
 
@@ -248,7 +255,7 @@ No new test files or public Git actions were used. Automatic service restart aft
 
 The user explicitly requested removal of manual pairing, tested on a separate branch and then rolled out to main. This increment removes the Pair UI, code input, scripts/pair.mjs, and mcp:pair npm commands. Historical pairing checks above describe earlier releases, not current setup.
 
-- Opened a dedicated synthetic dev browser at localmachine:5188 before starting the broker. It showed Waiting for agent. Starting an actual official SDK stdio client on the dev profile made that same tab automatically register, without entering a code or clicking Connect/Pair. The SDK listed its canvas and current context.
+- Opened a dedicated synthetic dev browser at the configured trusted-network address on port 5188 before starting the broker. It showed Waiting for agent. Starting an actual official SDK stdio client on the dev profile made that same tab automatically register, without entering a code or clicking Connect/Pair. The SDK listed its canvas and current context.
 - Through that SDK connection, created an artboard/text layer, read the exact text back, and captured a 500×300 PNG as MCP image content. No user portfolio content was used.
 - Paused agent access and confirmed list_canvases became empty. Resumed without a code and reconnected. Reloaded the browser and confirmed automatic registration and zero password/code inputs. Initial UI test selectors incorrectly expected aria-label attributes on native text buttons; corrected selectors and exercised the actual controls.
 - Stopped the task-owned dev broker, restarted it, and confirmed the already-open browser reconnected with no manual action. No design mutation was replayed.
@@ -300,7 +307,7 @@ A repeat service:install invocation exceeded its foreground command budget while
 
 ## Typography fidelity milestone
 
-Implementation branch `t3/mcp-typography-fidelity` in `/home/utpal/.t3/worktrees/open-canvas/t3-13ad3c7d-c61b564d61d5fedc`. Main frontend/MCP services were not changed. Used the isolated dev app at `http://localmachine:5191` and loopback-only private broker at 4791. No CI workflow or automated test files exist in this checkout.
+Implementation branch `t3/mcp-typography-fidelity` in `/home/utpal/.t3/worktrees/open-canvas/t3-13ad3c7d-c61b564d61d5fedc`. Main frontend/MCP services were not changed. Used the isolated dev app at its configured trusted-network address on port 5191 and loopback-only private broker at 4791. No CI workflow or automated test files exist in this checkout.
 
 - `npm run check`, `npm run build`, and `git diff --check` passed. Build retains two non-blocking annotation-placement warnings from Zod dependency comments.
 - A legacy version-1 document parsed with missing typography fields and string weight `"500"`; it normalized to Arial, numeric weight 500, line height 1.2, zero tracking, left alignment, no wrapping, and fixed sizing. Bricolage weight 200 was rejected.
@@ -323,7 +330,7 @@ Review found three first-milestone gaps: HTML text import still discarded explic
 
 Remaining limits: the font registry is application-defined rather than per-document/custom-uploaded. System font substitution remains browser-defined. Full Unicode line breaking, hyphenation, rich text, text-box clipping, rotated auto-size resize behavior, cross-browser output, and the font network-timeout duration were not verified. Groups/auto-layout, native strokes/focus offsets, live token bindings, diagnostics/contrast, component instances, and parent/child reference batches are later milestones, not completed acceptance checks.
 
-Synced current main (`514d638`) into the feature branch before publication preparation. Resolved startup by awaiting workspace/font initialization before starting the existing main-release watcher and mounting React; retained both verification histories. Post-sync build/Changeset checks passed. Reopened the same synthetic dev profile and verified HTTP 200 through localmachine, actual SDK connection, saved fixed-height and four-line auto-height read-back, and screenshot scale/bounds/font metadata. No main service installation, restart, release, or portfolio write was performed.
+Synced current main (`514d638`) into the feature branch before publication preparation. Resolved startup by awaiting workspace/font initialization before starting the existing main-release watcher and mounting React; retained both verification histories. Post-sync build/Changeset checks passed. Reopened the same synthetic dev profile and verified HTTP 200 through the configured trusted-network address, actual SDK connection, saved fixed-height and four-line auto-height read-back, and screenshot scale/bounds/font metadata. No main service installation, restart, release, or portfolio write was performed.
 
 ## Canvas wheel handling after navigation (#1)
 
@@ -526,7 +533,7 @@ revision; eight custom SVGs remain. No browser pass is claimed for this follow-u
 - Browser ran headless in an isolated local Brave profile. macOS, Firefox, Safari,
   and live MCP transport were not tested. Active LSP probe was inconclusive;
   TypeScript compilation passed. Tailscale reported Running and self online;
-  the dev endpoint returned HTTP 200 through localmachine. Network settings,
+  the dev endpoint returned HTTP 200 through the configured trusted-network address. Network settings,
   authentication boundaries, and the running main release were unchanged.
 ## Issue #17: local review threads
 
@@ -588,7 +595,7 @@ Limits: the original baseline connection-timing sequence was inconclusive, not a
 
 Controlled reproduction on the unchanged `70868bf` base intentionally sent SIGTERM to an isolated development broker owner while a second official SDK stdio client stayed attached. The broker listener disappeared, attached listing returned `fetch failed`, and the frontend stayed available. Restarting the owner restored browser registration, but old attached clients retained stale credentials. This establishes the diagnostic gaps after controlled owner exit, not the cause of the original reported shutdown.
 
-After the diagnostic change, local Brave Headless 151 used a dedicated synthetic profile at `http://localmachine:5208`, with private broker port 4808. Supported launchers used `CAVAS_APP_PORT=5208 CAVAS_MCP_PORT=4808 npm run dev` and the corresponding development MCP launcher. Official SDK probes exercised the actual stdio tools.
+After the diagnostic change, local Brave Headless 151 used a dedicated synthetic profile at its configured trusted-network address on port 5208, with private broker port 4808. Supported launchers used `CAVAS_APP_PORT=5208 CAVAS_MCP_PORT=4808 npm run dev` and the corresponding development MCP launcher. Official SDK probes exercised the actual stdio tools.
 
 - A synthetic file, artboard, and text reached `persistence: saved` and survived browser reload.
 - After controlled owner SIGTERM, attached `get_capabilities` still returned local information. `list_canvases` reported transport unavailability with coordinated recovery instructions. A document read included the unknown-outcome warning.
@@ -634,11 +641,11 @@ Remaining limits: no power-loss or disk-failure campaign, no original production
 
 - After integration with PDF export and Home, local browser verification entered an unavailable system font, confirmed the fallback message, exported a PDF successfully, and verified the requested family persisted after reload. PDF continues to reject unavailable bundled fonts rather than mislabeling missing system fonts as bundled.
 - Reproduced the closed five-family picker in isolated local Brave with Comfortaa installed and browser-detectable. The implementation replaces it with literal family-name entry and existing-family suggestions. Text, font tokens, JSON, MCP edits, and restricted HTML share validation.
-- Real local Brave at `http://localmachine:5206` verified Comfortaa entry/Enter commit, visible rendering and detection status, undo/redo, reload, and missing-name blur commit with explicit Arial fallback. Requested missing names survived a JSON download and UI import. At 800 by 700, Properties and the font field remained accessible by scrolling.
+- Real local Brave at its configured trusted-network address on port 5206 verified Comfortaa entry/Enter commit, visible rendering and detection status, undo/redo, reload, and missing-name blur commit with explicit Arial fallback. Requested missing names survived a JSON download and UI import. At 800 by 700, Properties and the font field remained accessible by scrolling.
 - SVG retained requested metadata. Browser rendering verified lowercase/uppercase Inter aliases resolve to the bundled canonical family, embed identical bytes, and produce identical PNG output. Lowercase Bricolage Grotesque at weight 900 was rejected. Punctuation/quotes/backslashes stayed literal without injected XML attributes or observed execution/resource requests in bounded probes.
 - Live official-SDK `get_fonts` queries returned browser detection for Comfortaa/Inter and missing-font status, while workspace-target queries remained unverified. Font token definition/application and node read-back succeeded. These browser mutation receipts were pending; token persistence after reload was not separately verified. Screenshot metadata preserved `__proto__` in its entry array.
 - Focused inline Node probes exercised model/token/MCP name validation, invalid inputs, JSON round trips, CSS string escaping and stack rejection, bundled aliases/weight constraints, headless status, and query limits. Actual JSX exports transpiled with TypeScript and rendered through React with literal family metadata and no injected elements/handlers in tested payloads. Additional real Brave probes verified CSSOM/HTML decoding of ampersand, colon, quote, and backslash CSS escapes.
-- Independent security/edge-case review identified bundled alias handling, valid punctuation names, and prototype-like screenshot metadata loss. All three were corrected before final browser verification. Family names never choose fetch sources or enumerate local fonts. Tailscale remained online; the app responded through localmachine, private broker stayed on loopback, and missing bootstrap header, wrong Origin, wrong Host, and unauthenticated internal access each returned HTTP 403.
+- Independent security/edge-case review identified bundled alias handling, valid punctuation names, and prototype-like screenshot metadata loss. All three were corrected before final browser verification. Family names never choose fetch sources or enumerate local fonts. Tailscale remained online; the app responded through the configured trusted-network address, private broker stayed on loopback, and missing bootstrap header, wrong Origin, wrong Host, and unauthenticated internal access each returned HTTP 403.
 - `npm run build` (including `tsc --noEmit`), `npm run changeset:status`, and `git diff --check` passed. Active LSP probes checked all 12 changed TypeScript/TSX paths with zero diagnostics. UI detector returned no findings. Existing Zod dependency annotation warnings remain nonblocking. No CI workflows or new test files exist for this increment.
 
 Limits: metric comparison is not installed-file, glyph, alias, or per-style proof. System fonts are not embedded; another device/SVG renderer may substitute them. Detection cache resets on reload, not automatically after operating-system font installation. No Mac-specific behavior, exhaustive injection audit, or font-file permission flow was exercised. Main release and its services were not rebuilt, restarted, or replaced.
@@ -682,7 +689,7 @@ Before/after screenshots contain only synthetic starter artwork and were capture
 
 - The initial separate welcome page was replaced with an editable seed after clarification. Its prior screenshot and behavior are not part of the shipped feature.
 - `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check`: passed. Build retains existing Zod annotation-placement warnings.
-- Chromium through `localmachine`: Start with introductory canvas created a real Welcome to Open Cavas file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
+- Chromium through the configured trusted-network address: Start with introductory canvas created a real Welcome to Open Cavas file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
 - Selected the seeded circle through Layers and moved it with ArrowRight. Edited the seeded text through Properties. Both changes survived reload, with 17 layers retained.
 - Create empty workspace still produced zero layers. An existing workspace opened by its direct URL retained its one artboard and Untitled file name without seeded layers being inserted.
 - Desktop screenshot at 1920 × 1080 shows both artboards inside editor chrome. At 390 × 844, fit/pan/zoom and responsive panels remain available; document width stayed 390 px. Fitting both boards makes text small, so reading requires zooming, as with other canvas artwork.

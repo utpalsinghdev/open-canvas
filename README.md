@@ -23,9 +23,10 @@ In the primary main checkout:
 ```sh
 pnpm install --frozen-lockfile
 pnpm run release:main  # Requires clean committed main; builds a frozen snapshot
-pnpm run service:install # Persistent main frontend at http://localmachine:5182
-# pnpm start remains available for manual foreground use
+pnpm start             # Open http://127.0.0.1:5182 in your browser
 ```
+
+On Linux with systemd, use `pnpm run service:install` instead of `pnpm start` to keep the editor running after closing your terminal.
 
 Main MCP uses private loopback port **4781**. Generate its config with `pnpm --silent run mcp:config`, start/reconnect your agent, and select an explicit workspace with `list_workspaces`. Data operations do not need an open browser. Browser rendering connects automatically when the application is open. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
 
@@ -41,12 +42,12 @@ Use a feature branch in a separate worktree:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm run dev                        # http://localmachine:5188
+pnpm run dev                        # http://127.0.0.1:5188
 pnpm --silent run mcp:config:dev     # Separate development agent entry
 pnpm run build                      # TypeScript and source bundle; not a main release
 ```
 
-The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
+The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. The source editor and private broker listen on loopback by default. To use another device, explicitly [configure a trusted-network origin](docs/runtime.md#use-a-trusted-network-origin). Do not expose the app to the public internet.
 
 After feature verification and authorized merge, run `pnpm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
 

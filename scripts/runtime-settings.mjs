@@ -16,19 +16,22 @@ export function runtimeSettings(profile = process.env.CAVAS_PROFILE ?? 'dev', ro
   const installed = profile === 'installed';
   const appPort = port(process.env.CAVAS_APP_PORT, main ? 5182 : installed ? 5190 : 5188);
   const brokerPort = port(process.env.CAVAS_MCP_PORT, main ? 4781 : installed ? 4790 : 4785);
-  const origin = installed ? `http://127.0.0.1:${appPort}` : process.env.CAVAS_APP_ORIGIN ?? `http://localmachine:${appPort}`;
+  const defaultOrigin = `http://127.0.0.1:${appPort}`;
+  const origin = (installed ? undefined : process.env.CAVAS_APP_ORIGIN) ?? defaultOrigin;
   let url;
   try { url = new URL(origin); }
   catch { throw new Error('CAVAS_APP_ORIGIN must be a valid HTTP(S) origin.'); }
   if (!['http:', 'https:'].includes(url.protocol) || url.origin !== origin || Number(url.port || (url.protocol === 'https:' ? 443 : 80)) !== appPort) throw new Error('CAVAS_APP_ORIGIN must be an exact HTTP(S) origin using the app port.');
   if (appPort === brokerPort) throw new Error('App and private broker need separate ports.');
-  if (main && (appPort !== 5182 || brokerPort !== 4781 || origin !== 'http://localmachine:5182')) throw new Error('Main runtime is fixed at http://localmachine:5182 and private broker 4781.');
+  const bindHost = url.hostname.replace(/^\[|\]$/g, '');
+  if (['0.0.0.0', '::', '*'].includes(bindHost)) throw new Error('CAVAS_APP_ORIGIN must name a specific interface, not a wildcard.');
+  if (main && (appPort !== 5182 || brokerPort !== 4781)) throw new Error('Main runtime uses fixed ports 5182 and 4781.');
   if (!main && [appPort, brokerPort].some((value) => [5182, 4781].includes(value))) throw new Error('Only main can use reserved ports 5182 and 4781.');
   if (installed && [appPort, brokerPort].some((value) => [5188, 4785].includes(value))) throw new Error('Installed runtime cannot use reserved development ports 5188 or 4785.');
   const stateDirectory = installed
     ? path.join(homedir(), '.open-cavas', 'data', `${appPort}-${brokerPort}`)
     : path.join(root, '.cavas', 'runtime', profile, `${appPort}-${brokerPort}`);
-  return { profile, appPort, brokerPort, origin, stateDirectory, metadataPath: path.join(stateDirectory, 'broker.json') };
+  return { profile, appPort, brokerPort, origin, bindHost, stateDirectory, metadataPath: path.join(stateDirectory, 'broker.json') };
 }
 export function git(root, ...args) {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();

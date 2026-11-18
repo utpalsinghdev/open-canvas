@@ -74,9 +74,8 @@
 - Read the published PR back against its draft. Follow applicable approval gates before publishing or editing issues and PRs.
 
 ## Running
-- Check port availability first. Development server binds 0.0.0.0 unless sensitive data requires a loopback or tailnet-only listener.
-- Report the browser URL as http://localmachine:<port>, not a wildcard or loopback address.
-- Verify through localmachine before claiming reachability. Keep private helpers and browser debugging listeners on loopback.
+- Check port availability first. The editor serves private data and binds to loopback by default. For explicitly configured remote access, bind the frontend to the named trusted interface only.
+- Report and verify the exact configured browser URL, never a wildcard listener address. Verify from the accessing device when available. Keep the broker, private helpers, and browser debugging listeners on loopback.
 
 
 ## MCP boundaries
