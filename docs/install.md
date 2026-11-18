@@ -10,7 +10,7 @@ Windows, Alpine Linux, and native desktop installers are not included. The bundl
 
 ## Install and open
 
-Use a [GitHub release](https://github.com/utpalsinghdev/open-canvas/releases) that provides an archive and its SHA-256 file for your platform. Older releases without these files cannot be installed this way. The latest-release download is available only after those assets are attached to the latest release.
+Online installation and updates require a publicly readable [GitHub release](https://github.com/utpalsinghdev/open-canvas/releases) with an archive and SHA-256 file for your platform. They do not use GitHub authentication. Older releases without these files cannot be installed this way. The latest-release download is available only after those assets are attached to the latest release.
 
 Once the latest release includes the archive and checksum, install with:
 
@@ -46,7 +46,18 @@ Run `open-cavas mcp-config`, using the same port overrides as the editor, if any
 
 The installer puts the command in `~/.local/bin` and the verified package in `~/.open-canvas/install/releases`. Projects and private broker state live separately in `~/.open-canvas/data/<app-port>-<broker-port>/`. An older `~/.open-cavas/data/` workspace stays readable and is not moved during install. See [older state directories](local-workspaces.md#older-state-directories) to rename it while stopped. The installer does not read or migrate source or browser workspaces.
 
-Save a workspace backup, stop the editor and its installed MCP clients, then run the installer again to update. Use `--version` to reinstall a specific release, or keep an archive and checksum for offline rollback. An older release may not open documents saved in a newer format; keep a backup from before the upgrade. There is no automatic update or deletion of old packages.
+Check the latest stable version and read its notes before choosing to update:
+
+```sh
+open-cavas update --check
+open-cavas changelog --latest
+```
+
+Save your work and stop the editor and installed MCP clients. Run `open-cavas update` to install the matching archive for the latest stable release, then start the editor and reconnect MCP clients. The updater uses the installer already in the installed bundle, downloads a specific release, verifies its checksum and version, and switches the command only after verification. It does not restart running sessions, rewrite workspaces, or downgrade to an older version. Checks and updates run only when requested.
+
+Open **Help → Changelog** in an editor file to read the installed version's changes. Run `open-cavas changelog` to read the full bundled history. Both work offline. `changelog --latest` reads the current GitHub release notes and needs an internet connection. If GitHub is unavailable or has no matching archive and checksum yet, keep using the current installation.
+
+Use the installation script with `--version vX.Y.Z` to reinstall a specific release, or keep its archive and checksum for offline rollback. An older release may not open documents saved in a newer format; keep a backup from before the upgrade. Old packages are not deleted automatically.
 
 To uninstall, stop the editor and its installed MCP clients, then remove the `~/.local/bin/open-cavas` symlink and `~/.open-canvas/install`. Leave both `~/.open-canvas/data` and any older `~/.open-cavas/data` intact to keep your projects. Older packages under `~/.open-cavas/install` are not removed automatically.
 

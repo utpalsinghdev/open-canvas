@@ -98,7 +98,7 @@ Inspector fields are grouped into Position, Dimensions, Typography for text, App
 
 ## File and workspace context
 
-File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps its menu inside narrow viewports. The desktop footer identifies the selected workspace and page. Help distinguishes app-server saving, editable JSON backups and artwork exports.
+File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps its menu inside narrow viewports. The desktop footer identifies the selected workspace and page. Help distinguishes app-server saving, editable JSON backups and artwork exports. A versioned Changelog disclosure near the top keeps the current release notes available offline without displacing the shortcut list when closed. Installed builds include the terminal command for checking updates. The browser does not install updates.
 
 ## Desktop density and action hierarchy
 

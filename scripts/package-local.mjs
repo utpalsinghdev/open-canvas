@@ -30,11 +30,12 @@ async function packageLocal() {
     pnpm(checkoutRoot, ['run', 'build'], { ...process.env, CAVAS_PROFILE: 'installed', CAVAS_RELEASE_COMMIT: commit });
     const files = [
       'LICENSE', 'package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml',
-      'apps/web/package.json', 'apps/web/dist',
+      'apps/web/package.json', 'apps/web/CHANGELOG.md', 'apps/web/dist',
       'apps/local-service/package.json', 'apps/local-service/src',
       'packages/document', 'packages/engine', 'packages/mcp', 'public',
       'scripts/runtime.mjs', 'scripts/runtime-settings.mjs',
       'scripts/installed.mjs', 'scripts/installed-preview.mjs',
+      'scripts/installed-releases.mjs', 'scripts/install.sh',
     ];
     for (const file of files) {
       await cp(path.join(checkoutRoot, file), path.join(bundle, file), {

@@ -12,7 +12,7 @@ See the [introduction and screenshot](docs/introduction.md).
 
 ## Install locally
 
-Open Cavas release archives bundle the editor, local workspace service, and Node.js. You do not need Git, npm, or pnpm to run them. See [local installation](docs/install.md) for supported platforms, how to install a release that includes archives, and how to build one from source.
+Open Cavas release archives bundle the editor, local workspace service, and Node.js. You do not need Git, npm, or pnpm to run them. See [local installation](docs/install.md) for supported platforms and setup. Once installed, run `open-cavas update --check` to check for updates or `open-cavas changelog` to read the bundled notes offline. The editor also shows the changelog in Help.
 
 ## Run stable main from source
 

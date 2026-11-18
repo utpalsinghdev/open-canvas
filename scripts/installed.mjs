@@ -1,20 +1,27 @@
 import { launch } from './runtime.mjs';
 import { runtimeSettings } from './runtime-settings.mjs';
+import { changelog, update } from './installed-releases.mjs';
 import app from '../apps/web/package.json' with { type: 'json' };
 
 const usage = `Usage: open-cavas [--no-open]
        open-cavas mcp-config
        open-cavas mcp
        open-cavas --version
+       open-cavas update [--check]
+       open-cavas changelog [--latest]
 
 Starts the local editor and opens your browser. Ctrl+C stops the editor server.
 Use mcp-config to print the configuration for a local MCP client.`;
 
 try {
-  const args = process.argv.slice(2);
-  const action = args.length ? args.join(' ') : 'start';
+  const [action, flag, ...extra] = process.argv.slice(2);
+  if (extra.length || (flag !== undefined && !(action === 'update' && flag === '--check' || action === 'changelog' && flag === '--latest'))) {
+    throw new Error(usage);
+  }
   if (action === '--help' || action === '-h') console.log(usage);
   else if (action === '--version') console.log(app.version);
+  else if (action === 'update') await update(app.version, flag === '--check');
+  else if (action === 'changelog') await changelog(flag === '--latest');
   else if (action === 'mcp-config') {
     const { appPort, brokerPort } = runtimeSettings('installed');
     console.log(JSON.stringify({ mcpServers: { 'open-cavas': {
@@ -24,8 +31,8 @@ try {
     } } }, null, 2));
   } else if (action === 'mcp') {
     await launch('installed', 'mcp');
-  } else if (args.length === 0 || action === '--no-open') {
-    await launch('installed', 'web', { openBrowser: args.length === 0 });
+  } else if (action === undefined || action === '--no-open') {
+    await launch('installed', 'web', { openBrowser: action === undefined });
   } else {
     throw new Error(usage);
   }

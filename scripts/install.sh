@@ -9,11 +9,12 @@ usage() {
 }
 
 main() {
-  local release=latest/download archive='' platform arch asset base install bin stage target command_path current expected actual version link_stage
+  local release=latest/download archive='' expected_version='' platform arch asset base install bin stage target command_path current expected actual version link_stage
   case "${1:-}" in
     --version)
       [[ $# == 2 && $2 =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail 'Use --version vX.Y.Z.'
-      release=download/$2 ;;
+      release=download/$2
+      expected_version=${2#v} ;;
     --archive)
       [[ $# == 2 && -f $2 && -f $2.sha256 ]] || fail 'Provide the archive and its adjacent .sha256 file.'
       archive=$2 ;;
@@ -57,9 +58,11 @@ main() {
     base=https://github.com/utpalsinghdev/open-canvas/releases/$release
     archive=$stage/$asset
     printf 'Downloading %s…\n' "$asset"
-    curl --proto '=https' --proto-redir '=https' -fsSL --retry 3 "$base/$asset" -o "$archive" ||
+    curl --proto '=https' --proto-redir '=https' -fsSL --retry 3 --connect-timeout 10 \
+      --speed-limit 1 --speed-time 60 "$base/$asset" -o "$archive" ||
       fail 'Release archive unavailable. Check the GitHub Releases page.'
-    curl --proto '=https' --proto-redir '=https' -fsSL --retry 3 "$base/$asset.sha256" -o "$archive.sha256" ||
+    curl --proto '=https' --proto-redir '=https' -fsSL --retry 3 --connect-timeout 10 \
+      --max-time 30 "$base/$asset.sha256" -o "$archive.sha256" ||
       fail 'Release checksum unavailable.'
   fi
 
@@ -79,6 +82,7 @@ main() {
     mkdir "$stage/bundle"
     tar -xzf "$archive" -C "$stage/bundle"
     version=$("$stage/bundle/bin/open-cavas" --version) || fail 'Bundle cannot run on this machine.'
+    [[ -z $expected_version || $version == "$expected_version" ]] || fail 'Archive version does not match the requested tag.'
     # renameSync never moves the release into an existing directory as mv would.
     "$stage/bundle/bin/node" -e '
       const fs = require("node:fs");
@@ -87,6 +91,7 @@ main() {
     ' "$stage/bundle" "$target" || fail 'Could not store the verified archive.'
   else
     version=$("$target/bin/open-cavas" --version) || fail 'Existing bundle cannot run on this machine.'
+    [[ -z $expected_version || $version == "$expected_version" ]] || fail 'Archive version does not match the requested tag.'
   fi
   ln -s "$target/bin/open-cavas" "$link_stage/open-cavas"
   mv -f "$link_stage/open-cavas" "$command_path"

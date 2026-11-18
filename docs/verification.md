@@ -1,5 +1,12 @@
 # Verification record
 
+## Installed updates and release notes
+
+- Pinned install, `corepack pnpm run check`, `corepack pnpm run build`, and Linux x64 archive/checksum verification passed. The installed CLI printed the bundled changelog with networking unavailable. A simulated GitHub release supplied online notes without terminal escape characters.
+- Two real Linux x64 archives exercised the upgrade with simulated GitHub metadata and asset downloads. Check-only downloaded nothing. A checksum mismatch, a wrong archive version, and a stale launcher left the selected command unchanged. Offline, rate-limited, prerelease, missing-asset, and no-downgrade cases reported their status without applying an update.
+- A verified upgrade switched the launcher from 0.7.1 to a synthetic 0.8.0 without stopping the running editor or changing its workspace file. After restart, the same browser reopened the saved workspace and Help showed the new version and its notes. The SDK reconnected and read the same saved document through the browser and durable workspace. Help also showed the bundled notes in a source browser at 1366 × 900 and 390 × 844, with keyboard disclosure and no horizontal overflow.
+- The unauthenticated live release query returned no public release. No public upgrade, macOS install, or Linux ARM64 install was exercised. No release, app restart on main, or external screenshot upload was performed.
+
 ## Private state directory name
 
 - A fresh source profile created and reopened a workspace under `.open-canvas`. A different profile reopened its existing `.cavas` workspace without creating a duplicate data directory. Direct and filesystem-alias requests for both directories returned HTTP 403.

@@ -245,6 +245,11 @@ select { appearance: auto; background: var(--control); color: var(--foreground);
 .shortcut-list > div { display: flex; justify-content: space-between; gap: 20px; align-items: center; font-size: 11px; }
 .shortcut-list kbd { text-align: right; }
 .help-dialog p { color: var(--body); font-size: 11px; line-height: 1.7; margin: 24px 0 0; max-width: 65ch; }
+.help-changelog { margin-bottom: 16px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.help-changelog summary { cursor: pointer; }
+.help-changelog a { display: inline-block; margin-top: 8px; text-decoration: underline; text-underline-offset: 2px; }
+.help-dialog .help-changelog p { margin-top: 8px; }
+.help-changelog ul { display: grid; gap: 6px; margin: 8px 0 0; padding-left: 18px; list-style: disc; color: var(--body); line-height: 1.6; overflow-wrap: anywhere; }
 .mobile-panel-controls { display: none; }
 
 @media (max-width: 1100px) {
