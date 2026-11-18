@@ -183,7 +183,7 @@ const reads: Record<
     if (args.format === 'html')
       return {
         format: 'html',
-        content: `<!doctype html><html><head><meta charset="utf-8"><title>Open Cavas export</title></head><body style="margin:0">${artwork.svg}</body></html>`,
+        content: `<!doctype html><html><head><meta charset="utf-8"><title>Open Canvas export</title></head><body style="margin:0">${artwork.svg}</body></html>`,
       };
     const jsx = artwork.svg
       .replace(/<style>([\s\S]*?)<\/style>/g, (_match: string, css: string) => `<style>{${JSON.stringify(css)}}</style>`)

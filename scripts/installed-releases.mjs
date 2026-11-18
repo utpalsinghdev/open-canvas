@@ -32,7 +32,7 @@ async function latestRelease() {
   catch { throw new Error('GitHub returned unreadable release information.'); }
   const tag = release?.tag_name;
   if (typeof tag !== 'string' || tag.match(stableTag)?.[0] !== tag || release.draft !== false || release.prerelease !== false || !Array.isArray(release.assets)) {
-    throw new Error('GitHub did not return a stable Open Cavas release.');
+    throw new Error('GitHub did not return a stable Open Canvas release.');
   }
   const assets = new Set(release.assets.map((asset) => asset?.name));
   return {
@@ -80,20 +80,20 @@ export async function update(current, checkOnly) {
   const latest = await latestRelease();
   const comparison = compareVersions(latest.version, current);
   if (comparison === 0) {
-    console.log(`Open Cavas ${current} is up to date.\n${latest.url}`);
+    console.log(`Open Canvas ${current} is up to date.\n${latest.url}`);
     return;
   }
   if (comparison < 0) {
-    console.log(`Open Cavas ${current} is newer than the latest release (${latest.version}). No downgrade.\n${latest.url}`);
+    console.log(`Open Canvas ${current} is newer than the latest release (${latest.version}). No downgrade.\n${latest.url}`);
     return;
   }
   if (!latest.installable) {
-    const notice = `Open Cavas ${latest.version} has no archive and checksum for ${process.platform}-${process.arch}.\n${latest.url}`;
+    const notice = `Open Canvas ${latest.version} has no archive and checksum for ${process.platform}-${process.arch}.\n${latest.url}`;
     if (!checkOnly) throw new Error(notice);
     console.log(notice);
     return;
   }
-  console.log(`Open Cavas ${current} → ${latest.version} is available.\nRelease notes: ${latest.url}`);
+  console.log(`Open Canvas ${current} → ${latest.version} is available.\nRelease notes: ${latest.url}`);
   if (checkOnly) {
     console.log('Save your work and stop the editor and MCP clients, then run open-canvas update.');
     return;
@@ -113,7 +113,7 @@ export async function changelog(latest) {
     const release = await latestRelease();
     // Treat release notes as plain text, never as terminal control sequences.
     const notes = Array.from(release.notes).filter((char) => char === '\n' || char === '\t' || (char >= ' ' && (char < '\x7f' || char > '\x9f'))).join('');
-    console.log(`Open Cavas ${release.version}\n${release.url}\n\n${notes.trim() || 'No release notes were provided.'}`);
+    console.log(`Open Canvas ${release.version}\n${release.url}\n\n${notes.trim() || 'No release notes were provided.'}`);
   } else {
     const notes = await readFile(path.join(checkoutRoot, 'apps/web/CHANGELOG.md'), 'utf8');
     process.stdout.write(notes);

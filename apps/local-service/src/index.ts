@@ -15,7 +15,7 @@ const server = new McpServer(
   { name: 'open-cavas', version: '0.4.0' },
   {
     instructions:
-      'Controls local Open Cavas workspaces. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. Workspace operations include native PNG rendering; PDF export requires a connected canvas. No hidden browser runs. Connections are automatic; no pairing code is needed.',
+      'Controls local Open Canvas workspaces. Start with get_capabilities and list_workspaces. Use an explicit workspaceId for browser-independent operations, or canvasId from list_canvases for browser rendering. Get current state before edits, pass its revision to every mutation and its exact context to page/content mutations, and read back your result. Workspace-target edits acknowledge durable storage; canvas-target edits are in-memory and report browser persistence separately. Never retry a timed-out mutation without reading state. No browser is needed for workspace data operations. Workspace operations include native PNG rendering; PDF export requires a connected canvas. No hidden browser runs. Connections are automatic; no pairing code is needed.',
   }
 );
 function text(result: unknown): CallToolResult {
@@ -184,5 +184,5 @@ server.server.onclose = () => {
 };
 await server.connect(transport);
 process.stderr.write(
-  `Open Cavas MCP ready. Private broker metadata: ${broker.metadataPath}\n`
+  `Open Canvas MCP ready. Private broker metadata: ${broker.metadataPath}\n`
 );

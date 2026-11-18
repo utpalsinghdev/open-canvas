@@ -104,7 +104,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
   const [name, setName] = useState(document.name);
   useEffect(() => {
     setName(document.name);
-    window.document.title = `${document.name} / Open Cavas`;
+    window.document.title = `${document.name} / Open Canvas`;
   }, [document.name]);
   const save = useCallback(() => {
     const state = useEditor.getState();
@@ -198,7 +198,7 @@ export function EditorApp({ onHome, onProjects, onImport }: {
           <span className="brand-mark">
             <Frame size={18} strokeWidth={1.6} />
           </span>
-          <span>Open Cavas</span>
+          <span>Open Canvas</span>
         </div>
         <IconButton
           className="icon-button desktop-panel-control"

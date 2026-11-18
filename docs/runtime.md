@@ -27,7 +27,7 @@ Main ports are fixed. Development refuses either main port. An additional simult
 
 ## Use a trusted-network origin
 
-Only opt in if you need the browser to reach a source runtime from another device. Set `CAVAS_APP_ORIGIN` to the exact browser URL without a trailing slash, using the app port and a hostname or IP assigned to the machine running Open Cavas. The frontend binds to that resolved address, not all interfaces. Do not use a public interface or enable public ingress; the app does not authenticate users.
+Only opt in if you need the browser to reach a source runtime from another device. Set `CAVAS_APP_ORIGIN` to the exact browser URL without a trailing slash, using the app port and a hostname or IP assigned to the machine running Open Canvas. The frontend binds to that resolved address, not all interfaces. Do not use a public interface or enable public ingress; the app does not authenticate users.
 
 Use the same value when starting the frontend and generating the MCP config. For example, replace the placeholder with your trusted-network hostname:
 

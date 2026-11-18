@@ -25,13 +25,13 @@ export async function readDocument(file: File) {
     value = JSON.parse(await file.text());
   } catch {
     throw new Error(
-      'This file is not valid JSON. Choose an Open Cavas document.'
+      'This file is not valid JSON. Choose an Open Canvas document.'
     );
   }
   const parsed = importSchema.safeParse(value);
   if (!parsed.success)
     throw new Error(
-      'Unsupported document. Choose an Open Cavas file, project, or workspace JSON backup.'
+      'Unsupported document. Choose an Open Canvas file, project, or workspace JSON backup.'
     );
   return parsed.data;
 }

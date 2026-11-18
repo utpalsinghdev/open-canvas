@@ -1,10 +1,10 @@
-# Open Cavas
+# Open Canvas
 
-Open Cavas is a local-first design editor that runs in your browser. Make artboards with editable text, shapes, and images, then export artwork or save an editable backup. No account or cloud service required.
+Open Canvas is a local-first design editor that runs in your browser. Make artboards with editable text, shapes, and images, then export artwork or save an editable backup. No account or cloud service required.
 
 [Install](#install) · [Start designing](#start-designing) · [Connect an agent](#connect-an-agent) · [Changelog](apps/web/CHANGELOG.md) · [Website](https://open-canvas.xyz)
 
-![Two editable introductory artboards inside Open Cavas, with Layers and Properties panels](docs/images/introduction.png)
+![Two editable introductory artboards inside Open Canvas, with Layers and Properties panels](docs/images/introduction.png)
 
 ## Install
 
@@ -60,15 +60,15 @@ To update, save your work, stop the editor and its MCP clients, then run `open-c
 
 ## Current limits
 
-Open Cavas is designed for desktop browsers. Narrow layouts provide access to editor panels, but touch gestures are limited. Cloud sync, live collaboration, auto layout, vector path editing, and editable third-party design-file import are not supported. See the [product scope](PRODUCT.md), [document format](docs/document-format.md), and [MCP capabilities](docs/mcp-capabilities.md) for more detail.
+Open Canvas is designed for desktop browsers. Narrow layouts provide access to editor panels, but touch gestures are limited. Cloud sync, live collaboration, auto layout, vector path editing, and editable third-party design-file import are not supported. See the [product scope](PRODUCT.md), [document format](docs/document-format.md), and [MCP capabilities](docs/mcp-capabilities.md) for more detail.
 
 ## Contribute
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for source setup, development, checks, and pull requests. Report problems in [GitHub Issues](https://github.com/utpalsinghdev/open-canvas/issues).
 
-## Support Open Cavas
+## Support Open Canvas
 
-If Open Cavas is useful to you, you can support its development by buying me a coffee.
+If Open Canvas is useful to you, you can support its development by buying me a coffee.
 
 <a href="https://buymeacoffee.com/utpalsinghdev">
   <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="160">

@@ -1,9 +1,9 @@
 ---
 name: oss-pr-writing
-description: Draft Open Cavas issues and pull requests with complete workflow criteria, project templates, verified results, and relevant before-and-after evidence.
+description: Draft Open Canvas issues and pull requests with complete workflow criteria, project templates, verified results, and relevant before-and-after evidence.
 ---
 
-# Write an Open Cavas contribution
+# Write an Open Canvas contribution
 
 Read [contribution guidance](../../../CONTRIBUTING.md) and the relevant [PR template](../../../.github/pull_request_template.md) or [issue forms](../../../.github/ISSUE_TEMPLATE). Follow the repository's current rules and the user's scope. This skill does not authorize publication or alter global agent settings.
 
@@ -17,4 +17,4 @@ Read [contribution guidance](../../../CONTRIBUTING.md) and the relevant [PR temp
 8. Revise for direct, specific English. Avoid em dashes, exaggerated praise, generic filler, invented usage history, and unrequested tool attribution. Preserve required repository disclosures honestly.
 9. Follow current publication approval rules. When draft review is required, show the complete title and body and wait for approval. An already authorized PR workflow follows its existing scope. Use a body file for multiline GitHub text, then read back the published title, body, targets, issue links, and image links.
 
-Keep private plans, credentials, broker metadata, and confidential designs out of drafts and attachments. Do not copy another project's commands, platform promises, or approval policy into Open Cavas.
+Keep private plans, credentials, broker metadata, and confidential designs out of drafts and attachments. Do not copy another project's commands, platform promises, or approval policy into Open Canvas.

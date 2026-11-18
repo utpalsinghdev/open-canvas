@@ -1,4 +1,4 @@
-/* Open Cavas: dark workbench; artwork retains document colors. */
+/* Open Canvas: dark workbench; artwork retains document colors. */
 /* Critique: workbench layout prioritizes canvas area and direct manipulation over decorative chrome. */
 /* Waiver: full-viewport editor cannot use a capped marketing-page container. */
 @import "tailwindcss" source("./");

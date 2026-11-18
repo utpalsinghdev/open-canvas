@@ -3,11 +3,11 @@
     "open-cavas": {
       "command": "node",
       "args": [
-        "/absolute/open-cavas/scripts/runtime.mjs",
+        "/absolute/open-canvas/scripts/runtime.mjs",
         "main",
         "mcp"
       ],
-      "cwd": "/absolute/open-cavas"
+      "cwd": "/absolute/open-canvas"
     }
   }
 }

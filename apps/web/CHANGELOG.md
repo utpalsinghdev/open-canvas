@@ -1,4 +1,4 @@
-# open-cavas
+# Open Canvas
 
 ## 0.7.1
 

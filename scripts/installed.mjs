@@ -37,6 +37,6 @@ try {
     throw new Error(usage);
   }
 } catch (error) {
-  process.stderr.write(`${error instanceof Error ? error.message : 'Open Cavas failed.'}\n`);
+  process.stderr.write(`${error instanceof Error ? error.message : 'Open Canvas failed.'}\n`);
   process.exitCode = 1;
 }

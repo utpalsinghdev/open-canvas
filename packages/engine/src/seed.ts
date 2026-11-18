@@ -2,7 +2,7 @@ import { createNode, type DesignDocument, type DesignNode } from '@open-cavas/do
 
 /** Original introduction made entirely from editable editor layers. */
 export function starterDocument(): DesignDocument {
-  const welcome = { ...createNode('artboard', 100, 100), name: 'Welcome to Open Cavas', width: 600, height: 760, fill: '#d9f171' };
+  const welcome = { ...createNode('artboard', 100, 100), name: 'Welcome to Open Canvas', width: 600, height: 760, fill: '#d9f171' };
   const practice = { ...createNode('artboard', 748, 100), name: 'Try it yourself', width: 600, height: 760, fill: '#d6d5f2' };
   const text = (board: typeof welcome, name: string, content: string, x: number, y: number, width: number, fontSize = 20, heading = false): DesignNode => ({
     ...createNode('text', board.x + x, board.y + y), name, parentId: board.id,
@@ -12,10 +12,10 @@ export function starterDocument(): DesignDocument {
     wrap: true, sizing: 'auto-height', fill: '#172015',
   });
   return {
-    version: 1, name: 'Welcome to Open Cavas', tokens: {},
+    version: 1, name: 'Welcome to Open Canvas', tokens: {},
     nodes: [
       welcome, practice,
-      text(welcome, 'Welcome title', 'Welcome to\nOpen Cavas.', 40, 40, 520, 64, true),
+      text(welcome, 'Welcome title', 'Welcome to\nOpen Canvas.', 40, 40, 520, 64, true),
       text(welcome, 'Introduction', 'A canvas for your next idea. Start with text, shapes, and images. Everything here is yours to edit.', 40, 228, 510, 22),
       text(welcome, 'Create heading', 'Start with an artboard', 40, 350, 520, 28, true),
       text(welcome, 'Create instructions', 'Press A, then click or drag on the canvas.\nAdd text with T or a rectangle with R.', 40, 396, 520),

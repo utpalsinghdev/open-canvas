@@ -7,7 +7,7 @@ export function WorkspaceStorage() {
   return (
     <details className="workspace-storage">
       <summary>{record ? `Save destination: ${record.name}` : 'Save destination on app server'}</summary>
-      <p>Documents save on the machine running Open Cavas, shared by browsers using this service.</p>
+      <p>Documents save on the machine running Open Canvas, shared by browsers using this service.</p>
       <code>{storageDirectory}{record ? `/${record.id}.json` : '/'}</code>
       {record && <p>Workspace ID: <code>{record.id}</code></p>}
       <p>Main and development use separate directories. Release updates keep this data in place.</p>

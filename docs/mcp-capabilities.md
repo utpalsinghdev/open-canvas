@@ -1,6 +1,6 @@
 # MCP capability coverage
 
-Open Cavas owns its document model and MCP implementation.
+Open Canvas owns its document model and MCP implementation.
 
 ## Implemented and live-verified through MCP
 
@@ -20,7 +20,7 @@ Live verification used synthetic artwork in a dedicated browser session. Source-
 
 ## Implemented capabilities and limits
 
-- Layer types are the current Open Cavas primitives, not arbitrary DOM/CSS.
+- Layer types are the current Open Canvas primitives, not arbitrary DOM/CSS.
 - Typography supports bundled Inter and Bricolage Grotesque variable fonts, numeric variable weights, line height, tracking, left/center/right alignment, explicit or measured wrapping, fixed/auto-height/auto-width sizing, and measured overflow/status reads. Literal installed family names are accepted across the inspector, text layers, tokens, JSON, and HTML import. Browser availability is a metric-comparison heuristic; native backend availability reflects its local font registry. `get_fonts` can query up to 50 names without enumerating local fonts. The bundled fonts are embedded in SVG-derived exports when loaded.
 - HTML uses a documented static subset and restricted block layout. It is not arbitrary page import, flex/grid, rich text, or computed browser layout.
 - HTML/JSX output represents SVG artwork, not semantic application UI or JSX from an original source tree.

@@ -1,6 +1,6 @@
 # Local review threads
 
-Comments belong to a page inside an Open Cavas file. Posted feedback saves to the selected local service workspace and JSON backups. There are no accounts, notifications, cloud sync, or multiplayer comments.
+Comments belong to a page inside an Open Canvas file. Posted feedback saves to the selected local service workspace and JSON backups. There are no accounts, notifications, cloud sync, or multiplayer comments.
 
 ## Editor controls
 
@@ -41,7 +41,7 @@ A position anchor is `{ "kind": "position", "x": 120, "y": 80 }`. Coordinates us
 
 Thread and comment IDs must be unique across a file. Status is `open` or `resolved`; every thread contains at least one comment. Comment bodies are trimmed, nonempty plain text of at most 4,000 characters. Timestamps are nonnegative integer milliseconds in JavaScript's date range.
 
-Limits: 100 threads per page, 500 per file, 100 comments per thread, 2,000 comments and 1,000,000 comment characters per file. Invalid imports and over-limit mutations commit nothing. File, project, and workspace backups include posted threads, comments, anchors, and statuses. Legacy version-1 imports start with no threads. Older Open Cavas versions do not understand review data; keep original backups when opening files in older versions.
+Limits: 100 threads per page, 500 per file, 100 comments per thread, 2,000 comments and 1,000,000 comment characters per file. Invalid imports and over-limit mutations commit nothing. File, project, and workspace backups include posted threads, comments, anchors, and statuses. Legacy version-1 imports start with no threads. Older Open Canvas versions do not understand review data; keep original backups when opening files in older versions.
 
 ## MCP
 
