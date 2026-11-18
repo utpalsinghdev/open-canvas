@@ -66,4 +66,12 @@ Open Cavas is designed for desktop browsers. Narrow layouts provide access to ed
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for source setup, development, checks, and pull requests. Report problems in [GitHub Issues](https://github.com/utpalsinghdev/open-canvas/issues).
 
+## Support Open Cavas
+
+If Open Cavas is useful to you, you can support its development by buying me a coffee.
+
+<a href="https://buymeacoffee.com/utpalsinghdev">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy me a coffee" width="160">
+</a>
+
 [Apache License 2.0](LICENSE)
