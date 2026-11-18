@@ -4,11 +4,11 @@ import { createReadStream } from 'node:fs';
 import { chmod, cp, mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { checkoutRoot, git } from './runtime-settings.mjs';
+import { checkoutRoot, dataDirectoryName, git } from './runtime-settings.mjs';
 import workspace from '../package.json' with { type: 'json' };
 
 const { platform, arch } = process;
-const output = path.resolve(process.argv[2] ?? path.join(checkoutRoot, '.cavas/packages'));
+const output = path.resolve(process.argv[2] ?? path.join(checkoutRoot, dataDirectoryName, 'packages'));
 const asset = `open-cavas-${platform}-${arch}.tar.gz`;
 
 function pnpm(cwd, args, env = process.env) {

@@ -1,5 +1,12 @@
 # Verification record
 
+## Private state directory name
+
+- A fresh source profile created and reopened a workspace under `.open-canvas`. A different profile reopened its existing `.cavas` workspace without creating a duplicate data directory. Direct and filesystem-alias requests for both directories returned HTTP 403.
+- A fresh Linux x64 install created its package and workspace under `~/.open-canvas`. An upgrade from the previous installer replaced the old command link and read back the same workspace ID from `~/.open-cavas`. An ambiguous profile with both directories refused to start. A coordinated offline move of the disposable profile preserved the workspace ID and file checksum.
+- A disposable main launcher read the legacy release pointer, then started a frozen preview from `.open-canvas` when a new pointer was available. The preview served its web assets and browser bootstrap while writing broker metadata to the new root. No live main files or services were moved or restarted.
+- `corepack pnpm run check`, `corepack pnpm run build`, and the Linux x64 archive build passed.
+
 ## Portable source addresses
 
 - With the pinned toolchain, frozen install, `corepack pnpm run check`, and `corepack pnpm run build` passed. Development bound only to loopback by default and only to the configured trusted-network interface when explicitly overridden. Neither frontend answered on the other interface. Both brokers stayed on loopback.

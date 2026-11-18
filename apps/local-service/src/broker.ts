@@ -3,6 +3,7 @@ import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { mkdir, lstat, readFile, rm } from 'node:fs/promises';
 import {
   runtimeSettings,
+  runtimeStateDirectory,
   assertDevelopmentCheckout,
 } from '../../../scripts/runtime-settings.mjs';
 import { WebSocketServer, WebSocket } from 'ws';
@@ -42,7 +43,7 @@ export async function createBroker() {
   const secret = randomBytes(32).toString('hex');
   const instanceId = randomUUID();
   const stateDirectory =
-    process.env.CAVAS_RUNTIME_STATE_ROOT ?? settings.stateDirectory;
+    process.env.CAVAS_RUNTIME_STATE_ROOT ?? runtimeStateDirectory(settings);
   await mkdir(stateDirectory, { recursive: true, mode: 0o700 });
   const directory = await lstat(stateDirectory);
   if (
@@ -51,7 +52,7 @@ export async function createBroker() {
     directory.mode & 0o077
   )
     throw new Error(
-      '.cavas must be a private directory, mode 0700, not a symlink.'
+      'The runtime state directory must be private, mode 0700, and not a symlink.'
     );
   const metadataPath = `${stateDirectory}/broker.json`;
   const canvases = new Map<string, Canvas>();

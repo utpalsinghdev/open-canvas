@@ -52,7 +52,7 @@ pnpm run release:main
 pnpm run service:install  # Install/start persistent main frontend on Linux
 ```
 
-`release:main` requires clean committed main. It archives exactly HEAD into a private `.cavas/releases/<commit>/` directory, installs that snapshot's locked dependencies, builds and typechecks it, and atomically updates `.cavas/main-release.json` only after success. An existing release for the same commit is reused. Failed builds do not change the release pointer. Dependencies and built assets belong to that snapshot, not the development checkout's node_modules or dist.
+`release:main` requires clean committed main. It archives exactly HEAD into a private `.open-canvas/releases/<commit>/` directory, installs that snapshot's locked dependencies, builds and typechecks it, and atomically updates `.open-canvas/main-release.json` only after success. An existing release for the same commit is reused. Failed builds do not change the release pointer. When the new pointer is absent, the launcher can still open the old `.cavas/main-release.json` and its frozen snapshot. Dependencies and built assets belong to that snapshot, not the development checkout's node_modules or dist.
 
 `pnpm start` resolves the pointer once and serves that snapshot on 5182. It refuses to switch to another port. `pnpm run preview` is an alias for the same main runtime. A normal `pnpm run build` is a source check/build, not publication of main. Subsequent builds and feature changes do not change the main snapshot that a running process serves.
 
@@ -80,11 +80,11 @@ pnpm --silent run mcp:config:dev
 Each profile/port pair has its own private internal broker metadata:
 
 ```text
-.cavas/runtime/main/5182-4781/broker.json
-.cavas/runtime/dev/5188-4785/broker.json
+.open-canvas/runtime/main/5182-4781/broker.json
+.open-canvas/runtime/dev/5188-4785/broker.json
 ```
 
-Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. All `.cavas` contents are ignored by Git and denied by Vite's development filesystem guard.
+Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. The current and legacy state directories are ignored by Git and denied by Vite's filesystem guard.
 
 Do not invoke `apps/local-service/src/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and pnpm scripts are the supported launch paths.
 

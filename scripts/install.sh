@@ -33,14 +33,15 @@ main() {
     *) fail 'This installer supports x64 and arm64.' ;;
   esac
   asset=open-cavas-$platform-$arch.tar.gz
-  install=$HOME/.open-cavas/install
+  install=$HOME/.open-canvas/install
   bin=$HOME/.local/bin
   command_path=$bin/open-cavas
   mkdir -p "$install/releases" "$bin"
 
   if [[ -L $command_path ]]; then
     current=$(readlink "$command_path")
-    [[ $current == "$install/releases/"*/bin/open-cavas ]] || fail "Will not replace $command_path."
+    [[ $current == "$install/releases/"*/bin/open-cavas ||
+       $current == "$HOME/.open-cavas/install/releases/"*/bin/open-cavas ]] || fail "Will not replace $command_path."
   elif [[ -e $command_path ]]; then
     fail "Will not replace $command_path."
   fi
@@ -48,7 +49,7 @@ main() {
   stage=$(mktemp -d "$install/.stage.XXXXXXXX")
   # Expand now so cleanup works after the local variables go out of scope.
   trap "$(printf 'rm -rf -- %q' "$stage")" EXIT
-  link_stage=$(mktemp -d "$bin/.open-cavas.XXXXXXXX")
+  link_stage=$(mktemp -d "$bin/.open-canvas.XXXXXXXX")
   trap "$(printf 'rm -rf -- %q %q' "$stage" "$link_stage")" EXIT
   trap 'exit 130' INT
   trap 'exit 143' TERM

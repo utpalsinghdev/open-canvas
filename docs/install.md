@@ -44,11 +44,11 @@ Run `open-cavas mcp-config`, using the same port overrides as the editor, if any
 
 ## Update, roll back, or remove
 
-The installer puts the command in `~/.local/bin` and the verified package in `~/.open-cavas/install/releases`. Projects and private broker state live separately in `~/.open-cavas/data/<app-port>-<broker-port>/`. The installer does not read or migrate existing source or browser workspaces.
+The installer puts the command in `~/.local/bin` and the verified package in `~/.open-canvas/install/releases`. Projects and private broker state live separately in `~/.open-canvas/data/<app-port>-<broker-port>/`. An older `~/.open-cavas/data/` workspace stays readable and is not moved during install. See [older state directories](local-workspaces.md#older-state-directories) to rename it while stopped. The installer does not read or migrate source or browser workspaces.
 
 Save a workspace backup, stop the editor and its installed MCP clients, then run the installer again to update. Use `--version` to reinstall a specific release, or keep an archive and checksum for offline rollback. An older release may not open documents saved in a newer format; keep a backup from before the upgrade. There is no automatic update or deletion of old packages.
 
-To uninstall, stop the editor and its installed MCP clients, then remove the `~/.local/bin/open-cavas` symlink and `~/.open-cavas/install`. Leave `~/.open-cavas/data` intact to keep your projects.
+To uninstall, stop the editor and its installed MCP clients, then remove the `~/.local/bin/open-cavas` symlink and `~/.open-canvas/install`. Leave both `~/.open-canvas/data` and any older `~/.open-cavas/data` intact to keep your projects. Older packages under `~/.open-cavas/install` are not removed automatically.
 
 ## Prepare release assets
 
@@ -57,9 +57,9 @@ To build an archive on the current platform, use the official Node.js distributi
 ```sh
 corepack pnpm install --frozen-lockfile
 corepack pnpm run package:local
-bash scripts/install.sh --archive .cavas/packages/open-cavas-linux-x64.tar.gz
+bash scripts/install.sh --archive .open-canvas/packages/open-cavas-linux-x64.tar.gz
 ```
 
-Replace the example archive name on other platforms. Use an isolated home directory when testing installation. The packager writes an archive and checksum to `.cavas/packages` unless given another output directory. It does not modify a running source or installed app. Build from a clean checkout of the intended release commit for traceable runtime metadata.
+Replace the example archive name on other platforms. Use an isolated home directory when testing installation. The packager writes an archive and checksum to `.open-canvas/packages` unless given another output directory. It does not modify a running source or installed app. Build from a clean checkout of the intended release commit for traceable runtime metadata.
 
 The **Build local app archives** workflow runs only when dispatched. For an authorized release, dispatch it at the release tag, download the four workflow artifacts, and attach each enclosed `.tar.gz` and `.sha256` to the matching GitHub release. Verify a fresh download and install before sharing its link. No npm package or publishing token is needed. Serving the same installer at `https://open-canvas.xyz/install.sh` requires a separate website deployment; that URL is not an installation endpoint provided by this workflow.

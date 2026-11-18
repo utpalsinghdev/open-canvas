@@ -2,14 +2,28 @@ import { spawn } from 'node:child_process';
 import { readFile, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { checkoutRoot, runtimeSettings, assertDevelopmentCheckout } from './runtime-settings.mjs';
+import {
+  checkoutRoot, dataDirectoryName, legacySourceDirectoryName,
+  runtimeSettings, runtimeStateDirectory, assertDevelopmentCheckout,
+} from './runtime-settings.mjs';
+
+async function readReleasePointer() {
+  for (const name of [dataDirectoryName, legacySourceDirectoryName]) {
+    const stateRoot = path.join(checkoutRoot, name);
+    try {
+      const pointer = JSON.parse(await readFile(path.join(stateRoot, 'main-release.json'), 'utf8'));
+      return { stateRoot, pointer };
+    } catch (error) {
+      if (error.code !== 'ENOENT') break;
+    }
+  }
+  throw new Error('No valid main release. Run pnpm run release:main from clean main.');
+}
 
 export async function selectedRelease() {
-  let pointer;
-  try { pointer = JSON.parse(await readFile(path.join(checkoutRoot, '.cavas', 'main-release.json'), 'utf8')); }
-  catch { throw new Error('No valid main release. Run pnpm run release:main from clean main.'); }
+  const { stateRoot, pointer } = await readReleasePointer();
   if (!pointer || typeof pointer.commit !== 'string' || !/^[a-f0-9]{40}$/.test(pointer.commit)) throw new Error('Invalid main release pointer. Run pnpm run release:main from clean main.');
-  const directory = path.join(checkoutRoot, '.cavas', 'releases', pointer.commit);
+  const directory = path.join(stateRoot, 'releases', pointer.commit);
   if (await realpath(directory) !== directory) throw new Error('Release directory must not be a symlink.');
   const marker = JSON.parse(await readFile(path.join(directory, '.cavas-release.json'), 'utf8'));
   const layoutVersion = marker.layoutVersion ?? 1;
@@ -20,7 +34,7 @@ export async function mainRuntimeSettings(release) {
   // Older snapshots enforce their original origin inside the broker.
   const moduleUrl = pathToFileURL(path.join(release.directory, 'scripts/runtime-settings.mjs'));
   const snapshot = await import(moduleUrl.href);
-  const settings = snapshot.runtimeSettings('main', checkoutRoot);
+  const settings = snapshot.runtimeSettings('main');
   return { ...settings, bindHost: settings.bindHost ?? '0.0.0.0' };
 }
 
@@ -45,7 +59,7 @@ export async function launch(profile, action, { openBrowser = false } = {}) {
       throw new Error('Invalid installed bundle. Reinstall Open Cavas.');
     }
   }
-  const env = { ...process.env, CAVAS_PROFILE: profile, CAVAS_APP_PORT: String(settings.appPort), CAVAS_MCP_PORT: String(settings.brokerPort), CAVAS_APP_ORIGIN: settings.origin, CAVAS_RUNTIME_STATE_ROOT: settings.stateDirectory, CAVAS_RELEASE_COMMIT: commit };
+  const env = { ...process.env, CAVAS_PROFILE: profile, CAVAS_APP_PORT: String(settings.appPort), CAVAS_MCP_PORT: String(settings.brokerPort), CAVAS_APP_ORIGIN: settings.origin, CAVAS_RUNTIME_STATE_ROOT: runtimeStateDirectory(settings), CAVAS_RELEASE_COMMIT: commit };
   const args = action === 'web'
     ? [
         path.join(installed ? root : webRoot, 'node_modules/vite/bin/vite.js'),

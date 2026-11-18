@@ -80,7 +80,7 @@
 
 ## MCP boundaries
 - Read docs/mcp.md and docs/mcp-capabilities.md before changing agent control.
-- Keep the broker loopback-only with exact-Origin/Host checks and short-lived one-use automatic browser tickets. Keep `.cavas` ignored by Git and denied by Vite, including filesystem aliases. Keep shared-broker credentials private. No manual pairing UI or pairing-code commands; automatic registration must not expose the internal broker secret.
+- Keep the broker loopback-only with exact-Origin/Host checks and short-lived one-use automatic browser tickets. Keep `.open-canvas` and legacy state directories ignored by Git and denied by Vite, including filesystem aliases. Keep shared-broker credentials private. No manual pairing UI or pairing-code commands; automatic registration must not expose the internal broker secret.
 - Require explicit canvas IDs and expected revisions for mutations. Do not retry uncertain writes automatically. Read-back and persistence status are separate evidence.
 - Do not expose shell execution, arbitrary filesystem access, remote asset fetching, or executable HTML through design tools. Do not claim unsupported editor features.
 
