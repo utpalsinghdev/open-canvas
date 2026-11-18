@@ -31,9 +31,11 @@ For features, describe the problem, requested workflow, acceptance criteria, and
 
 Public reports and images must omit credentials, browser tickets, broker metadata, private artwork, and private planning documents.
 
-## Set up locally
+## Run from source
 
 Use Node.js **24.22.1** and pnpm **12.21.0**. The repository pins both versions. Select Node with your existing version manager; Corepack must be on PATH for the commands below. You do not need Cloudinary credentials unless you use the screenshot upload helper, and local editing needs no cloud account.
+
+### Develop in a worktree
 
 Fork the repository if you need your own push destination, then clone your fork. From your primary checkout, create a feature worktree:
 
@@ -44,7 +46,28 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm run dev
 ```
 
-The development frontend uses `http://127.0.0.1:5188`; its private broker uses loopback port 4785. Check both ports before starting. If another worktree uses them, choose an available app/broker pair as described in [runtime isolation](docs/runtime.md). Never reuse main's ports or service data. A standalone fork does not need a main release to run development.
+The development frontend uses `http://127.0.0.1:5188`; its private broker uses loopback port 4785. Check both ports before starting. If another worktree uses them, choose an available app/broker pair as described in [runtime isolation](docs/runtime.md). Never reuse main's ports or service data. A standalone fork does not need a main release to run development. Generate the matching client entry with `corepack pnpm --silent run mcp:config:dev`. Use the same port and origin overrides for both commands. For another device, see [trusted-network origins](docs/runtime.md#use-a-trusted-network-origin); do not expose the app or broker publicly.
+
+### Run stable main from source
+
+From a clean, committed primary `main` checkout:
+
+```sh
+corepack pnpm install --frozen-lockfile
+corepack pnpm run release:main
+corepack pnpm start
+```
+
+Open `http://127.0.0.1:5182`. For MCP, use `corepack pnpm --silent run mcp:config`; the broker stays on loopback port 4781. On Linux with systemd, use `corepack pnpm run service:install` instead of `start` for a persistent service. Preparing a snapshot does not restart an existing service. Follow [runtime and rollout instructions](docs/runtime.md) before changing a running main deployment.
+
+## Repository map
+
+- `apps/web`: editor UI, browser persistence, and rendering adapters.
+- `apps/local-service`: local workspace saves, native rendering, private broker, and stdio MCP.
+- `packages/document`, `packages/engine`, `packages/mcp`: document schemas, editor behavior, and shared MCP contracts.
+- `scripts`: source launchers, local archive packaging, release preparation, and workspace checks.
+
+See [repository layout](docs/repository-layout.md), [architecture](docs/architecture.md), and [verification history](docs/verification.md).
 
 ## Implement and verify
 
@@ -61,7 +84,7 @@ corepack pnpm run build
 
 The [workspace checks workflow](.github/workflows/check.yml) runs on pull requests and pushes to main. It installs the frozen lockfile with the pinned toolchain, then runs `corepack pnpm run check`, `corepack pnpm run build`, and `corepack pnpm run changeset:status --since=origin/main`. The checkout includes history so the release-plan comparison has a base ref. These checks need no service credentials. CI does not replace relevant browser and MCP journeys. For documentation-only changes, check the diff and links locally; CI still runs the workspace checks. Do not add test files or disguised suites unless explicitly requested. Report automated-coverage gaps honestly.
 
-For features or fixes that affect the shipped product, add a Changeset with `corepack pnpm run changeset`. Describe the user-visible result. A Changeset records a future version change; it does not authorize deployment. See [versioning](docs/versioning.md).
+For features or fixes that affect the shipped product, add a Changeset with `corepack pnpm run changeset`. Describe the user-visible result. `corepack pnpm run changeset:status` lists pending changes. The separate, approved release workflow uses `corepack pnpm run version:apply` to update the version, lockfile, and changelog. See [versioning](docs/versioning.md) and [preparing release archives](docs/install.md#prepare-release-assets).
 
 ## Write a pull request
 
