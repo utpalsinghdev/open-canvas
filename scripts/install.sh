@@ -33,16 +33,15 @@ main() {
     arm64|aarch64) arch=arm64 ;;
     *) fail 'This installer supports x64 and arm64.' ;;
   esac
-  asset=open-cavas-$platform-$arch.tar.gz
+  asset=open-canvas-$platform-$arch.tar.gz
   install=$HOME/.open-canvas/install
   bin=$HOME/.local/bin
-  command_path=$bin/open-cavas
+  command_path=$bin/open-canvas
   mkdir -p "$install/releases" "$bin"
 
   if [[ -L $command_path ]]; then
     current=$(readlink "$command_path")
-    [[ $current == "$install/releases/"*/bin/open-cavas ||
-       $current == "$HOME/.open-cavas/install/releases/"*/bin/open-cavas ]] || fail "Will not replace $command_path."
+    [[ $current == "$install/releases/"*/bin/open-canvas ]] || fail "Will not replace $command_path."
   elif [[ -e $command_path ]]; then
     fail "Will not replace $command_path."
   fi
@@ -81,7 +80,7 @@ main() {
   if [[ ! -d $target ]]; then
     mkdir "$stage/bundle"
     tar -xzf "$archive" -C "$stage/bundle"
-    version=$("$stage/bundle/bin/open-cavas" --version) || fail 'Bundle cannot run on this machine.'
+    version=$("$stage/bundle/bin/open-canvas" --version) || fail 'Bundle cannot run on this machine.'
     [[ -z $expected_version || $version == "$expected_version" ]] || fail 'Archive version does not match the requested tag.'
     # renameSync never moves the release into an existing directory as mv would.
     "$stage/bundle/bin/node" -e '
@@ -90,14 +89,14 @@ main() {
       catch (error) { if (!["EEXIST", "ENOTEMPTY"].includes(error.code)) throw error; }
     ' "$stage/bundle" "$target" || fail 'Could not store the verified archive.'
   else
-    version=$("$target/bin/open-cavas" --version) || fail 'Existing bundle cannot run on this machine.'
+    version=$("$target/bin/open-canvas" --version) || fail 'Existing bundle cannot run on this machine.'
     [[ -z $expected_version || $version == "$expected_version" ]] || fail 'Archive version does not match the requested tag.'
   fi
-  ln -s "$target/bin/open-cavas" "$link_stage/open-cavas"
-  mv -f "$link_stage/open-cavas" "$command_path"
+  ln -s "$target/bin/open-canvas" "$link_stage/open-canvas"
+  mv -f "$link_stage/open-canvas" "$command_path"
 
-  printf 'Installed Open Cavas %s. Run open-cavas to start.\n' "$version"
-  if [[ $(command -v open-cavas || true) != "$command_path" ]]; then
+  printf 'Installed Open Cavas %s. Run open-canvas to start.\n' "$version"
+  if [[ $(command -v open-canvas || true) != "$command_path" ]]; then
     printf 'Run "%s" directly, or put "%s" first on PATH.\n' "$command_path" "$bin"
   fi
 }

@@ -8,13 +8,13 @@ const repository = 'utpalsinghdev/open-canvas';
 const releases = `https://github.com/${repository}/releases`;
 const latestApi = `https://api.github.com/repos/${repository}/releases/latest`;
 const stableTag = /^v(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/;
-const archive = `open-cavas-${process.platform}-${process.arch}.tar.gz`;
+const archive = `open-canvas-${process.platform}-${process.arch}.tar.gz`;
 
 async function latestRelease() {
   let response;
   try {
     response = await fetch(latestApi, {
-      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'open-cavas-cli' },
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'open-canvas-cli' },
       redirect: 'error',
       signal: AbortSignal.timeout(10_000),
     });
@@ -50,11 +50,11 @@ function compareVersions(left, right) {
 }
 
 async function assertManagedInstall() {
-  const command = path.join(homedir(), '.local', 'bin', 'open-cavas');
+  const command = path.join(homedir(), '.local', 'bin', 'open-canvas');
   const installedPath = await realpath(command).catch(() => undefined);
-  const bundleLauncher = path.join(checkoutRoot, 'bin', 'open-cavas');
+  const bundleLauncher = path.join(checkoutRoot, 'bin', 'open-canvas');
   if (installedPath !== bundleLauncher) {
-    throw new Error('Update the active install through ~/.local/bin/open-cavas, or run the installer to install this app.');
+    throw new Error('Update the active install through ~/.local/bin/open-canvas, or run the installer to install this app.');
   }
 }
 
@@ -95,7 +95,7 @@ export async function update(current, checkOnly) {
   }
   console.log(`Open Cavas ${current} → ${latest.version} is available.\nRelease notes: ${latest.url}`);
   if (checkOnly) {
-    console.log('Save your work and stop the editor and MCP clients, then run open-cavas update.');
+    console.log('Save your work and stop the editor and MCP clients, then run open-canvas update.');
     return;
   }
   await assertManagedInstall();
@@ -105,7 +105,7 @@ export async function update(current, checkOnly) {
     return;
   }
   if (status !== 0) throw new Error('Update did not complete. Check the installer error above.');
-  console.log('Start open-cavas again and reconnect your MCP clients to use the new version.');
+  console.log('Start open-canvas again and reconnect your MCP clients to use the new version.');
 }
 
 export async function changelog(latest) {
