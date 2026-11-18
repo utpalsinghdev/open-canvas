@@ -14,10 +14,10 @@ Once the [latest public release](https://github.com/utpalsinghdev/open-canvas/re
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.sh | bash
-open-cavas
+open-canvas
 ```
 
-`open-cavas` opens `http://127.0.0.1:5190` in your browser. Keep the terminal running while you work. If the command is not on PATH, run `~/.local/bin/open-cavas` instead.
+`open-canvas` opens `http://127.0.0.1:5190` in your browser. Keep the terminal running while you work. If the command is not on PATH, run `~/.local/bin/open-canvas` instead.
 
 Online installation is not available until the installer and release assets are publicly readable. See [installation instructions](docs/install.md) to inspect the script before running it or install a trusted local archive. Use [CONTRIBUTING.md](CONTRIBUTING.md#run-stable-main-from-source) if you need to run from source.
 
@@ -41,22 +41,22 @@ To recover older browser-only work, reopen its original browser profile and exac
 ## Connect an agent
 
 ```sh
-open-cavas mcp-config
+open-canvas mcp-config
 ```
 
-Copy the generated `open-cavas` entry into your MCP client. Open a workspace in the editor to connect its canvas automatically. Local MCP clients can find and edit saved workspaces without a browser tab; browser rendering needs a connected canvas. Use **File → Pause agent access** to turn off MCP access for the selected workspace.
+Copy the generated `open-canvas` entry into your MCP client. Open a workspace in the editor to connect its canvas automatically. Local MCP clients can find and edit saved workspaces without a browser tab; browser rendering needs a connected canvas. Use **File → Pause agent access** to turn off MCP access for the selected workspace.
 
 The browser does not send your projects to a cloud service. Only use trusted local MCP clients and do not expose the editor to the public internet. See [MCP setup and security](docs/mcp.md) for details.
 
 ## Updates and release notes
 
 ```sh
-open-cavas update --check   # Check without downloading
-open-cavas changelog        # Read bundled history offline
-open-cavas changelog --latest  # Read the latest public release notes
+open-canvas update --check   # Check without downloading
+open-canvas changelog        # Read bundled history offline
+open-canvas changelog --latest  # Read the latest public release notes
 ```
 
-To update, save your work, stop the editor and its MCP clients, then run `open-cavas update`. It verifies the archive and version before switching and does not restart running sessions. See [update and rollback instructions](docs/install.md#update-roll-back-or-remove).
+To update, save your work, stop the editor and its MCP clients, then run `open-canvas update`. It verifies the archive and version before switching and does not restart running sessions. See [update and rollback instructions](docs/install.md#update-roll-back-or-remove).
 
 ## Current limits
 

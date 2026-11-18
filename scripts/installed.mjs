@@ -3,12 +3,12 @@ import { runtimeSettings } from './runtime-settings.mjs';
 import { changelog, update } from './installed-releases.mjs';
 import app from '../apps/web/package.json' with { type: 'json' };
 
-const usage = `Usage: open-cavas [--no-open]
-       open-cavas mcp-config
-       open-cavas mcp
-       open-cavas --version
-       open-cavas update [--check]
-       open-cavas changelog [--latest]
+const usage = `Usage: open-canvas [--no-open]
+       open-canvas mcp-config
+       open-canvas mcp
+       open-canvas --version
+       open-canvas update [--check]
+       open-canvas changelog [--latest]
 
 Starts the local editor and opens your browser. Ctrl+C stops the editor server.
 Use mcp-config to print the configuration for a local MCP client.`;
@@ -24,7 +24,7 @@ try {
   else if (action === 'changelog') await changelog(flag === '--latest');
   else if (action === 'mcp-config') {
     const { appPort, brokerPort } = runtimeSettings('installed');
-    console.log(JSON.stringify({ mcpServers: { 'open-cavas': {
+    console.log(JSON.stringify({ mcpServers: { 'open-canvas': {
       command: process.env.OPEN_CAVAS_COMMAND,
       args: ['mcp'],
       env: { CAVAS_APP_PORT: String(appPort), CAVAS_MCP_PORT: String(brokerPort) },

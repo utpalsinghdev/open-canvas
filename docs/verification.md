@@ -1,5 +1,10 @@
 # Verification record
 
+## Installed command spelling
+
+- Rebuilt and installed the Linux x64 archive in an isolated home. Only `open-canvas` was installed. Help, version, offline changelog, and generated MCP config used the new launcher. The editor launched from it and displayed `open-canvas update --check`; a stdio client using the generated config listed the connected canvas.
+- Check-only recognized the renamed archive and checksum in a simulated stable release. Local checks, build, and SHA-256 verification passed. No public release or running main service was changed.
+
 ## Installed updates and release notes
 
 - Pinned install, `corepack pnpm run check`, `corepack pnpm run build`, and Linux x64 archive/checksum verification passed. The installed CLI printed the bundled changelog with networking unavailable. A simulated GitHub release supplied online notes without terminal escape characters.

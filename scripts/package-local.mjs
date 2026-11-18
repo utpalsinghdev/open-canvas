@@ -9,7 +9,7 @@ import workspace from '../package.json' with { type: 'json' };
 
 const { platform, arch } = process;
 const output = path.resolve(process.argv[2] ?? path.join(checkoutRoot, dataDirectoryName, 'packages'));
-const asset = `open-cavas-${platform}-${arch}.tar.gz`;
+const asset = `open-canvas-${platform}-${arch}.tar.gz`;
 
 function pnpm(cwd, args, env = process.env) {
   execFileSync('corepack', ['pnpm', ...args], { cwd, env, stdio: 'inherit' });
@@ -24,7 +24,7 @@ async function packageLocal() {
   }
   const nodeLicense = path.resolve(path.dirname(process.execPath), '../LICENSE');
   const commit = git(checkoutRoot, 'status', '--porcelain') ? 'development' : git(checkoutRoot, 'rev-parse', 'HEAD');
-  const staging = await mkdtemp(path.join(tmpdir(), 'open-cavas-package-'));
+  const staging = await mkdtemp(path.join(tmpdir(), 'open-canvas-package-'));
   const bundle = path.join(staging, 'bundle');
   try {
     pnpm(checkoutRoot, ['run', 'build'], { ...process.env, CAVAS_PROFILE: 'installed', CAVAS_RELEASE_COMMIT: commit });
@@ -46,8 +46,8 @@ async function packageLocal() {
     await mkdir(path.join(bundle, 'bin'));
     await cp(process.execPath, path.join(bundle, 'bin/node'));
     await cp(nodeLicense, path.join(bundle, 'LICENSE-node'));
-    await cp(path.join(checkoutRoot, 'scripts/open-cavas'), path.join(bundle, 'bin/open-cavas'));
-    await chmod(path.join(bundle, 'bin/open-cavas'), 0o755);
+    await cp(path.join(checkoutRoot, 'scripts/open-canvas'), path.join(bundle, 'bin/open-canvas'));
+    await chmod(path.join(bundle, 'bin/open-canvas'), 0o755);
 
     // Keep pnpm's relative workspace and native dependency links in the archive.
     pnpm(bundle, ['install', '--prod', '--frozen-lockfile', '--ignore-scripts']);

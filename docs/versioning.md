@@ -38,7 +38,7 @@ This requires clean committed main and prepares its frozen snapshot. Deliberatel
 
 ## Policy
 
-- The app version and changelog belong to `@open-cavas/web`. Use the new changelog entry as the basis for the GitHub Release notes; mention any upgrade and compatibility caveats. Editor Help shows the current version's bundled notes, and installed `open-cavas changelog` prints the full bundled history. `open-cavas changelog --latest` reads the GitHub Release body. The root is a private, unversioned command workspace. Internal packages remain private source dependencies. All workspace packages are private. `privatePackages.version` is true so Changesets includes it.
+- The app version and changelog belong to `@open-cavas/web`. Use the new changelog entry as the basis for the GitHub Release notes. For a release with public archives and checksums, include the first-time install link, `open-canvas update --check`, and `open-canvas update`. Tell users to restart the editor and reconnect MCP clients after updating. Do not advertise the commands for releases without installable assets. Editor Help shows the current version's bundled notes, and installed `open-canvas changelog` prints the full bundled history. `open-canvas changelog --latest` reads the GitHub Release body. The root is a private, unversioned command workspace. Internal packages remain private source dependencies. All workspace packages are private. `privatePackages.version` is true so Changesets includes it.
 - `privatePackages.tag` is false. No automatic Git tags or npm publishing are configured.
 - `commit` is false. Review and create the version commit deliberately.
 - Base branch is main. Access is restricted; every package remains `private: true`.

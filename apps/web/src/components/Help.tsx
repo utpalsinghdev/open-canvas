@@ -21,7 +21,7 @@ export function Help({ onClose }: { onClose: () => void }) {
         : <p>No bundled notes for this version.</p>}
       <a href="https://github.com/utpalsinghdev/open-canvas/releases" target="_blank" rel="noreferrer">All releases on GitHub</a>
       {document.querySelector('meta[name="cavas-profile"]')?.getAttribute('content') === 'installed' && (
-        <p>In a terminal, run <code>open-cavas update --check</code> to check for updates.</p>
+        <p>In a terminal, run <code>open-canvas update --check</code> to check for updates.</p>
       )}
     </details>
     <div className="shortcut-list">{[

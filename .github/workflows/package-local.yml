@@ -37,9 +37,9 @@ jobs:
           TARGET: ${{ matrix.target }}
         run: |
           export HOME="$(mktemp -d)"
-          archive="$RUNNER_TEMP/cavas/open-cavas-$TARGET.tar.gz"
+          archive="$RUNNER_TEMP/cavas/open-canvas-$TARGET.tar.gz"
           bash scripts/install.sh --archive "$archive"
-          command="$HOME/.local/bin/open-cavas"
+          command="$HOME/.local/bin/open-canvas"
           "$command" --version
           "$command" --no-open &
           pid=$!
@@ -50,6 +50,6 @@ jobs:
             -H 'X-Cavas-Connection: browser' "$origin/__cavas/session"
       - uses: actions/upload-artifact@v4
         with:
-          name: open-cavas-${{ matrix.target }}
+          name: open-canvas-${{ matrix.target }}
           path: ${{ runner.temp }}/cavas/
           if-no-files-found: error
