@@ -45,7 +45,7 @@ Text layout exposes resolved bounds, content dimensions, and overflow, not autom
 
 The optional `tokens` field defaults to `{}` when loading earlier version-1 documents. It is a dictionary of up to 200 token names. Names begin with an ASCII letter and contain at most 80 letters, digits, underscores, or hyphens. Each value is `{ "type": "color", "value": "#d9f171" }`, `{ "type": "number", "value": 16 }`, or `{ "type": "font", "value": "Arial" }`. Numbers are finite and bounded by -100,000 and 100,000; fonts use the same literal family-name validation as text. Tokens are metadata with explicit literal application, not dynamic node references.
 
-Undo history, current selection, viewport, agent pairing, state revision, and panel state are not serialized. SVG exports do not reopen as editable Open Cavas documents.
+Undo history, current selection, viewport, agent pairing, state revision, and panel state are not serialized. SVG exports do not reopen as editable Open Canvas documents.
 
 
 ## Version-2 multi-page files

@@ -708,7 +708,7 @@ Before/after screenshots contain only synthetic starter artwork and were capture
 
 - The initial separate welcome page was replaced with an editable seed after clarification. Its prior screenshot and behavior are not part of the shipped feature.
 - `npm run check`, `npm run build`, `npm run changeset:status`, and `git diff --check`: passed. Build retains existing Zod annotation-placement warnings.
-- Chromium through the configured trusted-network address: Start with introductory canvas created a real Welcome to Open Cavas file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
+- Chromium through the configured trusted-network address: Start with introductory canvas created a real introductory file containing two artboards and 17 native layers. The document passed its schema; measured text bounds stayed inside parent artboards.
 - Selected the seeded circle through Layers and moved it with ArrowRight. Edited the seeded text through Properties. Both changes survived reload, with 17 layers retained.
 - Create empty workspace still produced zero layers. An existing workspace opened by its direct URL retained its one artboard and Untitled file name without seeded layers being inserted.
 - Desktop screenshot at 1920 × 1080 shows both artboards inside editor chrome. At 390 × 844, fit/pan/zoom and responsive panels remain available; document width stayed 390 px. Fitting both boards makes text small, so reading requires zooming, as with other canvas artwork.

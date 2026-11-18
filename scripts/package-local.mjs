@@ -76,6 +76,6 @@ async function packageLocal() {
 try {
   await packageLocal();
 } catch (error) {
-  console.error(error instanceof Error ? error.message : 'Could not package Open Cavas.');
+  console.error(error instanceof Error ? error.message : 'Could not package Open Canvas.');
   process.exitCode = 1;
 }

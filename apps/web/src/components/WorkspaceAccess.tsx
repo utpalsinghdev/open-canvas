@@ -16,7 +16,7 @@ export function WorkspaceAccess({ children }: { children: ReactNode }) {
   return (
     <div className="workspace-screen">
       <main className="help-dialog workspace-access" aria-labelledby="workspace-heading">
-        <div className="brand"><Frame size={18} strokeWidth={1.6} /><span>Open Cavas</span></div>
+        <div className="brand"><Frame size={18} strokeWidth={1.6} /><span>Open Canvas</span></div>
         <h1 id="workspace-heading">Local workspaces</h1>
         <p>Open a workspace saved on the app server, start a new one, or copy saved browser data.</p>
         {error && <p className="workspace-error" role="alert">{error}</p>}

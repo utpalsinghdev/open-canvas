@@ -1,6 +1,6 @@
 # Agent control through MCP
 
-Open Cavas exposes 51 tools over the official MCP SDK's stdio transport. It controls explicitly selected local service workspaces directly, with optional browser rendering.
+Open Canvas exposes 51 tools over the official MCP SDK's stdio transport. It controls explicitly selected local service workspaces directly, with optional browser rendering.
 
 ## Start and connect
 

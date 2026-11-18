@@ -7,6 +7,7 @@ import { checkoutRoot, git, runtimeSettings } from './runtime-settings.mjs';
 import { mainRuntimeSettings, selectedRelease } from './runtime.mjs';
 
 const UNIT = 'open-cavas-main.service';
+// Keep the existing ownership marker so upgrades recognize previously installed units.
 const MARKER = '# Managed by Open Cavas install-main-service.mjs';
 const quote = (value) => `"${value.replace(/%/g, '%%').replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 function serviceUnit({ origin }) {
@@ -15,7 +16,7 @@ function serviceUnit({ origin }) {
     : '';
   return `${MARKER}
 [Unit]
-Description=Open Cavas stable main frontend
+Description=Open Canvas stable main frontend
 StartLimitIntervalSec=60
 StartLimitBurst=5
 

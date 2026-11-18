@@ -2,7 +2,7 @@
 
 ## Editor contract
 
-Open Cavas is a working editor, not a marketing page. The user's pinned direction is a true-black application base, white primary text, and a dark neutral surface ladder that separates the drawing stage, panels and controls. Keep dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
+Open Canvas is a working editor, not a marketing page. The user's pinned direction is a true-black application base, white primary text, and a dark neutral surface ladder that separates the drawing stage, panels and controls. Keep dense controls, minimal copy, and no decorative card or pill chrome. Artwork colors are user content, not editor theme colors.
 
 Opening a file exposes editable artwork between Layers and Properties. The selected workspace's root destination shows Home for browsing projects and files. Tool selection and direct manipulation are the main interaction. No continuous animation, pulse, glow, or spinner runs in the editor.
 

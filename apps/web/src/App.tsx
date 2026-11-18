@@ -68,7 +68,7 @@ function WorkspaceScreen() {
     {destination.view.kind === 'home' ? (
       <div className="home-shell">
         <header className="app-header home-header">
-          <div className="brand"><Frame size={18} strokeWidth={1.6} />Open Cavas</div>
+          <div className="brand"><Frame size={18} strokeWidth={1.6} />Open Canvas</div>
           <div className="header-actions">
             {saveState === 'failed' && <span className="save-status save-failed" role="alert"><AlertTriangle size={12} />Not saved</span>}
             <button className="workspace-choice" onClick={switchServiceWorkspace} aria-label="Switch local workspace" title={record?.name}>

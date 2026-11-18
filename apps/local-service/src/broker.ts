@@ -309,7 +309,7 @@ export async function createBroker() {
       if (!canvas || canvas.socket.readyState !== WebSocket.OPEN) {
         reject(
           new Error(
-            'Canvas not connected. Open Open Cavas in the browser and call list_canvases.'
+            'Canvas not connected. Open the Open Canvas editor in your browser and call list_canvases.'
           )
         );
         return;

@@ -56,7 +56,7 @@ export async function launch(profile, action, { openBrowser = false } = {}) {
       if (info.profile !== 'installed' || typeof info.release !== 'string' || !/^(development|[a-f0-9]{40})$/.test(info.release)) throw new Error('Invalid runtime metadata.');
       commit = info.release;
     } catch {
-      throw new Error('Invalid installed bundle. Reinstall Open Cavas.');
+      throw new Error('Invalid installed bundle. Reinstall Open Canvas.');
     }
   }
   const env = { ...process.env, CAVAS_PROFILE: profile, CAVAS_APP_PORT: String(settings.appPort), CAVAS_MCP_PORT: String(settings.brokerPort), CAVAS_APP_ORIGIN: settings.origin, CAVAS_RUNTIME_STATE_ROOT: runtimeStateDirectory(settings), CAVAS_RELEASE_COMMIT: commit };
@@ -70,7 +70,7 @@ export async function launch(profile, action, { openBrowser = false } = {}) {
         ...(openBrowser ? ['--open'] : []),
       ]
     : [path.join(root, 'node_modules/tsx/dist/cli.mjs'), path.join(serviceRoot, 'index.ts')];
-  process.stderr.write(`Open Cavas ${profile}: ${action === 'web' ? settings.origin : `private MCP ${settings.brokerPort}`} ${release ? `release ${release.commit.slice(0, 7)}` : ''}\n`);
+  process.stderr.write(`Open Canvas ${profile}: ${action === 'web' ? settings.origin : `private MCP ${settings.brokerPort}`} ${release ? `release ${release.commit.slice(0, 7)}` : ''}\n`);
   let backend;
   let stopping = false;
   let restartTimer;

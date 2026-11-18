@@ -1,6 +1,6 @@
-# Contribute to Open Cavas
+# Contribute to Open Canvas
 
-Thanks for helping improve Open Cavas. Bug reports, design feedback, documentation, accessibility improvements, and code contributions help make the editor more useful.
+Thanks for helping improve Open Canvas. Bug reports, design feedback, documentation, accessibility improvements, and code contributions help make the editor more useful.
 
 Visit [open-canvas.xyz](https://open-canvas.xyz) for the project website. Use this repository's documentation and issues for setup, questions, and contributions.
 
@@ -40,8 +40,8 @@ Use Node.js **24.22.1** and pnpm **12.21.0**. The repository pins both versions.
 Fork the repository if you need your own push destination, then clone your fork. From your primary checkout, create a feature worktree:
 
 ```sh
-git worktree add ../open-cavas-my-change -b feat/my-change
-cd ../open-cavas-my-change
+git worktree add ../open-canvas-my-change -b feat/my-change
+cd ../open-canvas-my-change
 corepack pnpm install --frozen-lockfile
 corepack pnpm run dev
 ```
@@ -117,4 +117,4 @@ Discuss broad stack changes, storage migrations, and runtime changes before impl
 
 ## License
 
-Open Cavas is licensed under the [Apache License 2.0](LICENSE). Contributions intentionally submitted for inclusion are offered under the same license unless explicitly stated otherwise, as described in Section 5 of the license. Submit work you have the right to contribute and preserve applicable third-party copyright and license notices. Third-party dependencies and assets retain their own licenses.
+Open Canvas is licensed under the [Apache License 2.0](LICENSE). Contributions intentionally submitted for inclusion are offered under the same license unless explicitly stated otherwise, as described in Section 5 of the license. Submit work you have the right to contribute and preserve applicable third-party copyright and license notices. Third-party dependencies and assets retain their own licenses.

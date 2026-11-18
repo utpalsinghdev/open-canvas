@@ -42,7 +42,7 @@ export function Projects(props: Props) {
   useEffect(() => {
     if (props.mode === 'dialog') dialog.current?.showModal();
     else {
-      window.document.title = 'Home / Open Cavas';
+      window.document.title = 'Home / Open Canvas';
       heading.current?.focus();
     }
   }, [props.mode]);
@@ -84,7 +84,7 @@ export function Projects(props: Props) {
             onClick={() =>
               download(
                 JSON.stringify(state.workspace, null, 2),
-                'Open Cavas.workspace.json',
+                'Open Canvas.workspace.json',
                 'application/json'
               )
             }

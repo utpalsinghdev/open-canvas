@@ -2,7 +2,7 @@
 set -euo pipefail
 umask 077
 
-fail() { printf 'Open Cavas: %s\n' "$*" >&2; exit 1; }
+fail() { printf 'Open Canvas: %s\n' "$*" >&2; exit 1; }
 
 usage() {
   printf '%s\n' 'Usage: install.sh [--version vX.Y.Z | --archive FILE.tar.gz]'
@@ -95,7 +95,7 @@ main() {
   ln -s "$target/bin/open-canvas" "$link_stage/open-canvas"
   mv -f "$link_stage/open-canvas" "$command_path"
 
-  printf 'Installed Open Cavas %s. Run open-canvas to start.\n' "$version"
+  printf 'Installed Open Canvas %s. Run open-canvas to start.\n' "$version"
   if [[ $(command -v open-canvas || true) != "$command_path" ]]; then
     printf 'Run "%s" directly, or put "%s" first on PATH.\n' "$command_path" "$bin"
   fi

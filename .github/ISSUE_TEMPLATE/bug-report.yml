@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible problem in Open Cavas.
+description: Report a reproducible problem in Open Canvas.
 title: "[Bug] "
 labels: [bug]
 body:

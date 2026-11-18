@@ -1,4 +1,4 @@
-# Install Open Cavas locally
+# Install Open Canvas locally
 
 ## Requirements
 
