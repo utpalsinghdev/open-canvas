@@ -1,12 +1,13 @@
 import { readdir, realpath, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { Connect, Plugin, ResolvedConfig } from 'vite';
+import { privateDirectoryNames } from './runtime-settings.mjs';
 
 function privatePath(value: string, root: string) {
-  // A frozen release root itself lives under .cavas/releases; only its children are public.
+  // Ignore the release root's own private parent, not private descendants or external aliases.
   const relative = path.relative(root, value);
   const outside = relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
-  return (outside ? value : relative).split(/[\\/]/).includes('.cavas');
+  return (outside ? value : relative).split(/[\\/]/).some((part) => privateDirectoryNames.includes(part));
 }
 
 async function checkPublicFiles(directory: string, root: string, ancestors = new Set<string>()) {

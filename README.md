@@ -1,133 +1,69 @@
 # Open Cavas
 
-[Website](https://open-canvas.xyz) · [Contributing](CONTRIBUTING.md) · [Issues](https://github.com/utpalsinghdev/open-canvas/issues)
+Open Cavas is a local-first design editor that runs in your browser. Make artboards with editable text, shapes, and images, then export artwork or save an editable backup. No account or cloud service required.
 
-A local-first web design editor. Create artboards, arrange text, shapes, and images, then export SVG/PDF or download an editable JSON document. No account required. Manual editing is browser-only; optional MCP control runs a local bridge.
+[Install](#install) · [Start designing](#start-designing) · [Connect an agent](#connect-an-agent) · [Changelog](apps/web/CHANGELOG.md) · [Website](https://open-canvas.xyz)
 
-## First visit
+![Two editable introductory artboards inside Open Cavas, with Layers and Properties panels](docs/images/introduction.png)
 
-Choose **Start with introductory canvas** in the workspace chooser to open an editable **Welcome to Open Cavas** file. Two seeded artboards introduce the tools, navigation, local saves, exports, and local MCP access through native text and shapes you can edit. Existing workspaces stay untouched; empty creation and browser copying remain separate choices.
+## Install
 
-See the [introduction and screenshot](docs/introduction.md).
+Release archives bundle the editor, local workspace service, and Node.js. You do not need Git, npm, or pnpm to run them. The installer targets macOS and glibc-based Linux on x64 and ARM64. Windows is not supported by this installer.
 
-## Run stable main
-
-Use Node.js **24.22.1** and pnpm **12.21.0**, pinned in `package.json`, `.nvmrc`, and `.node-version`. Select Node with your version manager, then use `corepack pnpm` to run the pinned package manager without changing global defaults. Corepack must be installed and on PATH. Examples below use `pnpm`; use `corepack pnpm` if you have no matching pnpm shim.
-
-In the primary main checkout:
+Once the [latest public release](https://github.com/utpalsinghdev/open-canvas/releases/latest) includes the archive and checksum for your platform, run:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm run release:main  # Requires clean committed main; builds a frozen snapshot
-pnpm run service:install # Persistent main frontend at http://localmachine:5182
-# pnpm start remains available for manual foreground use
+curl -fsSL https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.sh | bash
+open-cavas
 ```
 
-Main MCP uses private loopback port **4781**. Generate its config with `pnpm --silent run mcp:config`, start/reconnect your agent, and select an explicit workspace with `list_workspaces`. Data operations do not need an open browser. Browser rendering connects automatically when the application is open. No pairing code or click is required. A running main release is unaffected by feature builds. The Linux user service keeps it alive independently of agent sessions and restarts it after failures.
+`open-cavas` opens `http://127.0.0.1:5190` in your browser. Keep the terminal running while you work. If the command is not on PATH, run `~/.local/bin/open-cavas` instead.
 
-## Versions and changelog
+Online installation is not available until the installer and release assets are publicly readable. See [installation instructions](docs/install.md) to inspect the script before running it or install a trusted local archive. Use [CONTRIBUTING.md](CONTRIBUTING.md#run-stable-main-from-source) if you need to run from source.
 
-Use `pnpm run changeset` to record a feature/fix and its patch/minor/major bump. Commit that Markdown entry with the change. `pnpm run changeset:status` shows pending releases. Before an authorized release, `pnpm run version:apply` consumes entries, updates package versions and the lockfile, and generates `apps/web/CHANGELOG.md`. Review and commit the result before `pnpm run release:main`.
+## Start designing
 
-The app stays private. Versioning does not publish to npm, create tags, deploy, or restart main automatically. Detailed workflow is in [docs/versioning.md](docs/versioning.md).
+1. In the workspace chooser, choose **Start with introductory canvas** to open two editable artboards. Choose **Create empty workspace** to start from scratch.
+2. Draw an artboard (`A`), rectangle (`R`), ellipse (`O`), or text (`T`). Click for the default size or drag to set dimensions. Use **Add image** to insert an image file.
+3. Select a layer to move or resize it, or enter exact values in **Properties**. Double-click text to edit it. Hold `Space` and drag to pan; use `Shift+1` to fit your work in view.
+4. Use **Home** to browse projects and files, **Pages** above Layers to organize a file, and **Help** in the header for shortcuts and the current version’s changelog.
 
-## Feature development
+Use **Add comment** to leave feedback on a layer or canvas position. **Review** lists threads across the file so you can reply, jump to a comment, or resolve it. See the [introductory canvas](docs/introduction.md) and [review controls](docs/review-threads.md).
 
-Use a feature branch in a separate worktree:
+## Save, back up, and export
+
+- **Keep editing later:** changes save to your selected local workspace. The chooser and Projects show the exact save location. Fresh installed workspaces live under `~/.open-canvas/data/`.
+- **Keep an editable copy:** choose **File → Download JSON** for the full file, including its pages. Use the project or workspace backup controls for a larger backup. Import JSON to open an editable copy.
+- **Share artwork:** use **Export** for SVG or PDF. The menu shows whether it will export the selection or current page. PDF output is raster artwork, not selectable text or vector paths. See [PDF export](docs/pdf-export.md).
+
+To recover older browser-only work, reopen its original browser profile and exact URL, then use **Copy browser workspace**. See [local workspaces and recovery](docs/local-workspaces.md) before moving or deleting saved data.
+
+## Connect an agent
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm run dev                        # http://localmachine:5188
-pnpm --silent run mcp:config:dev     # Separate development agent entry
-pnpm run build                      # TypeScript and source bundle; not a main release
+open-cavas mcp-config
 ```
 
-The development launcher rejects main branches and the primary checkout. Main ports are reserved, not reused when busy. Main/dev broker credentials and browser workspaces are separate. Application listeners bind `0.0.0.0`; private brokers remain loopback-only. These are trusted-network local services, not an authenticated public deployment.
+Copy the generated `open-cavas` entry into your MCP client. Open a workspace in the editor to connect its canvas automatically. Local MCP clients can find and edit saved workspaces without a browser tab; browser rendering needs a connected canvas. Use **File → Pause agent access** to turn off MCP access for the selected workspace.
 
-After feature verification and authorized merge, run `pnpm run release:main` and deliberately restart main. Main browser tabs detect new releases and refresh automatically when saved and idle; active edits or failed saves delay refresh. No automatic restart, publish, or global MCP configuration change occurs. See [runtime and release workflow](docs/runtime.md), [MCP setup/security](docs/mcp.md), and [capability coverage](docs/mcp-capabilities.md).
+The browser does not send your projects to a cloud service. Only use trusted local MCP clients and do not expose the editor to the public internet. See [MCP setup and security](docs/mcp.md) for details.
 
-## Repository layout
+## Updates and release notes
 
-- `apps/web`: existing React/Vite editor and browser storage, font, and transport adapters.
-- `apps/local-service`: Node workspace storage, native rendering, private broker, and stdio MCP entry points.
-- `packages/document`: versioned schemas, constructors, IDs, and legacy migration.
-- `packages/engine`: validated edits, file history, geometry, typography, and SVG serialization.
-- `packages/mcp`: tool/service schemas and shared handler factories.
-- `scripts`: root development, release, service, and dependency-boundary commands.
-- `public`: shared shipped fonts and favicon, retaining their existing browser URLs.
+```sh
+open-cavas update --check   # Check without downloading
+open-cavas changelog        # Read bundled history offline
+open-cavas changelog --latest  # Read the latest public release notes
+```
 
-Run `pnpm run check` and `pnpm run build` at the root. See [repository layout and import rules](docs/repository-layout.md). Desktop and hosted web are future consumers, not applications included in this workspace.
-
-## Agent control through MCP
-
-51 tools provide local workspace discovery/creation, document reads, artboard/layer creation, editing, selection, tokens, restricted HTML import, exports, and artwork screenshots. Use an explicit `workspaceId` for browser-independent operations, including restricted HTML import, SVG/HTML/JSX exports and PNG artwork capture. PDF export requires a connected `canvasId`. No hidden browser runs.
-
-## Editor
-
-- **Create:** choose Artboard, Rectangle, Ellipse, or Text, then click for a default size or drag to set dimensions. Add image accepts PNG, JPEG, WebP, or GIF up to 2 MB.
-- **Select:** hover artwork for a dashed target outline without changing selection, then click to select it. Selected layers keep their selection outline and resize handles. Locked or hidden layers do not preview. Shift-click adds or removes layers. Drag empty canvas to preview a marquee selection of non-artboard layers, then release to select the outlined set. Shift-drag adds to the existing selection; Escape cancels the drag and clears selection.
-- **Edit:** drag to move, use corner handles to resize, or enter exact values in Properties. Double-click text for on-canvas editing. Ctrl/Cmd+Enter or blur commits text; Escape cancels the on-canvas edit.
-- **Organize:** rename, hide, lock, duplicate, delete, reorder, or change a layer's parent artboard. Moving an artboard moves its children; resizing an artboard changes its clipping area, not its children's scale. Use Collapse all in Layers to fold every artboard branch on the current page without changing selection or artwork. Individual arrows reopen branches. Collapse state is session-only.
-- **Navigate:** hold Space and drag to pan, choose Hand, or drag with the middle mouse button. Scroll pans, Ctrl/Cmd+scroll zooms around the pointer. Zoom buttons and Fit canvas are at the bottom right.
-- **Cursors:** Select, Hand, Text, and directional resize handles use a matching 32 px SVG cursor set with dark ink and white contrast rims. Select uses an arrow, Text an I-beam, and Artboard, Rectangle, and Ellipse the native crosshair. Hand and Space show an open hand; an active pan shows a closed hand. Each cursor has a native fallback. Inline text editing keeps its native text cursor; panels and controls retain their normal cursors.
-- **History:** undo and redo belong to each file, including all its pages. Switching files preserves separate histories during this session. A completed drag is one history entry. Camera and page navigation are not undo steps.
-- **Files:** File menu imports JSON as a new file, creates a new file in the current project, renames, or downloads the complete multi-page file. The header's Export dropdown contains SVG and PDF with explicit scope labels. SVG exports the selected artboard when exactly one is selected; otherwise it exports the active page. PDF · Selected artboards puts selected artboards into one PDF in document order, one artboard per page. With no artboards selected, PDF · Current page explicitly exports the active page as one page. See [PDF export](docs/pdf-export.md) for dimensions and limits.
-
-Click the help button for the complete shortcut list. Undo/redo stay available through keyboard shortcuts; their toolbar buttons are hidden. On desktop, drawing tools sit in a vertical rail beside the canvas. Use the sidebar icons in the header to collapse or reopen Layers and Properties independently. Both can be collapsed for more canvas space. Selection and panel content stay intact; visibility resets on reload. On narrow screens, use Layers and Properties buttons to open one overlay at a time.
-
-## Projects, files, and pages
-
-After choosing a local workspace, Home shows a project rail and native artwork previews for each file's remembered active page on desktop. Empty pages have an explicit placeholder. Narrow Home and the compact Projects dialog keep file rows. Open an existing file or create a new file to enter the editor. Use **Home** in the editor header to return without reloading or discarding committed edits. Back/Forward and refresh preserve the Home or file destination. The project name still opens the compact Projects dialog for quick switching. Both views reuse project/file management and file/project/workspace backups. Each project always contains at least one file. Project and file deletion require confirmation and are permanent, including their history. Download backups first.
-
-Use Pages above Layers to add, rename, duplicate, delete, or switch pages in a file. Each file keeps at least one page. Page duplication assigns new page/layer IDs. Page deletion can be undone through that file's history. Files share no artwork or undo state; design tokens are shared across pages of the same file.
-
-The first upgrade migrates the old single canvas into a **Personal** project, one file, and **Page 1**. Original local-storage data stays untouched as a fallback backup. Migration runs only when no IndexedDB workspace exists.
-
-## Review feedback
-
-Choose **Add comment** beside the drawing tools, click a layer or canvas position, then write in the compact anchored box and choose **Save**. Open **Review** to browse page-aware threads. Read and reply to threads, navigate to their targets across pages, and resolve or reopen them. Posted feedback stays in the selected local service workspace and complete JSON backups. MCP can list/read threads and change their status with explicit page context and revision checks. See [review threads](docs/review-threads.md) for controls, draft behavior, limits, and missing-anchor rules.
-
-## Keep your work
-
-Select a local service workspace on first load. **Copy browser workspace** explicitly transfers existing IndexedDB artwork into a new workspace without changing IDs or touching the original browser data. No profiles or origins merge automatically. Download backups before migrating valuable work.
-
-The local service owns durable documents. Browser edits save after a 350 ms debounce; workspace-target MCP mutations acknowledge completed durable writes. Idle browsers refresh remote changes without following agent navigation. Stale writes stop instead of replacing newer work. Download a workspace backup before reloading a conflicted tab. Incoming changes clear obsolete undo history.
-
-File/project/workspace JSON backups and append-only imports remain available through Projects. Closing a tab before its pending save finishes can still lose recent browser edits. Keep downloaded backups. See [local workspaces](docs/local-workspaces.md) for storage, migration, concurrency, lifecycle, authentication, and recovery limits.
+To update, save your work, stop the editor and its MCP clients, then run `open-cavas update`. It verifies the archive and version before switching and does not restart running sessions. See [update and rollback instructions](docs/install.md#update-roll-back-or-remove).
 
 ## Current limits
 
-- Up to 50 projects, 50 files per project, and 200 files total. Up to 100 pages per file, 1,000 layers per page, and 10,000 layers per file. One page is active at a time. Each file keeps at most 80 undo snapshots in memory.
-- UI JSON imports up to 40 MB; MCP messages remain limited to 12 MB; raster images up to 2 MB each. Browser storage may have a smaller total quota.
-- Only artboards are containers. Children use absolute world coordinates and clip to their artboard.
-- Text supports bundled Inter and Bricolage Grotesque variable fonts (including weight 620), Arial/Georgia/Courier New system fonts, line height, tracking, alignment, optional measured wrapping, and fixed/auto-height/auto-width sizing. Type any installed family name in Properties alongside the bundled suggestions. Requested/resolved font availability and measured overflow are visible in Properties and MCP reads. System detection is a browser-metric heuristic, not proof of an installed file or weight. System fonts are not embedded in exports. Older files default safely to prior typography behavior.
-- SVG export preserves supported artwork, clipping, rotation, opacity, embedded images, and loaded bundled typography fonts. It does not include editor chrome. It is a visual export, not a JSON round trip.
-- No third-party editable design document compatibility, arbitrary HTML/CSS layout import, semantic application code generation, cloud sync, multiplayer, AI, vector paths, grouping, auto layout, or snapping. MCP adds restricted static HTML import, SVG-based HTML/JSX output, and artwork PNG capture.
-- PDF export is lossless 2× raster artwork, not selectable text or PDF vectors. It uses 96 px/in dimensions, white page backgrounds, and bounded page/pixel/file sizes. GIF, animated PNG/WebP, corrupt images, and unavailable bundled fonts fail explicitly. See [PDF export](docs/pdf-export.md).
-- Desktop mouse/keyboard is the primary workflow. Mobile has responsive controls and panel access; multi-touch/pinch gestures are not implemented.
+Open Cavas is designed for desktop browsers. Narrow layouts provide access to editor panels, but touch gestures are limited. Cloud sync, live collaboration, auto layout, vector path editing, and editable third-party design-file import are not supported. See the [product scope](PRODUCT.md), [document format](docs/document-format.md), and [MCP capabilities](docs/mcp-capabilities.md) for more detail.
 
-## Project docs
+## Contribute
 
-- [Product scope](PRODUCT.md)
-- [Engineering rules](AGENTS.md) and [CLAUDE.md alias](CLAUDE.md)
-- [Contribution, issue, and PR guidance](CONTRIBUTING.md)
-- [Apache License 2.0](LICENSE)
-- [Feature delivery and completion criteria](docs/feature-delivery.md)
-- [Shared skills for Pi, Codex, and Claude Code](docs/contributor-skills.md)
-- [Runtime profiles and main releases](docs/runtime.md)
-- [Architecture and state flow](docs/architecture.md)
-- [Projects, files, and persistence](docs/workspace.md)
-- [Browser-independent local workspaces](docs/local-workspaces.md)
-- [Document format](docs/document-format.md)
-- [Verification record](docs/verification.md)
-- [Design system](DESIGN.md)
-- [MCP setup](docs/mcp.md) and [coverage](docs/mcp-capabilities.md)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for source setup, development, checks, and pull requests. Report problems in [GitHub Issues](https://github.com/utpalsinghdev/open-canvas/issues).
 
-The starter composition is original editable demonstration content.
-
-
-## Automatic agent connection
-
-Opening Open Cavas automatically makes that tab available to trusted local MCP agents. Blue dots above the targeted artboard's top-left corner indicate a pending artwork request (page-wide reads use the page bounds), not an idle connection or an entire task. They flash once, stay static while pending, and respect reduced motion. Fast requests briefly leave a dimmed recent-request mark instead of falsely claiming ongoing work. If the broker starts later or restarts, the browser reconnects automatically without replaying design writes. Use Pause agent access in the File menu to disable this tab until resumed or reloaded.
-
-Selected service workspaces live on disk under `.cavas/runtime/<profile>/<app-port>-<broker-port>/workspaces/` in the application checkout, outside release snapshots. The chooser and Projects show the actual save destination. Browser IndexedDB is a read-only recovery source, not the live save destination. Reopen the original browser profile at the exact original app address to copy older browser-only work. `list_canvases` is empty when no application tabs are open or all tabs are paused; `list_workspaces` still finds durable service workspaces. Reload an older pre-upgrade tab once to load automatic connection. Agent access is implicit when opening the app; keep the app on a trusted network and do not host untrusted scripts on its origin.
+[Apache License 2.0](LICENSE)

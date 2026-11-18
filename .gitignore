@@ -8,4 +8,6 @@ node_modules/
 .hallmark/
 .DS_Store
 
+.open-canvas/
 .cavas/
+.open-cavas/

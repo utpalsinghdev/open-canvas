@@ -1,0 +1,55 @@
+name: Build local app archives
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-x64
+            runner: ubuntu-24.04
+          - target: linux-arm64
+            runner: ubuntu-24.04-arm
+          - target: darwin-x64
+            runner: macos-15-intel
+          - target: darwin-arm64
+            runner: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm run package:local "$RUNNER_TEMP/cavas"
+      - name: Verify installer and bundled runtime
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          export HOME="$(mktemp -d)"
+          archive="$RUNNER_TEMP/cavas/open-cavas-$TARGET.tar.gz"
+          bash scripts/install.sh --archive "$archive"
+          command="$HOME/.local/bin/open-cavas"
+          "$command" --version
+          "$command" --no-open &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; wait "$pid" || true' EXIT
+          origin=http://127.0.0.1:5190
+          curl -fsS --retry 10 --retry-connrefused "$origin/runtime.json"
+          curl -fsS -o /dev/null -X POST -H "Origin: $origin" \
+            -H 'X-Cavas-Connection: browser' "$origin/__cavas/session"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: open-cavas-${{ matrix.target }}
+          path: ${{ runner.temp }}/cavas/
+          if-no-files-found: error

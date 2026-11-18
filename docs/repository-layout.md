@@ -68,7 +68,7 @@ This reorganization changes source ownership, not document or tool contracts:
 - Manual editing and both MCP targets use the same engine. Canvas revisions remain separate from durable workspace revisions.
 - Browser saves retain the existing debounce, conflict handling, and service authority. No SQLite or asset migration occurs.
 - The broker stays loopback-only with exact Origin/Host checks, one-use browser tickets, and private credentials. Mutations are never automatically replayed.
-- Main stays on frontend 5182/private broker 4781; development defaults to 5188/4785. Private data stays under the root `.cavas/runtime` profile directory, outside release snapshots.
+- Main stays on frontend 5182/private broker 4781; development defaults to 5188/4785. New source data lives under `.open-canvas/runtime`, outside release snapshots. Existing profiles keep using their [older workspace directory](local-workspaces.md#older-state-directories) until moved offline.
 - Frozen releases install and build their own workspace. The main launcher reads their web configuration and output, never a feature worktree's build. Source builds do not deploy or restart main.
 
 Rollback is a source/release-snapshot rollback, not a document downgrade. Older frozen snapshots retain their own launcher and dependency layout; new source launchers can still select an older snapshot. No saved workspace needs conversion.

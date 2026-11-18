@@ -57,7 +57,7 @@ The same five-run development protocol after sharing measured post-GC heap media
 
 ## Mac Brave over Tailscale
 
-A dedicated headed Brave 157.1.99.57 profile on macOS 27.2, Apple M2 with 16 GiB RAM, loaded the server application directly at `http://localmachine:5190` over Tailscale. The app did not run on the Mac. Only the CDP automation tunnel used loopback. Personal browser state was untouched.
+A dedicated headed Brave 157.1.99.57 profile on macOS 27.2, Apple M2 with 16 GiB RAM, loaded the server application directly at its configured Tailscale address on port 5190. The app did not run on the Mac. Only the CDP automation tunnel used loopback. Personal browser state was untouched.
 
 The initial sharing-only pilot on the same 12-page fixture showed real stalls. 120 page-button clicks produced 120 long tasks totaling 15.1 seconds. After editing, 120 visibility changes produced 120 long tasks totaling 16.4 seconds. Dedicated Brave summed RSS was 905–930 MiB; summed macOS physical footprint peaked at 377 MiB and settled near 323–326 MiB. Post-GC JS heap settled near 23–25 MiB. These accounting quantities differ; the run does not establish which metric the original report used, and does not dismiss the observed lag.
 

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { runtimeSettings } from '../../scripts/runtime-settings.mjs';
+import { privateDirectoryNames, runtimeSettings } from '../../scripts/runtime-settings.mjs';
 import { privateStateGuard } from '../../scripts/private-state-guard';
 
 const settings = runtimeSettings();
@@ -47,18 +47,20 @@ export default defineConfig({
     },
   ],
   server: {
+    host: settings.bindHost,
     port: settings.appPort,
     strictPort: true,
-    allowedHosts: ['localmachine'],
+    allowedHosts: [settings.bindHost],
     proxy: agentProxy,
     fs: {
-      deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/.cavas/**'],
+      deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', ...privateDirectoryNames.map((name) => `**/${name}/**`)],
     },
   },
   preview: {
+    host: settings.bindHost,
     port: settings.appPort,
     strictPort: true,
-    allowedHosts: ['localmachine'],
+    allowedHosts: [settings.bindHost],
     proxy: agentProxy,
   },
 });

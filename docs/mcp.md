@@ -4,9 +4,11 @@ Open Cavas exposes 51 tools over the official MCP SDK's stdio transport. It cont
 
 ## Start and connect
 
-Use the fixed runtime profiles described in [runtime.md](runtime.md).
+**Installed app:** run `open-cavas mcp-config` and copy the generated `open-cavas` entry into your client. It uses the installed launcher and its own private broker. See [local installation](install.md) for ports and storage. Do not configure a source runtime for the installed app.
 
-**Main:** frontend http://localmachine:5182, private broker 127.0.0.1:4781. Prepare a committed snapshot with `pnpm run release:main`, serve it with `pnpm start`, and generate the main agent configuration:
+For source checkouts, use the profiles described in [runtime.md](runtime.md).
+
+**Main:** frontend http://127.0.0.1:5182, private broker 127.0.0.1:4781. Prepare a committed snapshot with `pnpm run release:main`, serve it with `pnpm start`, and generate the main agent configuration:
 
 ```sh
 pnpm --silent run mcp:config
@@ -14,7 +16,7 @@ pnpm --silent run mcp:config
 
 Copy its `open-cavas` entry into the agent configuration and start/reconnect that client. Open the application in the actual browser holding your workspace. That tab connects automatically, including when the broker starts after the page or restarts later. No pairing code, Pair click, or pairing CLI exists. Generated config still points at the stable main launcher and selected release.
 
-**Development:** from a feature worktree run `pnpm run dev` and configure the agent with `pnpm --silent run mcp:config:dev`. Frontend is http://localmachine:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage.
+**Development:** from a feature worktree run `pnpm run dev` and configure the agent with `pnpm --silent run mcp:config:dev`. Frontend is http://127.0.0.1:5188 and private broker is 127.0.0.1:4785. Development refuses main ports. Each profile has separate credentials and browser storage. For trusted-network source use, generate the client config with the same [explicit origin](runtime.md#use-a-trusted-network-origin) as the frontend.
 
 The File menu offers Pause/Resume agent access. There is no routine header connection badge. Pause persists for the selected service workspace and revokes its browser connections; resume explicitly from that workspace. Reload does not re-enable paused access. Registration retries use capped backoff, not design-command retries. Use `list_workspaces` and an explicit `workspaceId` for data access without an open tab. All document tools also support backend-native execution with `workspaceId`, including restricted HTML import, visual exports and PNG capture. No hidden browser runs. An empty `list_canvases` means no connected workspace, not necessarily a broken MCP installation.
 
@@ -24,7 +26,7 @@ A same-origin POST to `/__cavas/session` requests an in-memory ticket. The broke
 
 Tickets expire after 20 seconds, are consumed once by WebSocket upgrade, are capped at 32 pending tickets, and are never the internal broker secret. Responses are no-store. The WebSocket uses `cavas` and `auth.<ticket>` subprotocols; no ticket goes into a URL or persisted document. Wrong/reused tickets fail. Broker tools over internal HTTP still require the separate owner-only credential; automatic registration permits a browser to register its own canvas, not to list or control other browsers.
 
-Main internal metadata is `.cavas/runtime/main/5182-4781/broker.json`; dev metadata is `.cavas/runtime/dev/5188-4785/broker.json`. Files are mode 0600 in private directories, ignored by Git and denied by Vite. Shared stdio clients authenticate to this internal credential. It is never returned by browser bootstrap or shown in the UI. Up to eight browser sockets can register.
+For new source state, main metadata is `.open-canvas/runtime/main/5182-4781/broker.json` and dev metadata is `.open-canvas/runtime/dev/5188-4785/broker.json`. Installed metadata lives beside its workspaces under `~/.open-canvas/data/`. Existing profiles keep their [older state paths](local-workspaces.md#older-state-directories). Files are mode 0600 in private directories, ignored by Git and denied by Vite. Shared stdio clients authenticate to this internal credential. It is never returned by browser bootstrap or shown in the UI. Up to eight browser sockets can register.
 
 Opening the app now implicitly enables trusted local agents to read/write that tab. This intentionally removes manual consent ceremony. Keep the app on a trusted network, do not load untrusted scripts on its origin, and pause access when needed. This is not a publicly authenticated hosted service. Exact Origin checks do not make a public app deployment safe.
 

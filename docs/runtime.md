@@ -1,6 +1,6 @@
 # Main releases and feature development
 
-Main is the stable application used by other threads. Feature work runs in separate worktrees and does not replace the live main release.
+Main is the stable application used by other threads. Feature work runs in separate worktrees and does not replace the live main release. The [downloadable local installation](install.md) has its own loopback ports and private data directory; the source and main workflows below do not apply to it.
 
 ## Pinned toolchain
 
@@ -18,12 +18,29 @@ Release preparation installs the entire workspace from the lockfile, checks all 
 
 | Profile | Browser app | Private MCP broker | MCP config name |
 | --- | --- | --- | --- |
-| Main | http://localmachine:5182 | 127.0.0.1:4781 | open-cavas |
-| Development | http://localmachine:5188 | 127.0.0.1:4785 | open-cavas-dev-5188 |
+| Main | http://127.0.0.1:5182 | 127.0.0.1:4781 | open-cavas |
+| Development | http://127.0.0.1:5188 | 127.0.0.1:4785 | open-cavas-dev-5188 |
 
-These profiles have separate private service workspace directories. Existing browser IndexedDB data remains origin-specific until explicitly copied. Import JSON backups to transfer work. Never use the development app to access main's saved browser data directly. Both app listeners bind 0.0.0.0; brokers remain loopback-only and require automatic browser tickets and exact Origin/Host. Keep app listeners on a trusted network, without public ingress.
+Both profiles listen on loopback by default and keep separate private service workspaces. The broker always stays on loopback and requires automatic browser tickets and exact Origin/Host validation. Never use the development app to access main's saved browser data directly.
 
-Main ports and Origin cannot be overridden. Development refuses either main port. An additional simultaneous feature worktree needs a different explicitly assigned development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when launching that app, generating its config. Development Origin defaults to `http://localmachine:<app-port>`; any explicit Origin must match that port.
+Main ports are fixed. Development refuses either main port. An additional simultaneous feature worktree needs a separate development port pair. Set `CAVAS_APP_PORT` and `CAVAS_MCP_PORT` identically when starting that app and generating its MCP config.
+
+## Use a trusted-network origin
+
+Only opt in if you need the browser to reach a source runtime from another device. Set `CAVAS_APP_ORIGIN` to the exact browser URL without a trailing slash, using the app port and a hostname or IP assigned to the machine running Open Cavas. The frontend binds to that resolved address, not all interfaces. Do not use a public interface or enable public ingress; the app does not authenticate users.
+
+Use the same value when starting the frontend and generating the MCP config. For example, replace the placeholder with your trusted-network hostname:
+
+```sh
+export CAVAS_APP_ORIGIN="http://<your-host>:5188"
+pnpm run dev
+# In another shell, set the same origin before running:
+pnpm --silent run mcp:config:dev
+```
+
+For main, use port 5182 and the same override for `pnpm start` or `pnpm run service:install` and `pnpm --silent run mcp:config`. The service installer records an explicit override in the unit without restarting an existing active service. Apply it only at the coordinated restart. To revert to the loopback default, rerun the service installer and regenerate MCP config with the variable unset, then coordinate the restart. Older frozen snapshots keep their original address contract until replaced; use their original origin when rolling back.
+
+Changing the origin does not move saved service workspaces. Browser-only IndexedDB, browser settings, and saved links are origin-specific. Back up any browser-only work from the old address before switching. Use the exact configured URL to load the new origin and select the existing service workspace.
 
 ## Use main
 
@@ -35,7 +52,7 @@ pnpm run release:main
 pnpm run service:install  # Install/start persistent main frontend on Linux
 ```
 
-`release:main` requires clean committed main. It archives exactly HEAD into a private `.cavas/releases/<commit>/` directory, installs that snapshot's locked dependencies, builds and typechecks it, and atomically updates `.cavas/main-release.json` only after success. An existing release for the same commit is reused. Failed builds do not change the release pointer. Dependencies and built assets belong to that snapshot, not the development checkout's node_modules or dist.
+`release:main` requires clean committed main. It archives exactly HEAD into a private `.open-canvas/releases/<commit>/` directory, installs that snapshot's locked dependencies, builds and typechecks it, and atomically updates `.open-canvas/main-release.json` only after success. An existing release for the same commit is reused. Failed builds do not change the release pointer. When the new pointer is absent, the launcher can still open the old `.cavas/main-release.json` and its frozen snapshot. Dependencies and built assets belong to that snapshot, not the development checkout's node_modules or dist.
 
 `pnpm start` resolves the pointer once and serves that snapshot on 5182. It refuses to switch to another port. `pnpm run preview` is an alias for the same main runtime. A normal `pnpm run build` is a source check/build, not publication of main. Subsequent builds and feature changes do not change the main snapshot that a running process serves.
 
@@ -63,11 +80,11 @@ pnpm --silent run mcp:config:dev
 Each profile/port pair has its own private internal broker metadata:
 
 ```text
-.cavas/runtime/main/5182-4781/broker.json
-.cavas/runtime/dev/5188-4785/broker.json
+.open-canvas/runtime/main/5182-4781/broker.json
+.open-canvas/runtime/dev/5188-4785/broker.json
 ```
 
-Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. All `.cavas` contents are ignored by Git and denied by Vite's development filesystem guard.
+Main metadata stays in the primary checkout even when the server code runs from a release snapshot. Dev metadata stays in its feature worktree. The launchers set the appropriate private state directory; internal credentials are never returned to the browser or embedded in frontend variables. The current and legacy state directories are ignored by Git and denied by Vite's filesystem guard.
 
 Do not invoke `apps/local-service/src/index.ts` or Vite directly to work around profiles. Bare server/Vite defaults are development, not main. Generated configs and pnpm scripts are the supported launch paths.
 
@@ -78,7 +95,7 @@ Do not invoke `apps/local-service/src/index.ts` or Vite directly to work around 
 3. Review pending Changesets with `pnpm run changeset:status`. When a version release is authorized, run `pnpm run version:apply`, inspect package/lockfile/changelog changes, and commit them. Then run `pnpm run release:main` from clean main. Versioning and runtime publication are separate steps; see versioning.md.
 4. Schedule the restart. Have active users wait for Saved locally and keep JSON backups. Stop only the known main frontend and main broker owner, not unrelated services or attached client processes by broad name.
 5. Run `pnpm run service:restart` for an installed main frontend service, or `pnpm start` for manual use, and restart/reconnect main MCP clients against the generated main config. One client owns the broker; other clients attach. Open application tabs reconnect automatically after the broker restarts. Reload old pre-upgrade tabs once to load the new connector.
-6. Verify HTTP through localmachine, matching frontend/MCP release IDs, and document read-back before resuming experiments.
+6. Verify HTTP at the configured browser URL, matching frontend/MCP release IDs, and document read-back before resuming experiments.
 
 An existing main frontend can keep serving the previous release while the new release is built. Restart is the controlled update boundary, not a side effect of development. MCP owner restart disconnects browser sockets; live migration without disconnect is not implemented.
 
