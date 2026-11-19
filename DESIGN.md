@@ -25,7 +25,20 @@ The shared tokens are declared in `apps/web/src/styles.css` under `:root`. `apps
 - Minimum measured contrast across the specified opaque functional surfaces: white 15.98:1, body 10.05:1, secondary 7.38:1, blue focus 7.97:1, warning 10.11:1 and error 5.43:1. White/black primary actions are 21:1. Control edges are at least 3.35:1 against control/hover/selected surfaces. Blue/black contrast rims are 10.48:1; black/white is 21:1. Pale blue alone on white is only 2.00:1, so artwork-facing edges must retain the black under-stroke. Decorative dividers, grid, washes and disabled controls are not asserted to meet essential-indicator contrast.
 - UI type: platform system sans through `--font-ui`. Artwork font is document data.
 
-Spacing declarations use a 4 px grid. Borders are 1 px. Compact controls have 3 to 5 px corner radii. Drawing handles are 8 screen pixels regardless of zoom.
+Spacing declarations use a 4 px grid. Borders are 1 px. Drawing handles are 8 screen pixels regardless of zoom.
+
+### Control sizing
+
+Two radius tokens and two height tokens in `apps/web/src/styles.css` size every text button, field, menu and control radius. Icon buttons, tool rail buttons, list rows and the narrow tab strip keep the fixed sizes listed below the table. Only the 2 px color-swatch inner corner and the squared menu separators fall outside the tokens.
+
+| Token | Value | Used by |
+| --- | --- | --- |
+| `--radius-control` | 4 px | Text and icon buttons, menu items, tabs, inputs, selects, numeric and color fields, list rows, comment pins, tooltips |
+| `--radius-surface` | 6 px | Menus, comment and review surfaces, dialogs, toast, zoom cluster, alignment group, file previews, inline name forms |
+| `--control-height` | 32 px above 900 px, 36 px at 900 px and below | Export, File, Home, project switcher, Review, menu items, secondary, library and dialog buttons, comment Cancel and Save, inputs, selects, numeric and color fields, project rows |
+| `--control-height-compact` | 28 px at every width | Zoom buttons, page and layer action icons, and Home file action icons on desktop |
+
+Narrow screens keep the taller regular height so text buttons stay easy to tap. Icon hit areas keep their sizes: 30 px header icons on narrow screens and 32 px on desktop, 36 px tool rail buttons, and 27 by 33 px tool strip buttons under 560 px. The narrow Layers, Properties and Review tabs stay 40 px tall. Text buttons use 12 px side padding, menu rows 8 px on narrow screens and 12 px on desktop. Labels stay regular weight, with 500 for Export and other white primary actions. Outlined buttons keep a 1 px border rather than an inset shadow, because the focus treatment uses that shadow for its black separation.
 
 ## Layout and interaction
 
@@ -102,7 +115,7 @@ File is labeled on desktop, closes on Escape/outside click/focus exit, and keeps
 
 ## Desktop density and action hierarchy
 
-Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a white/black active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use a neutral selected surface and blue ink. Numeric values use full-width 34 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
+Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 px base UI type, 12 px section names, and 11 px field labels/supporting metadata. Drawing tools form a vertical rail with a white/black active state. Undo/redo remain available through keyboard shortcuts and Help, without visible toolbar buttons. Toolbar accessibility orientation follows its desktop or narrow layout. Selected layers use a neutral selected surface and blue ink. Numeric values use full-width 32 px fields. Menus and review overlays have restrained offset shadows; Help uses aligned shortcut rows with separators.
 
 Home has a 240 px project rail and an adaptive grid of native page previews, file names, metadata, and explicit actions. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Previews are read-only and mounted only near the visible library area; they are neither saved snapshots nor exports. Project dialogs keep compact rows. Artwork in the editor remains uncapped.
 
