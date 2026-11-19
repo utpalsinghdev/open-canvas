@@ -2,4 +2,4 @@
 "@open-cavas/web": patch
 ---
 
-Add brief, consistent motion to Review surfaces, File and Export menus, dialogs, narrow panels and notifications. Preserve immediate dismissal and command handling, and skip motion when reduced motion is preferred.
+Ease Review, File and Export menus, notifications, Help, Projects, narrow panels and tooltips with brief, consistent motion. Closing is immediate to the pointer and keyboard, and the browser's reduced-motion setting makes every change instant.

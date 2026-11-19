@@ -28,7 +28,7 @@ Online installation is not available until the installer and release assets are 
 3. Select a layer to move or resize it, or enter exact values in **Properties**. Double-click text to edit it. Hold `Space` and drag to pan; use `Shift+1` to fit your work in view.
 4. Use **Home** to browse projects and files, **Pages** above Layers to organize a file, and **Help** in the header for shortcuts and the current version’s changelog.
 
-Use **Add comment** to leave feedback on a layer or canvas position. **Review** lists threads across the file so you can reply, jump to a comment, or resolve it. See the [introductory canvas](docs/introduction.md) and [review controls](docs/review-threads.md).
+Use **Add comment** to leave feedback on a layer or canvas position. **Review** lists threads across the file so you can reply, jump to a comment, or resolve it. See the [introductory canvas](docs/introduction.md) and [review controls](docs/review-threads.md). Menus, Review and messages ease in and out briefly; turning on your system's reduced-motion setting makes them change immediately. See [editor motion](docs/editor-motion.md).
 
 ## Save, back up, and export
 
