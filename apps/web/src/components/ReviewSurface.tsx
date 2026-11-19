@@ -37,7 +37,7 @@ export function ReviewSurface({ controls, point, compact, composing, onClose, ch
   useLayoutEffect(() => {
     const previous = document.activeElement;
     const surface = ref.current;
-    (surface?.querySelector<HTMLElement>('textarea') ?? surface?.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
+    (surface?.querySelector<HTMLElement>('textarea, .review-filter') ?? surface?.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
     return () => {
       if ((previous instanceof HTMLElement || previous instanceof SVGElement) && previous.isConnected && surface?.contains(document.activeElement))
         previous.focus({ preventScroll: true });

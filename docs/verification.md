@@ -850,3 +850,15 @@ For #78, local Brave collapsed two artboard branches, offered enabled Expand all
 ## Layer-name space and row actions
 
 For #79, local Brave measured the representative inactive name at 172 px instead of 124 px at 1440 px, and 148 px instead of 100 px at 1024 px. The sidebar stayed 240/216 px and type icons stayed 14 px. Hover revealed the 48 px desktop action gutter with the name's start unchanged and no overlap; keyboard Tab reached Hide then Lock. Directly hidden/locked rows kept Show/Unlock available away from the pointer. The 390 px Layers overlay retained a 170 px inactive label region. A long renamed layer truncated with its full title and no action overlap, then undo restored its original name. Check and build passed. Source review and independent local Brave reproduction caught a right-edge hover hit-target substitution. After the fix, fresh local and Mac Brave checks at the same row point selected Practice instructions without changing hidden/locked state or adding history. Actions still appeared after deliberate pointer movement into the name region; already-visible and keyboard actions remained direct. Both browsers also verified hover-only tooltip Escape with canvas focus retained selection. The change reallocates inactive control width rather than widening the sidebar or reducing type size.
+
+## Input-first comment composer
+
+Chromium at 1280 × 820 opened Add comment on an introductory text layer. The text area took focus, the footer named the layer, and Save was disabled until text was entered. Escape hid the box and Review reopened it with the text intact. Ctrl+Enter posted to the pinned conversation; undo removed the pin. Cancel cleared a second draft.
+
+At 390 × 844, a new draft on empty canvas showed Canvas position and stayed within the viewport without horizontal overflow. Save created a pin, and the posted comment reopened after reload. No page errors were reported. `pnpm run check`, `pnpm run build`, and `pnpm run changeset:status --since=origin/main` passed. Physical touch and other browser engines were not tested. No review command or MCP contract changed.
+
+## Comment-first Review list
+
+Chromium at 1440 × 900 opened the Review list with the status filter focused. All, Open, and Resolved showed the expected threads. Opening a conversation and returning to the list retained the filter. Enter on a thread from another page opened that page and its conversation. Escape returned focus to Review. A new file showed the unfiltered and filtered empty states.
+
+At 390 × 844 the panel fit the canvas without horizontal overflow. Keyboard navigation reached the header and creation controls. Comment on selection and Place pin opened the existing layer and canvas-position composers. No page errors were reported. `pnpm run check`, `pnpm run build`, and `pnpm run changeset:status --since=origin/main` passed. No review command or MCP contract changed. Physical touch was not tested.

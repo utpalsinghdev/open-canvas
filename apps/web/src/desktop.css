@@ -199,10 +199,7 @@
   .review-panel { border-radius: 6px; box-shadow: var(--menu-shadow); }
   .review-heading { min-height: 44px; padding: 8px 12px; }
   .review-heading h2 { font-size: 13px; }
-  .review-filter { font-size: 12px; padding: 12px; }
-  .review-create { padding: 8px; gap: 4px; }
-  .review-create .text-button { text-decoration: none; min-height: 34px; border-radius: 4px; }
-  .review-row span, .review-hint, .review-messages time { font-size: 12px; }
+  .review-hint, .review-messages time { font-size: 12px; }
   .review-hint { padding: 16px 12px; }
   .review-popover { box-shadow: var(--menu-shadow); }
   .review-popover .review-composer textarea { min-height: 88px; }
@@ -227,10 +224,3 @@
   .tool-strip { padding-right: 0; }
   .project-nav-heading { display: none; }
 }
-
-.review-draft .review-composer { padding: 12px; gap: 12px; }
-.review-popover.review-draft .review-composer textarea { min-height: 64px; max-height: 160px; padding: 0; border: 0; border-radius: 0; background: none; font-size: 13px; line-height: 1.5; }
-.review-draft:has(textarea:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
-.review-draft textarea:focus-visible { outline: none; }
-.review-draft .review-actions { flex-wrap: nowrap; gap: 8px; }
-.review-draft .review-actions button { min-height: 32px; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
