@@ -23,6 +23,10 @@ jobs:
             runner: macos-15-intel
           - target: darwin-arm64
             runner: macos-15
+          - target: win32-x64
+            runner: windows-2025
+          - target: win32-arm64
+            runner: windows-11-arm
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,7 +35,9 @@ jobs:
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm run package:local "$RUNNER_TEMP/cavas"
+        shell: bash
       - name: Verify installer and bundled runtime
+        if: runner.os != 'Windows'
         shell: bash
         env:
           TARGET: ${{ matrix.target }}
@@ -48,6 +54,75 @@ jobs:
           curl -fsS --retry 10 --retry-connrefused "$origin/runtime.json"
           curl -fsS -o /dev/null -X POST -H "Origin: $origin" \
             -H 'X-Cavas-Connection: browser' "$origin/__cavas/session"
+      - name: Verify Windows installer and bundled runtime
+        if: runner.os == 'Windows'
+        shell: powershell
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Check([string]$Step) { if ($LASTEXITCODE -ne 0) { throw "$Step failed ($LASTEXITCODE)" } }
+          # Windows PowerShell 5.1 runs the installer, as it does for most users.
+          $env:USERPROFILE = (New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'profile')).FullName
+          $archive = Join-Path $env:RUNNER_TEMP "cavas\open-canvas-$env:TARGET.tar.gz"
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install.ps1 -Archive $archive
+          Check 'install'
+          $bin = Join-Path $env:USERPROFILE '.open-canvas\install\bin'
+          $command = Join-Path $bin 'open-canvas.cmd'
+          if (([Environment]::GetEnvironmentVariable('Path', 'User') -split ';') -notcontains $bin) { throw 'User PATH was not updated.' }
+          & $command --version
+          Check 'version'
+          # A wrong checksum must fail and leave the installed command working.
+          $bad = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'bad')
+          Copy-Item $archive $bad
+          Set-Content -Path "$bad\open-canvas-$env:TARGET.tar.gz.sha256" -Value ('0' * 64)
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install.ps1 -Archive "$bad\open-canvas-$env:TARGET.tar.gz"
+          if ($LASTEXITCODE -eq 0) { throw 'A mismatched checksum was accepted.' }
+          & $command --version
+          Check 'version after rejected install'
+          # Reinstalling the same archive reuses the stored release.
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install.ps1 -Archive $archive
+          Check 'reinstall'
+          # Update bookkeeping must recognize this install as the managed one.
+          $release = (Get-ChildItem (Join-Path $env:USERPROFILE '.open-canvas\install\releases')).FullName
+          Set-Location $release
+          & "$release\bin\node.exe" -e "import('./scripts/installed-releases.mjs').then((m) => m.assertManagedInstall())"
+          Check 'managed install detection'
+          Set-Location $env:GITHUB_WORKSPACE
+          & $command changelog | Select-Object -First 3
+          $origin = 'http://127.0.0.1:5190'
+          $log = Join-Path $env:RUNNER_TEMP 'open-canvas.log'
+          $server = Start-Process -FilePath $command -ArgumentList '--no-open' -PassThru -WindowStyle Hidden -RedirectStandardOutput $log -RedirectStandardError "$log.err"
+          try {
+            curl.exe -fsS --retry 15 --retry-delay 2 --retry-connrefused "$origin/runtime.json"
+            Check 'runtime.json'
+            curl.exe -fsS -o NUL -X POST -H "Origin: $origin" -H 'X-Cavas-Connection: browser' "$origin/__cavas/session"
+            Check 'session'
+            # Start the exact MCP entry that mcp-config prints, the way a client would.
+            $env:OPEN_CANVAS_MCP_CONFIG = (& $command mcp-config) -join "`n"
+            Check 'mcp-config'
+            $handshake = @'
+          const { spawn } = require('node:child_process');
+          const entry = JSON.parse(process.env.OPEN_CANVAS_MCP_CONFIG).mcpServers['open-canvas'];
+          const child = spawn(entry.command, entry.args, { env: { ...process.env, ...entry.env }, stdio: ['pipe', 'pipe', 'inherit'] });
+          const timer = setTimeout(() => { console.error('No MCP response.'); child.kill(); process.exit(1); }, 60000);
+          child.stdout.on('data', (data) => {
+            if (!String(data).includes('"id":1')) return;
+            console.log('MCP initialize answered.');
+            clearTimeout(timer);
+            child.kill();
+            process.exit(0);
+          });
+          child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'ci', version: '0' } } }) + '\n');
+          '@
+            $script = Join-Path $env:RUNNER_TEMP 'mcp-handshake.js'
+            Set-Content -Path $script -Value $handshake
+            node $script
+            Check 'mcp handshake'
+          } finally {
+            taskkill /PID $server.Id /T /F | Out-Null
+            Get-Content $log, "$log.err" -ErrorAction SilentlyContinue
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: open-canvas-${{ matrix.target }}

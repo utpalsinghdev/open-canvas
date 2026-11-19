@@ -2,6 +2,7 @@ import { lstat, readFile, rm, writeFile, link } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { z } from 'zod';
+import { exposedToOthers } from './private-mode';
 
 const TIMEOUT_MS = 30_000;
 export const brokerMetadataSchema = z.object({
@@ -26,7 +27,7 @@ export async function removeStaleMetadata(metadataPath: string) {
   let metadata: z.infer<typeof brokerMetadataSchema>;
   try {
     const file = await lstat(metadataPath);
-    if (!file.isFile() || file.isSymbolicLink() || file.mode & 0o077)
+    if (!file.isFile() || file.isSymbolicLink() || exposedToOthers(file.mode))
       throw new Error('Broker metadata is not a private regular file.');
     raw = await readFile(metadataPath, 'utf8');
     metadata = brokerMetadataSchema.parse(JSON.parse(raw));
@@ -89,7 +90,7 @@ export async function connectToExistingBroker(
       await delay(50);
     }
   }
-  if (!file.isFile() || file.isSymbolicLink() || file.mode & 0o077)
+  if (!file.isFile() || file.isSymbolicLink() || exposedToOthers(file.mode))
     throw new Error('Existing broker metadata is not a private regular file.');
   let metadata: z.infer<typeof brokerMetadataSchema>;
   try {

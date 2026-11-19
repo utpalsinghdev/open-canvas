@@ -13,6 +13,7 @@ import { browserMessageSchema } from '@open-cavas/mcp/tools';
 import { z } from 'zod';
 import { createWorkspaceService } from './workspaces';
 import { WORKSPACE_BYTES } from './workspace-storage';
+import { exposedToOthers } from './private-mode';
 import {
   brokerMetadataSchema,
   publishBrokerMetadata,
@@ -49,7 +50,7 @@ export async function createBroker() {
   if (
     !directory.isDirectory() ||
     directory.isSymbolicLink() ||
-    directory.mode & 0o077
+    exposedToOthers(directory.mode)
   )
     throw new Error(
       'The runtime state directory must be private, mode 0700, and not a symlink.'
