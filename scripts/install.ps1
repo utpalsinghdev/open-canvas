@@ -165,7 +165,7 @@ try {
       $shim = Join-Path $stage 'open-canvas.cmd'
       $text = "@rem open-canvas-shim`r`n@echo off`r`nsetlocal`r`nset `"OPEN_CAVAS_COMMAND=%~f0`"`r`n`"%~dp0..\releases\$id\bin\open-canvas.cmd`" %*`r`n"
       [IO.File]::WriteAllText($shim, $text, [Text.Encoding]::ASCII)
-      if (Test-Path -LiteralPath $command) { [IO.File]::Replace($shim, $command, $null) }
+      if (Test-Path -LiteralPath $command) { [IO.File]::Replace($shim, $command, [NullString]::Value) }
       else { [IO.File]::Move($shim, $command) }
     } finally {
       try { [IO.Directory]::Delete($stage, $true) } catch { }
