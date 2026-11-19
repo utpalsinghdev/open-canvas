@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { useEditor } from '../editor/store';
 import { IconButton } from './Button';
+import { SurfacePresence } from './SurfacePresence';
 
 /** Recovery and action feedback remain visible on Home as well as in the editor. */
 export function WorkspaceNotice({ onProjects }: { onProjects: () => void }) {
@@ -24,5 +25,5 @@ export function WorkspaceNotice({ onProjects }: { onProjects: () => void }) {
       {message && <div className="persistence-action-message" role="status">{feedback}</div>}
     </div>
   );
-  return message ? <div className="toast" role="status">{feedback}</div> : null;
+  return <SurfacePresence visible={Boolean(message)}><div className="toast" role="status">{feedback}</div></SurfacePresence>;
 }

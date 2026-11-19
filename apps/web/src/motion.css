@@ -1,0 +1,86 @@
+/* Editor chrome only. Artwork, camera geometry and direct manipulation stay instant. */
+:root {
+  --ui-enter-duration: 160ms;
+  --ui-exit-duration: 100ms;
+  --ui-enter-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --ui-exit-easing: cubic-bezier(0.4, 0, 1, 1);
+  --ui-surface-offset: 0 4px;
+}
+
+/* SurfacePresence wrappers add no box; the surface inside carries the transition. */
+.surface-presence { display: contents; }
+.surface-presence[inert] > * { pointer-events: none; }
+.review-panel { --ui-surface-offset: 6px 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .surface-presence > * {
+    transition: opacity var(--ui-exit-duration) var(--ui-exit-easing),
+      translate var(--ui-exit-duration) var(--ui-exit-easing);
+  }
+  .surface-presence[data-presence="open"] > * {
+    transition-duration: var(--ui-enter-duration);
+    transition-timing-function: var(--ui-enter-easing);
+  }
+  .surface-presence[data-presence="closed"] > * {
+    opacity: 0;
+    translate: var(--ui-surface-offset);
+  }
+  @starting-style {
+    .surface-presence[data-presence="open"] > * {
+      opacity: 0;
+      translate: var(--ui-surface-offset);
+    }
+  }
+}
+
+/* Unsupported browsers retain native instant details dismissal. */
+@supports selector(details::details-content) and (transition-behavior: allow-discrete) {
+  @media (prefers-reduced-motion: no-preference) {
+    .file-menu::details-content, .export-menu::details-content {
+      transition: content-visibility var(--ui-exit-duration) allow-discrete;
+    }
+    .file-menu-items, .export-menu-items {
+      opacity: 0;
+      translate: 0 -4px;
+      transition: opacity var(--ui-exit-duration) var(--ui-exit-easing),
+        translate var(--ui-exit-duration) var(--ui-exit-easing);
+    }
+    .file-menu[open] > .file-menu-items, .export-menu[open] > .export-menu-items {
+      opacity: 1;
+      translate: 0 0;
+      transition-duration: var(--ui-enter-duration);
+      transition-timing-function: var(--ui-enter-easing);
+    }
+    @starting-style {
+      .file-menu[open] > .file-menu-items, .export-menu[open] > .export-menu-items {
+        opacity: 0;
+        translate: 0 -4px;
+      }
+    }
+  }
+}
+.file-menu:not([open]) > .file-menu-items, .export-menu:not([open]) > .export-menu-items { pointer-events: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.help-dialog[open], dialog.projects-dialog[open] {
+    animation: ui-surface-enter var(--ui-enter-duration) var(--ui-enter-easing);
+  }
+  dialog.help-dialog[open]::backdrop, dialog.projects-dialog[open]::backdrop {
+    animation: ui-fade-enter var(--ui-enter-duration) var(--ui-enter-easing);
+  }
+  /* Hover and focus tooltips only fade in; they unmount the moment the pointer or focus leaves. */
+  .control-tooltip { animation: ui-fade-enter var(--ui-enter-duration) var(--ui-enter-easing); }
+  @media (max-width: 900px) {
+    .show-layers .layers-panel, .show-properties .inspector-panel {
+      animation: ui-surface-enter var(--ui-enter-duration) var(--ui-enter-easing);
+    }
+  }
+}
+@keyframes ui-surface-enter {
+  from { opacity: 0; translate: 0 4px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes ui-fade-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

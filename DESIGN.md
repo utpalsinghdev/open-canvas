@@ -119,7 +119,11 @@ Above 900 px, `apps/web/src/desktop.css` owns the workbench composition with 13 
 
 Home has a 240 px project rail and an adaptive grid of native page previews, file names, metadata, and explicit actions. Search has a bounded width, New file stays at the opposite end of the row, and import/backup controls remain secondary. Previews are read-only and mounted only near the visible library area; they are neither saved snapshots nor exports. Project dialogs keep compact rows. Artwork in the editor remains uncapped.
 
-No animation, font dependency, document capability, or alternate mobile shell is added. Below 901 px, tools return to a horizontal strip and panels remain overlays. Workspace setup keeps a stacked fallback and recovery disclosure.
+No font dependency, document capability, or alternate mobile shell is added. Below 901 px, tools return to a horizontal strip and panels remain overlays. Workspace setup keeps a stacked fallback and recovery disclosure.
+
+## Transient editor motion
+
+Review, the File and Export menus and dismissible notifications use shared 160 ms ease-out entrances and 100 ms ease-in exits, built from opacity and a 4 to 6 px translate. Help, Projects, narrow Layers/Properties panels and tooltips have an entrance only; their dismissal stays immediate. Exiting content is inert and pointer-transparent, and desktop sidebar geometry, canvas work and commands are never delayed. Reduced motion makes every change immediate. See [editor motion](docs/editor-motion.md) for the token set, the surface-by-surface audit and deliberately instant interactions.
 
 ## Footer backup affordance
 

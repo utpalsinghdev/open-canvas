@@ -1,5 +1,16 @@
 # Verification record
 
+## Issue #66: transient editor motion
+
+- Local Brave with synthetic content at 1440 × 1000 and 390 × 844. Per-frame opacity sampling showed Review rising from 0 to 1 in about 160 ms and falling from 1 to 0 in about 100 ms before removal, without resetting to full opacity. File and Export menus, Help, Projects, the notification and tooltips showed the same entrance, and the menus and notification the same exit. Narrow Layers and Properties entered over about 160 ms and closed instantly.
+- Exiting Review and notification content was inert, and hit testing at its position reached the canvas. File and Export items were inert as soon as `open` cleared, and the closed items were not hit targets. Rapid toggles (7 to 8 clicks at 25 to 40 ms) ended in the correct open or closed state with at most one retained surface. Reopening mid-exit reversed from the current opacity.
+- Review list, thread and composer switching reused one surface and never dipped below full opacity. Escape from the composer started the exit, kept the draft, and reopening restored it. Three Cancel and reopen cycles ended with one surface. With real keyboard and mouse input, Review Escape restored focus to its toggle, File opened with Enter, Tab reached New file, Escape returned focus to the summary, and an outside click closed the menu. Help and Projects were modal, focused their close or first control and restored trigger focus.
+- Reduced motion (browser emulation): enabled before opening, dialogs, menus and tooltips had no animation or transition. Enabled while Review was mid-entry, its opacity jumped to 1. Enabled mid-exit, it was removed immediately. At 390 × 844 the page had no horizontal overflow, Layers, Properties and Review stayed mutually exclusive, and the File menu stayed inside the viewport.
+- Rectangle drawing and undo worked with real pointer input (18 to 17 layers after undo). Notification expiry after eight seconds and replacement without restart passed. The change touches no store, document, serialization or export module.
+- `corepack pnpm install --frozen-lockfile`, `corepack pnpm run check`, `corepack pnpm run build`, `corepack pnpm run changeset:status --since=origin/main` and `git diff --check` passed with Node 24.22.1 and pnpm 12.21.0. The build keeps its existing chunk-size warning.
+
+Not exercised: Safari, Firefox, macOS, touch hardware, assistive technology, forced colors, a painted-frame flicker measurement, and the unsupported-browser menu fallback (it keeps native instant behavior by design). Screenshots are not attached because the change is motion only. See [editor motion](editor-motion.md) for the surface audit.
+
 ## Installed command spelling
 
 - Rebuilt and installed the Linux x64 archive in an isolated home. Only `open-canvas` was installed. Help, version, offline changelog, and generated MCP config used the new launcher. The editor launched from it and displayed `open-canvas update --check`; a stdio client using the generated config listed the connected canvas.

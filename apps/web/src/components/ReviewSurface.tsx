@@ -1,7 +1,10 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { CameraControls } from '../editor/useCamera';
+import { useSurfaceVisible } from './SurfacePresence';
 
-export function ReviewSurface({ controls, point, compact, composing, onClose, children }: {
+/** The surface persists across list, draft and thread content so only opening and closing animate. */
+export function ReviewSurface({ contentKey, controls, point, compact, composing, onClose, children }: {
+  contentKey: string;
   controls: CameraControls;
   point: { x: number; y: number } | null;
   compact: boolean;
@@ -10,6 +13,7 @@ export function ReviewSurface({ controls, point, compact, composing, onClose, ch
   children: ReactNode;
 }) {
   const ref = useRef<HTMLElement>(null);
+  const visible = useSurfaceVisible();
   const [position, setPosition] = useState({ left: 12, top: 12 });
   useLayoutEffect(() => {
     const surface = ref.current;
@@ -35,14 +39,15 @@ export function ReviewSurface({ controls, point, compact, composing, onClose, ch
   }, [compact, point?.x, point?.y, controls.camera, controls.viewport]);
 
   useLayoutEffect(() => {
+    if (!visible) return;
     const previous = document.activeElement;
     const surface = ref.current;
     (surface?.querySelector<HTMLElement>('textarea, .review-filter') ?? surface?.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
     return () => {
-      if ((previous instanceof HTMLElement || previous instanceof SVGElement) && previous.isConnected && surface?.contains(document.activeElement))
+      if ((previous instanceof HTMLElement || previous instanceof SVGElement) && previous.isConnected && (surface?.contains(document.activeElement) || document.activeElement === document.body))
         previous.focus({ preventScroll: true });
     };
-  }, []);
+  }, [visible, contentKey]);
 
   return <aside ref={ref} className={`${compact ? 'review-popover' : 'review-panel'}${composing ? ' review-draft' : ''}`}
     style={compact ? position : undefined} aria-label={composing ? 'New comment' : compact ? 'Comment' : 'Review threads'}
