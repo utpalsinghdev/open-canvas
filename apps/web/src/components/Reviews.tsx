@@ -111,7 +111,7 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
         return point && <span className="review-pin draft" style={{ left: point.x * controls.camera.zoom + controls.camera.x, top: point.y * controls.camera.zoom + controls.camera.y }}><MapPin size={14} /></span>;
       })()}
     </div>
-    <SurfacePresence visible={review.open}><ReviewSurface key={thread?.id ?? (draftAnchor ? 'draft' : 'list')} controls={controls} point={point} compact={compact} composing={composing} onClose={close}>
+    <SurfacePresence visible={review.open}><ReviewSurface contentKey={thread?.id ?? (draftAnchor ? 'draft' : 'list')} controls={controls} point={point} compact={compact} composing={composing} onClose={close}>
       {!composing && <div className="review-heading">
         <h2>{thread ? 'Comment' : 'Review threads'}</h2>
         {!compact && <select className="review-filter" aria-label="Thread status filter" value={filter} onChange={(event) => {
