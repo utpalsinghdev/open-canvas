@@ -196,7 +196,7 @@
   .review-heading h2 { font-size: 13px; }
   .review-filter { font-size: 12px; padding: 12px; }
   .review-create { padding: 8px; gap: 4px; }
-  .review-create .text-button { text-decoration: none; min-height: var(--control-height); }
+  .review-create .text-button { text-decoration: none; min-height: var(--control-height); padding-block: 0; }
   .review-row span, .review-hint, .review-messages time { font-size: 12px; }
   .review-hint { padding: 16px 12px; }
   .review-popover { box-shadow: var(--menu-shadow); }
