@@ -24,9 +24,11 @@ try {
   else if (action === 'changelog') await changelog(flag === '--latest');
   else if (action === 'mcp-config') {
     const { appPort, brokerPort } = runtimeSettings('installed');
+    // MCP clients cannot start a .cmd file directly, so Windows entries go through cmd.exe.
+    const command = process.env.OPEN_CAVAS_COMMAND;
+    const launch = process.platform === 'win32' ? { command: 'cmd', args: ['/c', command, 'mcp'] } : { command, args: ['mcp'] };
     console.log(JSON.stringify({ mcpServers: { 'open-canvas': {
-      command: process.env.OPEN_CAVAS_COMMAND,
-      args: ['mcp'],
+      ...launch,
       env: { CAVAS_APP_PORT: String(appPort), CAVAS_MCP_PORT: String(brokerPort) },
     } } }, null, 2));
   } else if (action === 'mcp') {

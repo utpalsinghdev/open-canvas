@@ -9,6 +9,7 @@ const releases = `https://github.com/${repository}/releases`;
 const latestApi = `https://api.github.com/repos/${repository}/releases/latest`;
 const stableTag = /^v(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/;
 const archive = `open-canvas-${process.platform}-${process.arch}.tar.gz`;
+const windows = process.platform === 'win32';
 
 async function latestRelease() {
   let response;
@@ -49,18 +50,30 @@ function compareVersions(left, right) {
   return left.split('.').map(Number).reduce((comparison, part, index) => comparison || part - current[index], 0);
 }
 
-async function assertManagedInstall() {
-  const command = path.join(homedir(), '.local', 'bin', 'open-canvas');
-  const installedPath = await realpath(command).catch(() => undefined);
-  const bundleLauncher = path.join(checkoutRoot, 'bin', 'open-canvas');
-  if (installedPath !== bundleLauncher) {
-    throw new Error('Update the active install through ~/.local/bin/open-canvas, or run the installer to install this app.');
+export async function assertManagedInstall() {
+  const bundleLauncher = path.join(checkoutRoot, 'bin', windows ? 'open-canvas.cmd' : 'open-canvas');
+  let installedPath;
+  if (windows) {
+    // The Windows command is a small shim that selects a release directory by id.
+    const shim = path.join(homedir(), '.open-canvas', 'install', 'bin', 'open-canvas.cmd');
+    const id = /^"%~dp0\.\.\\releases\\([0-9a-f]{16})\\bin\\open-canvas\.cmd" %\*\s*$/m.exec(await readFile(shim, 'utf8').catch(() => ''))?.[1];
+    installedPath = id && await realpath(path.join(path.dirname(shim), '..', 'releases', id, 'bin', 'open-canvas.cmd')).catch(() => undefined);
+    if (installedPath) installedPath = installedPath.toLowerCase();
+  } else {
+    installedPath = await realpath(path.join(homedir(), '.local', 'bin', 'open-canvas')).catch(() => undefined);
+  }
+  const bundlePath = windows ? (await realpath(bundleLauncher)).toLowerCase() : bundleLauncher;
+  if (installedPath !== bundlePath) {
+    throw new Error(`Update the active install through ${windows ? 'the open-canvas command' : '~/.local/bin/open-canvas'}, or run the installer to install this app.`);
   }
 }
 
 function runInstaller(tag) {
-  const installer = path.join(checkoutRoot, 'scripts', 'install.sh');
-  const child = spawn('bash', [installer, '--version', tag], { stdio: 'inherit' });
+  const installer = path.join(checkoutRoot, 'scripts', windows ? 'install.ps1' : 'install.sh');
+  const [shell, args] = windows
+    ? [path.join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'), ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', installer, '-Version', tag]]
+    : ['bash', [installer, '--version', tag]];
+  const child = spawn(shell, args, { stdio: 'inherit' });
   const interrupt = () => child.kill('SIGINT');
   const terminate = () => child.kill('SIGTERM');
   process.once('SIGINT', interrupt);
