@@ -199,10 +199,7 @@
   .review-panel { border-radius: 6px; box-shadow: var(--menu-shadow); }
   .review-heading { min-height: 44px; padding: 8px 12px; }
   .review-heading h2 { font-size: 13px; }
-  .review-filter { font-size: 12px; padding: 12px; }
-  .review-create { padding: 8px; gap: 4px; }
-  .review-create .text-button { text-decoration: none; min-height: 34px; border-radius: 4px; }
-  .review-row span, .review-hint, .review-messages time { font-size: 12px; }
+  .review-hint, .review-messages time { font-size: 12px; }
   .review-hint { padding: 16px 12px; }
   .review-popover { box-shadow: var(--menu-shadow); }
   .review-popover .review-composer textarea { min-height: 88px; }

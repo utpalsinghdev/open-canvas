@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MapPin, X } from 'lucide-react';
+import { MapPin, MessageSquarePlus, X } from 'lucide-react';
 import { useEditor } from '../editor/store';
 import type { CameraControls } from '../editor/useCamera';
 import { currentFile } from '@open-cavas/document/workspace';
@@ -111,10 +111,17 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
       })()}
     </div>
     {review.open && <ReviewSurface key={thread?.id ?? (draftAnchor ? 'draft' : 'list')} controls={controls} point={point} compact={compact} composing={composing} onClose={close}>
-      {!composing && <div className="review-heading"><h2>{thread ? 'Comment' : 'Review threads'}</h2><IconButton label="Close comments" onClick={close}><X size={16} /></IconButton></div>}
+      {!composing && <div className="review-heading">
+        <h2>{thread ? 'Comment' : 'Review threads'}</h2>
+        {!compact && <select className="review-filter" aria-label="Thread status filter" value={filter} onChange={(event) => {
+          const value = event.target.value;
+          if (value === 'all' || value === 'open' || value === 'resolved') setFilter(value);
+        }}><option value="all">All threads</option><option value="open">Open</option><option value="resolved">Resolved</option></select>}
+        <IconButton label="Close comments" onClick={close}><X size={16} /></IconButton>
+      </div>}
       {!compact && <div className="review-create">
-        <button className="text-button" disabled={!selectedLayer} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(selectedLayer ? { kind: 'layer', nodeId: selectedLayer.id } : null); setPlacing(false); }}>Comment on selection</button>
-        <button className="text-button" aria-pressed={placing} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(null); setPlacing(true); review.setOpen(false); }}>Place pin</button>
+        <button className="text-button" disabled={!selectedLayer} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(selectedLayer ? { kind: 'layer', nodeId: selectedLayer.id } : null); setPlacing(false); }}><MessageSquarePlus size={14} aria-hidden="true" />Comment on selection</button>
+        <button className="text-button" aria-pressed={placing} onClick={() => { if (Object.values(reviewPage.bodies).some((body) => body.trim())) { state.notify('Post or cancel the existing draft before starting another comment.'); return; } selectThread(null); setDraftAnchor(null); setPlacing(true); review.setOpen(false); }}><MapPin size={14} aria-hidden="true" />Place pin</button>
       </div>}
       {placing && <p className="review-hint" role="status">Click a layer or canvas position. Escape cancels.</p>}
       {draftAnchor && !thread ? <form className="review-composer" onSubmit={(event) => {
@@ -152,16 +159,20 @@ export function Reviews({ controls, review, draftAnchor, setDraftAnchor, placing
           <label htmlFor="review-reply">Reply</label><textarea id="review-reply" aria-label="Reply to thread" maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} />
           <div className="review-actions"><button className="export-button" disabled={!body.trim()}>Post reply</button><button type="button" className="text-button" onClick={() => setBody('')}>Cancel reply</button></div>
         </form>}
-      </section> : <>
-        <label className="review-filter">Show <select aria-label="Thread status filter" value={filter} onChange={(event) => {
-          const value = event.target.value;
-          if (value === 'all' || value === 'open' || value === 'resolved') setFilter(value);
-        }}><option value="all">All threads</option><option value="open">Open</option><option value="resolved">Resolved</option></select></label>
-        <div className="review-list">{entries.length ? entries.map(({ page, thread }) => <button key={thread.id} className="review-row" onClick={() => run(() => choose(page.id, thread.id))}>
-          <span>{page.name} / {thread.status === 'resolved' ? 'Resolved' : 'Open'}{!anchorPoint(thread.anchor, page.nodes) ? ' / Missing layer' : ''}</span>
-          <p>{thread.comments[0].body}</p><span>{thread.comments.length} {thread.comments.length === 1 ? 'comment' : 'comments'}</span>
-        </button>) : <p className="review-hint">No {filter === 'all' ? '' : `${filter} `}threads in this file. Select a layer or place a pin to leave feedback.</p>}</div>
-      </>}
+      </section> : <div className="review-list">
+        {entries.length ? entries.map(({ page, thread }) => <button key={thread.id} className="review-row" onClick={() => run(() => choose(page.id, thread.id))}>
+          <span className="review-preview">{thread.comments[0].body}</span>
+          <span className="review-row-meta">
+            <span className="review-row-page" title={page.name}>{page.name}</span>
+            <span aria-hidden="true">·</span>
+            <span>{thread.comments.length} {thread.comments.length === 1 ? 'comment' : 'comments'}</span>
+            <span className="review-row-status" data-status={thread.status}>{thread.status === 'resolved' ? 'Resolved' : 'Open'}</span>
+          </span>
+          {!anchorPoint(thread.anchor, page.nodes) && <span className="review-row-missing">Missing layer</span>}
+        </button>) : <p className="review-hint">{filter === 'all'
+          ? 'No threads yet. Select a layer or place a pin to leave feedback.'
+          : `No ${filter} threads in this file.`}</p>}
+      </div>}
     </ReviewSurface>}
   </>;
 }

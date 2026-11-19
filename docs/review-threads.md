@@ -10,7 +10,7 @@ Pins open compact conversations. The box follows its anchor during pan/zoom and 
 
 Open threads show numbered canvas pins. Click a pin, select a thread in the file-wide list, or use **Go to anchor** to center its target. Selecting a thread on another page opens that page. Layer pins follow the layer's current center, including measured auto-sized text bounds. Position pins stay at their world coordinates. Pins are editor controls, not artwork, and are excluded from SVG/PNG exports.
 
-Add replies to open threads. **Resolve thread** hides its pin but keeps its feedback in the list and backups. **Reopen thread** restores the pin. The list filters all, open, or resolved threads. Comment text is rendered as text, never HTML.
+Add replies to open threads. **Resolve thread** hides its pin but keeps its feedback in the list and backups. **Reopen thread** restores the pin. Use the filter in the **Review threads** header to show all, open, or resolved threads. Each row starts with the first comment, followed by the page, comment count, and status. Threads with missing anchors also show **Missing layer**. Comment text is rendered as text, never HTML.
 
 Unposted comments and replies survive page/file navigation and closing the panel during this tab session. Selecting the same pin does not clear a reply. Use **Cancel** or **Cancel reply** to discard a draft. Post or cancel existing drafts before starting another comment. Drafts are not saved, exported, or restored after a manual reload. Unposted text blocks MCP mutations and automatic release reloads, even when its textarea is not focused. Deleting a draft's page, file, or thread discards that draft.
 
