@@ -44,7 +44,25 @@ Not exercised: Safari, Firefox, macOS, touch hardware, assistive technology, for
 - A client using `open-cavas mcp-config` found the connected canvas and durable workspace, read the saved edit from both, and received a PNG from native rendering. Both installed ports listened only on loopback. Same-origin ticket bootstrap succeeded; incorrect Origin and Host were rejected, and the frontend refused internal broker routes.
 - The source dev server still opened through the configured trusted-network address on its own ports. Main stayed running on its original release. No document schema, editor controls, backup formats, or MCP tools changed.
 
-The release workflow and public download URL were not exercised locally. Linux ARM64 and both macOS builds remain unverified. Windows is not supported by this installer.
+The public download URL was not exercised: no release carries Windows assets yet. Linux ARM64 and both macOS builds ran only the CI install and start check described below.
+
+## Windows package
+
+The manual **Build local app archives** workflow ran on the feature branch (run 44585766032, https://github.com/utpalsinghdev/open-canvas/actions/runs/44585766032) with all six targets passing: Linux x64 and ARM64, macOS x64 and ARM64, and Windows x64 (`windows-2025` runner) and ARM64 (`windows-11-arm` runner). The existing targets kept their frozen install, build, archive, install, `--version`, `runtime.json`, and browser session checks. Their Linux ARM64 and macOS results are CI-only; nothing ran on those machines locally.
+
+On both Windows runners, with a temporary `USERPROFILE`, the check used Windows PowerShell 5.1 and the archive built on that runner:
+
+- `scripts/install.ps1 -Archive` installed it, added the command directory to the user PATH, and `open-canvas.cmd --version` printed the version.
+- A wrong checksum was rejected and the installed command kept working. Installing the same archive again replaced the existing shim.
+- `assertManagedInstall` from the installed bundle recognized the shim as the active install. `changelog` printed the bundled history.
+- `open-canvas.cmd --no-open` served `runtime.json` and answered the browser session request on `127.0.0.1:5190`, so the workspace service, native graphics library, and private state directory worked under Windows file semantics.
+- The `mcp-config` entry (`cmd /c <shim> mcp`) was started the way an MCP client would, and answered a JSON-RPC `initialize` request.
+
+The longest path inside the x64 archive is 111 characters, which leaves room under the 260-character Windows limit for the install prefix.
+
+Not verified on Windows: a real `open-canvas update` to a newer published release (no release has Windows assets), `irm | iex` from the published raw URL, browser launch without `--no-open`, Ctrl+C handling in Command Prompt and PowerShell, recovery after force-killing the editor, a user profile path with spaces or non-ASCII characters, Windows 10, machines without the Microsoft Visual C++ Redistributable, antivirus or SmartScreen prompts, and any real MCP client application. The runners are Windows Server 2025 and Windows 11 ARM images, not personal machines.
+
+On Linux x64 after these changes, `corepack pnpm run check`, `corepack pnpm run build`, and `corepack pnpm run package:local` passed. The new archive installed into a temporary home with `install.sh --archive`, printed its version, served `runtime.json` and the browser session on loopback, and `mcp-config` printed the unchanged `open-canvas mcp` entry. The PowerShell installer parsed under PowerShell 7 on Linux; its download and redirect helper was run there against a real GitHub redirect, a 404, and a plain HTTP URL.
 
 ## Dark semantic palette
 

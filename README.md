@@ -8,7 +8,7 @@ Open Canvas is a local-first design editor that runs in your browser. Make artbo
 
 ## Install
 
-Release archives bundle the editor, local workspace service, and Node.js. You do not need Git, npm, or pnpm to run them. The installer targets macOS and glibc-based Linux on x64 and ARM64. Windows is not supported by this installer.
+Release archives bundle the editor, local workspace service, and Node.js. You do not need Git, npm, or pnpm to run them. The shell installer targets macOS and glibc-based Linux on x64 and ARM64. A PowerShell installer targets Windows on x64 and ARM64. It has been run in CI on Windows Server 2025 (x64) and Windows 11 (ARM64) only; see [verification](docs/verification.md#windows-package).
 
 Once the [latest public release](https://github.com/utpalsinghdev/open-canvas/releases/latest) includes the archive and checksum for your platform, run:
 
@@ -18,6 +18,13 @@ open-canvas
 ```
 
 `open-canvas` opens `http://127.0.0.1:5190` in your browser. Keep the terminal running while you work. If the command is not on PATH, run `~/.local/bin/open-canvas` instead.
+
+On Windows, run this in PowerShell instead:
+
+```powershell
+irm https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.ps1 | iex
+open-canvas
+```
 
 Online installation is not available until the installer and release assets are publicly readable. See [installation instructions](docs/install.md) to inspect the script before running it or install a trusted local archive. Use [CONTRIBUTING.md](CONTRIBUTING.md#run-stable-main-from-source) if you need to run from source.
 
