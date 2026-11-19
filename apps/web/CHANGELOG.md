@@ -1,5 +1,36 @@
 # Open Canvas
 
+## 0.8.0
+
+### Minor Changes
+
+- 644aaf8: Apply a consistent dark palette across workspace setup, Home, editor controls, menus and review surfaces, with distinct canvas and panel backgrounds and dual-contrast selection edges. Preserve artwork colors and exports.
+- ab80f66: Add explicit update checks and checksum-verified upgrades for installed copies. Read the bundled changelog offline in the CLI or editor Help, and check published release notes before updating.
+- 50618e4: Add downloadable local editor packages with a user-local installer and optional MCP connection. Users do not need a source checkout, Node.js, or pnpm.
+- 7ebf97a: Reveal each committed MCP artwork batch with a short, non-looping ease-out transition. Respect reduced motion and keep presentation separate from editable geometry, undo history, saving, backups, and exports.
+- 12f2ec3: Preview selectable artwork with a transient dashed outline while using Select, and outline marquee candidates while dragging before release. Previews do not change saved artwork or add history entries.
+- 57a73f9: Install the local app on Windows with a PowerShell installer and a per-user command, including update checks, release notes, and MCP configuration. Windows archives are built for x64 and arm64.
+
+### Patch Changes
+
+- 33ecccb: Show comment previews first in the Review list and move the status filter into its header.
+- f9eda5d: Make buttons, menus and fields more compact with consistent corner radii. Desktop controls are 32 px tall instead of 34 to 40 px, and narrow screens keep tap-friendly heights.
+- 2902e64: Use `open-canvas` for the installed command, update instructions, and release archive names. Existing workspace data stays in place.
+- 768622b: Replace the footer backup label with a download icon and a hover/focus tooltip identifying the complete editable JSON backup.
+- 759b49e: Show active-page counts or selected-layer context in the footer instead of the generic idle tagline, with safe truncation for long names.
+- 786936e: Polish the new-comment popover and show its layer or canvas position beside Cancel and Save.
+- 4ee86ce: Reclaim inactive visibility/lock space for layer names while retaining fixed icon columns, safe truncation and accessible row actions.
+- 13a7f36: Toggle the Layers bulk action between Collapse all and Expand all, with distinct icons and keyboard-accessible tooltip states.
+- ef0e730: Use Open Canvas consistently in the editor, introductory artwork, installer, and documentation.
+- ee6b0e6: Default source checkouts to a loopback address that works without machine-specific hostname configuration. Trusted-network access remains available through an explicit app origin.
+- d25255f: Preserve manual selection when MCP creates, imports, or duplicates artwork. New layers no longer obscure the result with incidental selection overlays; select_nodes remains available for explicit selection.
+- b1b8d18: Use .open-canvas for new local state and installation files. Existing workspaces continue to open from their previous locations without an automatic move.
+- 58bcb86: Reduce repeated artwork and Layers rendering during canvas panning and dragging. Keep the manual-edit guard active when drawing text opens its editor.
+- c9460c6: Remove the whole-canvas focus outline during pointer selection and panning, including after editing a field. Keep a visible keyboard focus indicator and make the canvas reachable with Tab.
+- ee85392: Ease Review, File and Export menus, notifications, Help, Projects, narrow panels and tooltips with brief, consistent motion. Closing is immediate to the pointer and keyboard, and the browser's reduced-motion setting makes every change instant.
+- ad40f2e: Place MCP activity above each targeted artboard or root layer instead of the whole page. Keep fast-request receipts owned by their connection so pausing or disconnecting clears them immediately.
+- 7f36f0b: Make short MCP page requests visible with an immediate one-shot highlight and a brief neutral recent-request mark. Clear pending status as soon as the request ends, without implying a completed task or save.
+
 ## 0.7.1
 
 ### Patch Changes
