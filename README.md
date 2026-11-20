@@ -71,7 +71,7 @@ Open Canvas is designed for desktop browsers. Narrow layouts provide access to e
 
 ## Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for source setup, development, checks, and pull requests. Report problems in [GitHub Issues](https://github.com/utpalsinghdev/open-canvas/issues).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for source setup, development, checks, and pull requests. Report bugs in [GitHub Issues](https://github.com/utpalsinghdev/open-canvas/issues). For suspected vulnerabilities, follow the [security policy](SECURITY.md) to report them privately.
 
 ## Support Open Canvas
 
