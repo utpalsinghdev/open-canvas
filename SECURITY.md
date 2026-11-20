@@ -2,7 +2,7 @@
 
 ## Report a vulnerability
 
-Email [the Open Canvas maintainer](mailto:utpalsingh915@gmail.com) with the subject `Open Canvas security report`. Do not post suspected vulnerabilities in public issues or discussions.
+Use GitHub's [private vulnerability reporting form](https://github.com/utpalsinghdev/open-canvas/security/advisories/new) to report a suspected vulnerability. Do not post suspected vulnerabilities in public issues or discussions.
 
 Include the following when available:
 
