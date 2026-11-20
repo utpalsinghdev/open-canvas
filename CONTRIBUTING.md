@@ -21,6 +21,8 @@ You can propose a small correction directly. For a larger feature, migration, de
 
 ## Report a problem or request a feature
 
+For suspected vulnerabilities, follow the [security policy](SECURITY.md) instead of opening a public issue.
+
 Search open and closed issues first. Use the bug report form for observed failures and the feature request form for a proposed workflow. Blank issues remain available for other topics.
 
 Use a specific title with a bracketed type, such as `[Bug] Preserve text edits when switching pages` or `[Feature Request] Add nested frame reparenting`.
