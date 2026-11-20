@@ -10,18 +10,18 @@ Alpine Linux and native desktop installers are not included. The bundled Node.js
 
 ## Install and open
 
-Online installation and updates require a publicly readable [GitHub release](https://github.com/utpalsinghdev/open-canvas/releases) with an archive and SHA-256 file for your platform. They do not use GitHub authentication. Older releases without these files cannot be installed this way. The latest-release download is available only after those assets are attached to the latest release.
+Online installation and updates require a publicly readable [GitHub release](https://github.com/utpalsinghdev/open-canvas/releases) with an archive and SHA-256 file for your platform. They do not use GitHub authentication. Older releases without these files cannot be installed this way.
 
-Once the latest release includes the archive and checksum, install with:
+Install with:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.sh | bash
+curl -fsSL https://open-canvas.xyz/install.sh | bash
 ```
 
 To inspect the installer before running it:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.sh -o open-canvas-install.sh
+curl -fsSL https://open-canvas.xyz/install.sh -o open-canvas-install.sh
 less open-canvas-install.sh
 bash open-canvas-install.sh
 ```
@@ -31,13 +31,13 @@ The installer accepts `--version vX.Y.Z` for a specific release, or `--archive /
 On Windows, install from PowerShell with:
 
 ```powershell
-irm https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.ps1 | iex
+irm https://open-canvas.xyz/install.ps1 | iex
 ```
 
 To inspect the installer first, or to pass options:
 
 ```powershell
-irm https://raw.githubusercontent.com/utpalsinghdev/open-canvas/main/scripts/install.ps1 -OutFile open-canvas-install.ps1
+irm https://open-canvas.xyz/install.ps1 -OutFile open-canvas-install.ps1
 notepad open-canvas-install.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\open-canvas-install.ps1
 ```
@@ -91,4 +91,4 @@ bash scripts/install.sh --archive .open-canvas/packages/open-canvas-linux-x64.ta
 
 Replace the example archive name on other platforms. On Windows, run `.\scripts\install.ps1 -Archive <path>` with an isolated `USERPROFILE`. Use an isolated home directory when testing installation. The packager writes an archive and checksum to `.open-canvas/packages` unless given another output directory. It does not modify a running source or installed app. Build from a clean checkout of the intended release commit for traceable runtime metadata.
 
-The **Build local app archives** workflow runs only when dispatched. For an authorized release, dispatch it at the release tag, download the six workflow artifacts, and attach each enclosed `.tar.gz` and `.sha256` to the matching GitHub release. Verify a fresh download and install before sharing its link. No npm package or publishing token is needed. Serving the same installer at `https://open-canvas.xyz/install.sh` requires a separate website deployment; that URL is not an installation endpoint provided by this workflow.
+The **Build local app archives** workflow runs only when dispatched. For an authorized release, dispatch it at the release tag, download the six workflow artifacts, and attach each enclosed `.tar.gz` and `.sha256` to the matching GitHub release. Verify a fresh download and install before sharing its link. No npm package or publishing token is needed. The website serves `https://open-canvas.xyz/install.sh` and `install.ps1` from a separate deployment, so update it when either script changes.
